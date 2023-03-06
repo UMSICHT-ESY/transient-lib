@@ -1,9 +1,4 @@
-﻿Added line for testing purposes by Sebastian Glombik :-)
-
-Another line for testing commits...
-
-
-  //________________________________________________________________________________//
+﻿  //________________________________________________________________________________//
   // TransiEnt Library, version: 2.0.2  development version               		                    //
   //                                                                                //
   // Licensed by Hamburg University of Technology under the 3-BSD-clause.           //
