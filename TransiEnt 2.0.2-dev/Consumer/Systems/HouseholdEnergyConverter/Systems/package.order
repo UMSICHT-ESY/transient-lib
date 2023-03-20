@@ -1,7 +1,9 @@
 Base
 PV_Boiler
 HeatPump
+HeatPump_Peakboiler
 PV_HeatPump
+PV_HeatPump_Peakboiler
 solarThermal_Boiler
 CHP_Boiler_Storage
 DHN_Substation
