@@ -127,6 +127,7 @@ model HeatPump "HeatPump with thermal storage"
         rotation=90,
         origin={-52,50})));
   TransiEnt.Producer.Heat.Power2Heat.ElectricBoiler.ElectricBoiler electricHeater(
+    change_sign=true,
     Q_flow_n=P_el_n*eta_Heater,
     eta=eta_Heater,
     useFluidPorts=false,

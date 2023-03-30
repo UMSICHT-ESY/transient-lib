@@ -216,6 +216,7 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
   Modelica.Blocks.Math.Add add if heating and hotwater annotation (Placement(transformation(extent={{18,36},{32,50}})));
   Modelica.Blocks.Math.Add add1 if not hotwater annotation (Placement(transformation(extent={{-14,36},{-28,50}})));
   TransiEnt.Producer.Heat.Power2Heat.ElectricBoiler.ElectricBoiler electricHeater(
+    change_sign=true,
     usePelset=true,
     Q_flow_n=P_el_n*eta_Heater,
     eta=eta_Heater,
@@ -240,7 +241,8 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
         rotation=90,
         origin={-104,81})));
   TransiEnt.Storage.Electrical.LithiumIonBattery pV_battery(use_PowerRateLimiter=false, StorageModelParams(selfDischargeRate=4e-9) = params) if battery annotation (Placement(transformation(extent={{-122,-12},{-104,6}})));
-  Modelica.Blocks.Sources.RealExpression excessPV1(y=apparentPower1.epp.P + heatPump.P_el.y) annotation (Placement(transformation(
+  Modelica.Blocks.Sources.RealExpression excessPV1(y=apparentPower1.epp.P + heatPump.P_el.y + electricHeater.epp.P)
+                                                                                             annotation (Placement(transformation(
         extent={{8,-8},{-8,8}},
         rotation=90,
         origin={-124,80})));
