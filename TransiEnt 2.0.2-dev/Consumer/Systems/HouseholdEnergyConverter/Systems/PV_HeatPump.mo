@@ -20,7 +20,7 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -56,6 +56,10 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
     HideResult=true,
     Dialog(group="System setup"),
     choices(checkBox=true));
+  parameter Boolean battery=false "Is there a PV battery installed?" annotation (
+    Dialog(group="System setup"),
+    choices(checkBox=true),
+    HideResult=true);
 
   parameter SI.TemperatureDifference Delta_T_internal=5 "Temperature difference between refrigerant and source/sink temperature" annotation (HideResult=true, Dialog(group="Heatpump"));
   parameter SI.TemperatureDifference Delta_T_db=2 "Deadband of hysteresis control" annotation (HideResult=true, Dialog(group="Heatpump"));
@@ -110,6 +114,15 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
       choice=-1 "capacitive"),
     Dialog(group="PV Parameters"));
   parameter SI.Efficiency eta_Inverter=0.97 "Efficiency of the inverter" annotation (Dialog(group="PV Parameters"));
+
+  parameter TransiEnt.Storage.Electrical.Specifications.LithiumIon params(
+    P_max_load=3000,
+    P_max_unload=3000,
+    E_max=3000*3*3600) "Record of generic storage parameters" annotation (
+    Dialog(group="Battery Parameters"),
+    choicesAllMatching,
+    HideResult=true);
+
 
   // _____________________________________________
   //
@@ -182,7 +195,7 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
     latitude=latitude,
     slope=Tilt,
     surfaceAzimuthAngle=Azimuth,
-    reflectance_ground=Albedo) annotation (Placement(transformation(extent={{-68,64},{-88,84}})));
+    reflectance_ground=Albedo) annotation (Placement(transformation(extent={{-62,66},{-82,86}})));
   TransiEnt.Producer.Electrical.Photovoltaics.Advanced_PV.SinglePhasePVInverter inverter(
     eta=eta_Inverter,
     cosphi=cosphi,
@@ -192,7 +205,7 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
     Threshold=Threshold) annotation (Placement(transformation(
         extent={{9,-7},{-9,7}},
         rotation=90,
-        origin={-91,31})));
+        origin={-89,-37})));
 
   TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower apparentPower1(useInputConnectorQ=false, useInputConnectorP=true) annotation (Placement(transformation(extent={{-70,-40},{-54,-24}})));
 
@@ -217,6 +230,20 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
 
   Modelica.Blocks.Sources.RealExpression Tset(y=T_set) annotation (Placement(transformation(extent={{-86,-20},{-70,-2}})));
 
+  replaceable Control_Battery.MaxSelfConsumption controller1 if battery constrainedby Control_Battery.MaxSelfConsumption "Operation strategy of the battery" annotation (
+    Dialog(group="Battery Parameters"),
+    choicesAllMatching=true,
+    Placement(transformation(extent={{-8,-8},{8,8}},
+        rotation=-90,
+        origin={-114,36})));
+  Modelica.Blocks.Sources.RealExpression p_PV(y=pVModule.P_dc) annotation (Placement(transformation(extent={{10,-9},{-10,9}},
+        rotation=90,
+        origin={-104,81})));
+  TransiEnt.Storage.Electrical.LithiumIonBattery pV_battery(use_PowerRateLimiter=false, StorageModelParams(selfDischargeRate=4e-9) = params) if battery annotation (Placement(transformation(extent={{-122,-12},{-104,6}})));
+  Modelica.Blocks.Sources.RealExpression excessPV1(y=apparentPower1.epp.P + heatPump.P_el.y) annotation (Placement(transformation(
+        extent={{8,-8},{-8,8}},
+        rotation=90,
+        origin={-124,80})));
 equation
 
   // _____________________________________________
@@ -246,16 +273,16 @@ equation
   end if;
 
   connect(heatStorage1.SoC, controller.SoC) annotation (Line(points={{77.8,55.6},{77.8,70},{58,70},{58,24},{-62,24},{-62,-20.8},{-29.4,-20.8}}, color={0,0,127}));
-  connect(ambientTemperature.y, pVModule.T_in) annotation (Line(points={{-47,92},{-50.55,92},{-50.55,82},{-66,82}}, color={0,0,127}));
-  connect(directSolarRadiation.y, pVModule.DNI_in) annotation (Line(points={{-47,80},{-50.55,80},{-50.55,76.4},{-66,76.4}}, color={0,0,127}));
-  connect(diffuseSolarRadiation.y, pVModule.DHI_in) annotation (Line(points={{-47,68},{-50.55,68},{-50.55,71.4},{-66,71.4}}, color={0,0,127}));
-  connect(wind.y, pVModule.WindSpeed_in) annotation (Line(points={{-47,57},{-51.55,57},{-51.55,66},{-66,66}}, color={0,0,127}));
+  connect(ambientTemperature.y, pVModule.T_in) annotation (Line(points={{-47,92},{-50.55,92},{-50.55,84},{-60,84}}, color={0,0,127}));
+  connect(directSolarRadiation.y, pVModule.DNI_in) annotation (Line(points={{-47,80},{-50.55,80},{-50.55,78.4},{-60,78.4}}, color={0,0,127}));
+  connect(diffuseSolarRadiation.y, pVModule.DHI_in) annotation (Line(points={{-47,68},{-50.55,68},{-50.55,73.4},{-60,73.4}}, color={0,0,127}));
+  connect(wind.y, pVModule.WindSpeed_in) annotation (Line(points={{-47,57},{-51.55,57},{-51.55,68},{-60,68}}, color={0,0,127}));
   connect(pVModule.epp, inverter.epp_DC) annotation (Line(
-      points={{-87.3,73.4},{-87.3,72},{-90,72},{-90,39.82},{-91,39.82}},
+      points={{-81.3,75.4},{-90,75.4},{-90,-20},{-89,-20},{-89,-28.18}},
       color={0,135,135},
       thickness=0.5));
   connect(inverter.epp_AC, epp) annotation (Line(
-      points={{-91,22},{-90,22},{-90,-28},{-90,-62},{-80,-62},{-80,-98}},
+      points={{-89,-46},{-89,-84},{-80,-84},{-80,-98}},
       color={0,127,0},
       thickness=0.5));
   connect(apparentPower1.epp, epp) annotation (Line(
@@ -296,11 +323,19 @@ equation
       points={{-9.5,-14.1},{16,-14.1},{16,-18.94},{25.34,-18.94}},
       color={175,0,0},
       pattern=LinePattern.Dash));
+  connect(p_PV.y, controller1.P_PV) annotation (Line(points={{-104,70},{-104,48},{-109.2,48},{-109.2,43.52}}, color={0,0,127}));
+  connect(pV_battery.epp, inverter.epp_DC) annotation (Line(
+      points={{-104,-3},{-96,-3},{-96,-20},{-89,-20},{-89,-28.18}},
+      color={0,135,135},
+      thickness=0.5));
+  connect(controller1.P_set_battery, pV_battery.P_set) annotation (Line(points={{-114,28},{-114,10},{-113,10},{-113,5.46}}, color={0,0,127}));
+  connect(excessPV1.y, controller1.P_Consumer) annotation (Line(points={{-124,71.2},{-124,48},{-118.8,48},{-118.8,43.36}}, color={0,0,127}));
   annotation (
     HideResult=true,
     Dialog(tab="Tracking and Mounting"),
     choices(choice="Yes", choice="No"),
-    Icon(graphics={
+    Icon(coordinateSystem(extent={{-140,-100},{100,100}}),
+         graphics={
         Ellipse(
           lineColor={0,125,125},
           fillColor={255,255,255},
@@ -412,5 +447,6 @@ equation
 <p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">10. Version History</span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">Model created by Anne Hagemeier, Fraunhofer UMSICHT in 2017</span></p>
-</html>"));
+</html>"),
+    Diagram(coordinateSystem(extent={{-140,-100},{100,100}})));
 end PV_HeatPump;
