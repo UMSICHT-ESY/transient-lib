@@ -17,7 +17,7 @@ model PV_HeatPump_Peakboiler "PV + Heatpump with peak boiler and thermal storage
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -173,7 +173,8 @@ model PV_HeatPump_Peakboiler "PV + Heatpump with peak boiler and thermal storage
     k=k,
     T_start=T_start) annotation (Placement(transformation(extent={{66,36},{86,56}})));
 
-  replaceable TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_PVoriented controller constrainedby TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller_PV(P_elHeater=Q_flow_n_boiler, CalculatePHeater=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) annotation (
+  replaceable Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_Peakboiler_PVoriented controller
+                                                                                                           constrainedby TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller_PV_Peakboiler(Q_flow_peakBoiler=Q_flow_n_boiler, CalculatePeakBoiler=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) annotation (
     Dialog(group="System setup"),
     choicesAllMatching=true,
     Placement(transformation(extent={{-30,-24},{-10,-4}})));
@@ -315,7 +316,7 @@ equation
       points={{-9.5,-14.1},{16,-14.1},{16,-18.94},{25.34,-18.94}},
       color={175,0,0},
       pattern=LinePattern.Dash));
-  connect(controller.P_set_electricHeater, gasBoiler.Q_flow_set) annotation (Line(
+  connect(controller.Q_flow_set_peakBoiler, gasBoiler.Q_flow_set) annotation (Line(
       points={{-9.5,-21.7},{-0.75,-21.7},{-0.75,-28},{8,-28}},
       color={0,135,135},
       pattern=LinePattern.Dash));
