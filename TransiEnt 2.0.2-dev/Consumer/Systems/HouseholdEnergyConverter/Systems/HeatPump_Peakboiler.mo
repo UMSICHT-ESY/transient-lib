@@ -1,8 +1,5 @@
 ﻿within TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems;
-model HeatPump "HeatPump with thermal storage"
-
-
-
+model HeatPump_Peakboiler "HeatPump with peak boiler and thermal storage"
 
 //________________________________________________________________________________//
 // Component of the TransiEnt Library, version: 2.0.2                             //
@@ -20,15 +17,10 @@ model HeatPump "HeatPump with thermal storage"
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
-
-
-
-
-
 
   // _____________________________________________
   //
@@ -57,31 +49,39 @@ model HeatPump "HeatPump with thermal storage"
     Dialog(group="System setup"),
     choices(checkBox=true));
 
-  parameter SI.TemperatureDifference Delta_T_internal=5 "Temperature difference between refrigerant and source/sink temperature" annotation (HideResult=true, Dialog(group="Heatpump"));
-  parameter SI.TemperatureDifference Delta_T_db=2 "Deadband of hysteresis control" annotation (HideResult=true, Dialog(group="Heatpump"));
-  parameter SI.HeatFlowRate Q_flow_n=3.5e3 "Nominal heat flow of heat pump at nominal conditions according to EN14511" annotation (HideResult=true, Dialog(group="Heatpump"));
+  parameter Modelica.Units.SI.TemperatureDifference Delta_T_internal=5 "Temperature difference between refrigerant and source/sink temperature" annotation (HideResult=true, Dialog(group="Heatpump"));
+  parameter Modelica.Units.SI.TemperatureDifference Delta_T_db=2 "Deadband of hysteresis control" annotation (HideResult=true, Dialog(group="Heatpump"));
+  parameter Modelica.Units.SI.Temperature T_set=65 + 273.25 "Heatpump supply temperature" annotation (Dialog(group="Heatpump"));
+  parameter Modelica.Units.SI.HeatFlowRate Q_flow_n=3.5e3 "Nominal heat flow of heat pump at nominal conditions according to EN14511" annotation (HideResult=true, Dialog(group="Heatpump"));
   parameter Real COP_n=3.7 "Coefficient of performance at nominal conditions according to EN14511" annotation (HideResult=true, Dialog(group="Heatpump"));
 
-  parameter SI.Power P_el_n=10e3 "Nominal electric power of the backup heater" annotation (HideResult=true, Dialog(group="Heatpump"));
-  parameter SI.Efficiency eta_Heater=0.95 "Efficiency of the backup heater" annotation (HideResult=true, Dialog(group="Heatpump"));
+  parameter Modelica.Units.SI.HeatFlowRate Q_flow_n_boiler=10e3 "Power of the peak boiler" annotation (HideResult=true, Dialog(group="Peak Boiler"));
+  parameter Modelica.Units.SI.Efficiency eta=1.05 "Efficiency of the backup heater" annotation (HideResult=true, Dialog(group="Peak Boiler"));
+  parameter TILMedia.VLEFluidTypes.BaseVLEFluid FuelMedium=simCenter.gasModel1 "Fuel gas medium" annotation (HideResult=true, Dialog(group="Fluid Definition", enable=useGasPort));
+  parameter Modelica.Units.SI.SpecificEnthalpy HoC_fuel=simCenter.HeatingValue_natGas "Heat of combustion of fuel, will be used if gasport is deactivated in model" annotation (Dialog(enable=not useGasPort, group="Fluid Definition"), choices(
+      choice=simCenter.HeatingValue_natGas "natural gas",
+      choice=simCenter.HeatingValue_oil "Oil",
+      choice=simCenter.HeatingValue_pellets "wood pellets"));
+  parameter Boolean useGasPort=false "True if gas port shall be used" annotation (Dialog(group="System setup"), choices(checkBox=true));
+  parameter Basics.Types.TypeOfPrimaryEnergyCarrierHeat typeOfPrimaryEnergyCarrier=TransiEnt.Basics.Types.TypeOfPrimaryEnergyCarrierHeat.NaturalGas "Type of primary energy carrier for co2 emissions global statistics" annotation (Dialog(group="Statistics"));
+  replaceable model BoilerCostModel = Components.Statistics.ConfigurationData.PowerProducerCostSpecs.GasBoiler annotation (__Dymola_choicesAllMatching=true, Dialog(group="Statistics"));
 
-  parameter SI.Temperature T_s_max=T_set "Maximum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
-  parameter SI.Temperature T_set=65 + 273.25 "Heatpump supply temperature" annotation (Dialog(group="Heatpump"));
-  parameter SI.Temperature T_s_min=55 + 273.15 "Minimum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
-  parameter SI.Volume V_Storage=0.5 "Volume of the Storage" annotation (HideResult=true, Dialog(group="Storage"));
-  parameter SI.Height height=1.3 "Height of heat storage" annotation (HideResult=true, Dialog(group="Storage"));
-  parameter SI.Diameter d=sqrt(V_Storage/heatStorage.height*4/Modelica.Constants.pi) "Diameter of heat storage" annotation (HideResult=true, Dialog(group="Storage"));
+  parameter Modelica.Units.SI.Temperature T_s_max=T_set "Maximum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
+  parameter Modelica.Units.SI.Temperature T_s_min=55 + 273.15 "Minimum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
+  parameter Modelica.Units.SI.Volume V_Storage=0.5 "Volume of the Storage" annotation (HideResult=true, Dialog(group="Storage"));
+  parameter Modelica.Units.SI.Height height=1.3 "Height of heat storage" annotation (HideResult=true, Dialog(group="Storage"));
+  parameter Modelica.Units.SI.Diameter d=sqrt(V_Storage/heatStorage.height*4/Modelica.Constants.pi) "Diameter of heat storage" annotation (HideResult=true, Dialog(group="Storage"));
   parameter Modelica.Units.NonSI.Temperature_degC T_amb=15 "Assumed constant ambient temperature" annotation (HideResult=true, Dialog(group="Storage"));
-  parameter SI.SurfaceCoefficientOfHeatTransfer k=0.08 "Coefficient of heat transfer through tank surface" annotation (HideResult=true, Dialog(group="Storage"));
-  parameter SI.Temperature T_start=60 + 273.15 "Start value of the storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
+  parameter Modelica.Units.SI.SurfaceCoefficientOfHeatTransfer k=0.08 "Coefficient of heat transfer through tank surface" annotation (HideResult=true, Dialog(group="Storage"));
+  parameter Modelica.Units.SI.Temperature T_start=60 + 273.15 "Start value of the storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
 
   // _____________________________________________
   //
   //                   Variables
   // _____________________________________________
 
-  SI.Power P "Consumed or produced electric power";
-  SI.Temperature T_source=simCenter.ambientConditions.temperature.value + 273.15 "Temperature of heat source" annotation (Dialog(group="Heatpump"));
+  Modelica.Units.SI.Power P "Consumed or produced electric power";
+  Modelica.Units.SI.Temperature T_source=simCenter.ambientConditions.temperature.value + 273.15 "Temperature of heat source" annotation (Dialog(group="Heatpump"));
 
   // _____________________________________________
   //
@@ -92,6 +92,7 @@ model HeatPump "HeatPump with thermal storage"
     useInputConnectorQ=false,
     useInputConnectorP=true,
     useCosPhi=false) annotation (Placement(transformation(extent={{-60,-76},{-44,-60}})));
+
   TransiEnt.Producer.Heat.Power2Heat.Heatpump.Heatpump heatPump(
     Delta_T_internal=Delta_T_internal,
     Delta_T_db=Delta_T_db,
@@ -115,10 +116,27 @@ model HeatPump "HeatPump with thermal storage"
     k=k,
     T_start=T_start) annotation (Placement(transformation(extent={{72,32},{92,52}})));
 
-  replaceable Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_heatdriven_BVheatLoad Controller constrainedby TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller(P_elHeater=P_el_n, CalculatePHeater=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) "Control mode of the heat pump" annotation (
+  replaceable TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_heatdriven_BVTemp Controller(CalculatePHeater=true)
+                                                                                                                  constrainedby TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller(
+    P_elHeater=Q_flow_n_boiler,
+    CalculatePHeater=true,
+    Q_flow_n=heatPump.Q_flow_n,
+    Delta_T_db=Delta_T_db) "Control mode of the heat pump" annotation (
     Dialog(group="System setup"),
     choicesAllMatching=true,
     Placement(transformation(extent={{-62,-26},{-40,-4}})));
+
+  TransiEnt.Producer.Heat.Gas2Heat.SimpleGasBoiler.SimpleBoiler gasBoiler(
+    useFluidPorts=false,
+    useHeatPort=false,
+    eta=eta,
+    Q_flow_n=Q_flow_n_boiler,
+    HoC_fuel=HoC_fuel,
+    change_sign=true,
+    gasMedium=FuelMedium,
+    useGasPort=false,
+    typeOfPrimaryEnergyCarrier=typeOfPrimaryEnergyCarrier,
+    redeclare model BoilerCostModel = BoilerCostModel)      annotation (Placement(transformation(extent={{-2,-48},{18,-28}})));
 
   Modelica.Blocks.Math.Add add1 if
                                   heating and hotwater annotation (Placement(transformation(extent={{30,48},{46,64}})));
@@ -126,18 +144,13 @@ model HeatPump "HeatPump with thermal storage"
         extent={{8,-8},{-8,8}},
         rotation=90,
         origin={-52,50})));
-  TransiEnt.Producer.Heat.Power2Heat.ElectricBoiler.ElectricBoiler electricHeater(
-    change_sign=true,
-    Q_flow_n=P_el_n*eta_Heater,
-    eta=eta_Heater,
-    useFluidPorts=false,
-    usePowerPort=true,
-    redeclare TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort epp,
-    redeclare TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower powerBoundary(useInputConnectorQ=false, cosphi_boundary=0.99) "PowerBoundary for ApparentPowerPort") annotation (Placement(transformation(extent={{12,-68},{32,-48}})));
   Modelica.Blocks.Math.Add add3 annotation (Placement(transformation(extent={{56,-30},{72,-14}})));
 
   Modelica.Blocks.Sources.RealExpression Tset(y=T_set) annotation (Placement(transformation(extent={{-90,-26},{-74,-8}})));
+
   Modelica.Blocks.Sources.RealExpression Tsource(y=heatPump.T_source_internal) annotation (Placement(transformation(extent={{-46,14},{-30,32}})));
+
+
 equation
 
   // _____________________________________________
@@ -187,10 +200,6 @@ equation
       points={{39.76,-4.62},{39.76,-14.5},{54.4,-14.5},{54.4,-17.2}},
       color={162,29,33},
       pattern=LinePattern.Dash));
-  connect(electricHeater.epp, epp) annotation (Line(
-      points={{22,-68.2},{-38,-68.2},{-38,-98},{-80,-98}},
-      color={0,127,0},
-      thickness=0.5));
   connect(heatStorage.T_stor_out, Controller.T) annotation (Line(points={{80.2,51.6},{52,51.6},{52,10},{-66,10},{-66,-10.6},{-61.34,-10.6}}, color={0,0,127}));
 
   connect(demand.electricPowerDemand, add2.u1) annotation (Line(
@@ -200,15 +209,6 @@ equation
   connect(add2.u2, demand.hotWaterPowerDemand) annotation (Line(points={{-47.2,59.6},{-27.6,59.6},{-27.6,100.48},{-4.8,100.48}}, color={0,0,127}));
   connect(add1.u1, demand.heatingPowerDemand) annotation (Line(points={{28.4,60.8},{28.4,80.4},{0,80.4},{0,100.48}}, color={0,0,127}));
   connect(add1.u2, demand.hotWaterPowerDemand) annotation (Line(points={{28.4,51.2},{28.4,77.6},{-4.8,77.6},{-4.8,100.48}}, color={0,0,127}));
-
-  connect(Controller.P_set_electricHeater, electricHeater.Q_flow_set) annotation (Line(
-      points={{-39.45,-23.47},{-14.725,-23.47},{-14.725,-57},{11.6,-57}},
-      color={0,135,135},
-      pattern=LinePattern.Dash));
-  connect(electricHeater.Q_flow_gen, add3.u2) annotation (Line(
-      points={{32.6,-49.8},{32.6,-26.8},{54.4,-26.8}},
-      color={175,0,0},
-      pattern=LinePattern.Dash));
 
   connect(heatPump.epp, epp) annotation (Line(
       points={{35.36,-22},{38,-22},{38,-86},{-80,-86},{-80,-98}},
@@ -220,6 +220,18 @@ equation
   connect(heatPump.Q_flow_set, Controller.Q_flow_set_HP) annotation (Line(
       points={{15.34,-16.94},{-12.33,-16.94},{-12.33,-15.11},{-39.45,-15.11}},
       color={175,0,0},
+      pattern=LinePattern.Dash));
+  connect(gasPortIn, gasBoiler.gasIn) annotation (Line(
+      points={{80,-96},{80,-80},{8.2,-80},{8.2,-48}},
+      color={255,255,0},
+      thickness=1.5));
+  connect(gasBoiler.Q_flow_gen, add3.u2) annotation (Line(
+      points={{19,-41.2},{48,-41.2},{48,-26.8},{54.4,-26.8}},
+      color={175,0,0},
+      pattern=LinePattern.Dash));
+  connect(Controller.P_set_electricHeater, gasBoiler.Q_flow_set) annotation (Line(
+      points={{-39.45,-23.47},{8,-23.47},{8,-28}},
+      color={0,135,135},
       pattern=LinePattern.Dash));
   annotation (Icon(graphics={
         Ellipse(
@@ -288,4 +300,4 @@ equation
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">10. Version History</span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">Model created by Anne Hagemeier, Fraunhofer UMSICHT in 2017</span></p>
 </html>"));
-end HeatPump;
+end HeatPump_Peakboiler;
