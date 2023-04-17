@@ -3,7 +3,9 @@ Boiler
 PV_Boiler
 PV_Boiler_heatStorage
 HeatPump
+HeatPump_Peakboiler
 PV_HeatPump
+PV_HeatPump_Peakboiler
 solarThermal_Boiler
 CHP_Boiler_Storage
 PV_elHeater
