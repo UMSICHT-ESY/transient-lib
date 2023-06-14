@@ -11,3 +11,4 @@ ExponentialElectricConsumerComplex
 DynamicExponentialElectricConsumerComplex
 SimpleExponentialElectricConsumerComplex
 ElectricCar
+BatteryElectricVehicle

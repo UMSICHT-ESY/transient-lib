@@ -30,31 +30,54 @@ model ElectricCar
   //              Parameters
   // _____________________________________________
 
-  parameter Real carEfficiency = 18 "[kWh/100km] Average electricity use per kilometer" annotation (Dialog(group="Electric car"));
+  parameter String inputDataType="carDistance" "Choose data type format: 'Distance travelled' or 'SoC at the arrival back home'"
+    annotation (Dialog(group="Data"), choices(
+                choice="carDistance",
+                choice="SoC"));
 
-  parameter Modelica.Units.SI.Energy E_max_car = 252000000 "Battery capacity" annotation (Dialog(group="Electric car"));
-  parameter Modelica.Units.SI.Power P_max_car_drive = 200000 "Maximum driving power" annotation (Dialog(group="Electric car"));
-  parameter Modelica.Units.SI.Power P_max_car_charge = 22000 "Maximum charging power" annotation (Dialog(group="Electric car"));
+  parameter Real carEfficiency=18  "[kWh/100km] Average electricity use per kilometer"    annotation (Dialog(group=
+          "Electric car", enable=inputDataType == "carDistance"));
 
-  parameter String relativepath_carDistance="emobility/CarDistance.txt" "Path relative to source directory for car distance table" annotation (Dialog(group="Data"));
-  parameter String relativepath_carLocation="emobility/CarLocation.txt" "Path relative to source directory for car location table" annotation (Dialog(group="Data"));
-  parameter Real timeStepSize(unit="min")=1 "Time step size of distance travelled" annotation (Dialog(group="Data"));
+  parameter SI.Energy Bat_Capacity=252000000 "Battery capacity" annotation (Dialog(group=
+          "Electric car"));
+  parameter SI.Power P_max_car_drive=200000 "Maximum driving power of the vehicle" annotation (Dialog(group=
+          "Electric car", enable=inputDataType == "carDistance"));
+  parameter SI.Power P_max_car_charge=22000
+    "Maximum charging power of the vehicle"                                         annotation (Dialog(group=
+          "Electric car"));
 
-  parameter Integer column_Location=1 "Table column for car location data" annotation (Dialog(group="Data"));
-  parameter Integer column_Distance=1 "Table column for car distance data" annotation (Dialog(group="Data"));
+  parameter String relativepath_carDistance="emobility/CarDistance.txt"
+    "Path relative to source directory for car distance table" annotation (Dialog(group="Data",
+        enable=inputDataType == "carDistance"));
+  parameter String relativepath_carLocation="emobility/CarLocation.txt"
+    "Path relative to source directory for car location table" annotation (Dialog(group="Data",
+        enable=inputDataType == "carDistance"));
+  parameter Real timeStepSize(unit="min") = 1
+    "Time step size of distance travelled" annotation (Dialog(group="Data",
+        enable=inputDataType == "carDistance"));
 
-  parameter Modelica.Units.SI.Power P_chargingStation = 11000 "Charging Power of the charging station" annotation (Dialog(group="Charging station"));
-  parameter Boolean ChargeAtWork=true annotation (Dialog(group="Charging - Select if car ist charged at different locations than home. Charging power will not be accounted for but will reduce charging load at home. Locations need to be specified in Input table", joinNext=true),choices(checkBox=true));
-  parameter Boolean ChargeAtSchool=false annotation (Dialog(group="Charging - Select if car ist charged at different locations than home. Charging power will not be accounted for but will reduce charging load at home. Locations need to be specified in Input table", joinNext=true),choices(checkBox=true));
-  parameter Boolean ChargeAtShopping=false annotation (Dialog(group="Charging - Select if car ist charged at different locations than home. Charging power will not be accounted for but will reduce charging load at home. Locations need to be specified in Input table", joinNext=true),choices(checkBox=true));
-  parameter Boolean ChargeAtOther=false annotation (Dialog(group="Charging - Select if car ist charged at different locations than home. Charging power will not be accounted for but will reduce charging load at home. Locations need to be specified in Input table"),choices(checkBox=true));
+  parameter Integer column_Location=1 "Table column for car location data" annotation (Dialog(group="Data",
+        enable=inputDataType == "carDistance"));
+  parameter Integer column_Distance=1 "Table column for car distance data" annotation (Dialog(group="Data",
+        enable=inputDataType == "carDistance"));
 
-  parameter Boolean useExternalControl = simCenter.useExternalControl "Checkbox to enable external load control"  annotation (
+  parameter Modelica.Units.SI.Power P_chargingStation = 11000 "Charging power of the charging station" annotation (Dialog(group="Charging station"));
+  parameter Boolean ChargeAtWork=true annotation (Dialog(group="Charging - Select if car ist charged at different locations than home. Charging power will not be accounted for but will reduce charging load at home. Locations need to be specified in Input table", joinNext=true,
+      enable=inputDataType == "carDistance"),                                                                                                                                                                                                        choices(checkBox=true));
+  parameter Boolean ChargeAtSchool=false annotation (Dialog(group="Charging - Select if car ist charged at different locations than home. Charging power will not be accounted for but will reduce charging load at home. Locations need to be specified in Input table", joinNext=true,
+      enable=inputDataType == "carDistance"),choices(checkBox=true));
+  parameter Boolean ChargeAtShopping=false annotation (Dialog(group="Charging - Select if car ist charged at different locations than home. Charging power will not be accounted for but will reduce charging load at home. Locations need to be specified in Input table", joinNext=true,
+      enable=inputDataType == "carDistance"),choices(checkBox=true));
+  parameter Boolean ChargeAtOther=false annotation (Dialog(group="Charging - Select if car ist charged at different locations than home. Charging power will not be accounted for but will reduce charging load at home. Locations need to be specified in Input table"),
+      enable=inputDataType == "carDistance",choices(checkBox=true));
+
+
+  parameter Boolean useExternalControl = false "Checkbox to enable external load control"  annotation (
       Evaluate=true,
       HideResult=true,
       choices(checkBox=true),
       Dialog(group="Load Management"));
-  parameter String controlType = simCenter.controlType "Load control method" annotation (
+  parameter String controlType = "limit" "Load control method" annotation (
        Dialog(enable=useExternalControl, group="Load Management"),
        choices(choice="limit",
                choice="proportional"));
@@ -68,6 +91,10 @@ model ElectricCar
    Real derLoc "Derivative of car location";
    Boolean carHome "True, if car is parked at home";
    Modelica.Units.SI.Power P_driving "Current consumption of driving car";
+   Real P_charge "Charging power";
+
+   Real P_limit=simCenter.P_limit;
+   Real p_control=simCenter.PropControlFactor;
 
 
   // _____________________________________________
@@ -84,40 +111,48 @@ model ElectricCar
         rotation=180,
         origin={62,-78})));
 
-  TransiEnt.Storage.Electrical.LithiumIonBattery carBattery(
+  TransiEnt.Storage.Electrical.LithiumIonBattery vehicleBattery(
     use_PowerRateLimiter=true,
     redeclare model StorageModel = TransiEnt.Storage.Base.GenericStorageHyst,
     StorageModelParams=TransiEnt.Storage.Electrical.Specifications.LithiumIon(
-        E_start=E_max_car,
-        E_max=E_max_car,
-        E_min=0.3*E_max_car,
+        E_start=Bat_Capacity,
+        E_max=Bat_Capacity,
+        E_min=0.3*Bat_Capacity,
         P_max_unload=P_max_car_drive,
         P_max_load=P_max_car_charge,
         selfDischargeRate=0))
-    annotation (Placement(transformation(extent={{80,-2},{44,34}})));
+    annotation (Placement(transformation(extent={{74,-18},{38,18}})));
   Modelica.Blocks.Sources.RealExpression P_batteryToGrid(y=if noEvent(carHome)
          then -carPowerBoundary.epp.P else 0)  annotation (Placement(transformation(extent={{2,-68},{54,-44}})));
   TransiEnt.Components.Boundaries.Electrical.ActivePower.Frequency carPowerBoundary(
-      useInputConnector=false) annotation (Placement(transformation(extent={{34,24},{18,8}})));
+      useInputConnector=false) annotation (Placement(transformation(extent={{28,8},{
+            12,-8}})));
 
-  Modelica.Blocks.Math.Min min1 if   useExternalControl and controlType == "limit"  annotation (Placement(transformation(extent={{-44,4},{-24,24}})));
-  Modelica.Blocks.Math.Product product1 if  useExternalControl and controlType == "proportional" annotation (Placement(transformation(extent={{-44,-30},{-24,-10}})));
-  Modelica.Blocks.Sources.RealExpression chargingStationNormPower(y=P_chargingStation)  annotation (Placement(transformation(extent={{-94,-10},{-68,10}})));
-  Modelica.Blocks.Logical.Switch P_set_battery  annotation (Placement(transformation(extent={{54,78},{74,58}})));
-  Modelica.Blocks.Sources.RealExpression chargingStationPower(y=P_chargingStation) if not useExternalControl annotation (Placement(transformation(extent={{12,28},{38,46}})));
-  Modelica.Blocks.Sources.RealExpression drivingPower(y=P_driving)  annotation (Placement(transformation(extent={{8,80},{42,100}})));
+  Modelica.Blocks.Logical.Switch P_set_battery  annotation (Placement(transformation(extent={{54,76},
+            {74,56}})));
+  Modelica.Blocks.Sources.RealExpression chargingStationPower(y=P_charge) if          not useExternalControl annotation (Placement(transformation(extent={{-86,14},
+            {-60,32}})));
+  Modelica.Blocks.Sources.RealExpression drivingPower(y=P_driving)  annotation (Placement(transformation(extent={{4,80},{
+            34,98}})));
 
 
-  Modelica.Blocks.MathBoolean.Or charging(nu=5) annotation (Placement(transformation(extent={{6,60},{24,78}})));
-  Modelica.Blocks.Sources.BooleanExpression presence(y=carHome) annotation (Placement(transformation(extent={{-40,84},{-20,100}})));
-  Modelica.Blocks.Sources.BooleanExpression school(y=if ChargeAtSchool then (abs(4 - carLoc) < 0.5 and (abs(derLoc) < 0.01)) else false) annotation (Placement(transformation(extent={{-40,48},{-20,64}})));
-  Modelica.Blocks.Sources.BooleanExpression shopping(y=if ChargeAtShopping then (abs(2 - carLoc) < 0.5 and (abs(derLoc) < 0.01)) else false) annotation (Placement(transformation(extent={{-40,72},{-20,88}})));
-  Modelica.Blocks.Sources.BooleanExpression event(y=if ChargeAtOther then (abs(3 - carLoc) < 0.5 and (abs(derLoc) < 0.01)) else false) annotation (Placement(transformation(extent={{-40,60},{-20,76}})));
-  Modelica.Blocks.Sources.BooleanExpression work(y=if ChargeAtWork then (abs(5 - carLoc) < 0.5 and (abs(derLoc) < 0.01)) else false) annotation (Placement(transformation(extent={{-40,36},{-20,54}})));
+  Modelica.Blocks.MathBoolean.Or charging(nu=5) annotation (Placement(transformation(extent={{-8,58},
+            {8,74}})));
+  Modelica.Blocks.Sources.BooleanExpression presence(y=carHome) annotation (Placement(transformation(extent={{-72,76},
+            {-40,94}})));
+  Modelica.Blocks.Sources.BooleanExpression school(y=if ChargeAtSchool then (abs(4 - carLoc) < 0.5 and (abs(derLoc) < 0.01)) else false) annotation (Placement(transformation(extent={{-72,42},
+            {-40,58}})));
+  Modelica.Blocks.Sources.BooleanExpression shopping(y=if ChargeAtShopping then (abs(2 - carLoc) < 0.5 and (abs(derLoc) < 0.01)) else false) annotation (Placement(transformation(extent={{-72,66},
+            {-40,82}})));
+  Modelica.Blocks.Sources.BooleanExpression event(y=if ChargeAtOther then (abs(3 - carLoc) < 0.5 and (abs(derLoc) < 0.01)) else false) annotation (Placement(transformation(extent={{-72,54},
+            {-40,70}})));
+  Modelica.Blocks.Sources.BooleanExpression work(y=if ChargeAtWork then (abs(5 - carLoc) < 0.5 and (abs(derLoc) < 0.01)) else false) annotation (Placement(transformation(extent={{-72,30},
+            {-40,48}})));
 
    TransiEnt.Basics.Tables.ElectricGrid.Electromobility.CarDistanceTable carDistance(
     multiple_outputs=true,
-    columns={column_Distance + 1}, relativepath=relativepath_carDistance) annotation (Placement(transformation(extent={{-94,64},{-74,84}})));
+    columns={column_Distance + 1}, relativepath=relativepath_carDistance) annotation (Placement(transformation(extent={{-96,-40},
+            {-76,-20}})));
 
   TransiEnt.Basics.Tables.ElectricGrid.Electromobility.CarLocationTable carLocation(
     multiple_outputs=true,
@@ -129,21 +164,32 @@ model ElectricCar
   //              Interfaces
   // _____________________________________________
 
-  Modelica.Blocks.Interfaces.RealInput P_limit if  useExternalControl and controlType == "limit"  "Interface for Load Regulation" annotation (Placement(transformation(extent={{-128,10},
-            {-88,50}})));
-  Modelica.Blocks.Interfaces.RealInput p_control if useExternalControl and controlType == "proportional" "Interface for Load Regulation" annotation (Placement(transformation(extent={{-126,
-            -52},{-86,-12}})));
+
   TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort epp annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
+  Modelica.Blocks.Logical.Switch P_set_battery1 annotation (Placement(transformation(extent={{-8,36},
+            {12,16}})));
+  Modelica.Blocks.Sources.RealExpression P_SoC_Limit(y=0) if                          not useExternalControl
+    annotation (Placement(transformation(extent={{-76,-8},{-50,10}})));
 equation
+
+ if useExternalControl then
+   if controlType == "limit" then
+   P_charge=max(P_chargingStation,P_limit);
+   else
+   P_charge=P_chargingStation*p_control;
+   end if;
+else
+   P_charge=P_chargingStation;
+ end if;
 
   carLoc = carLocation.y[1];
   derLoc = if carLocation.smoothness == Modelica.Blocks.Types.Smoothness.ConstantSegments then 0 else der(carLoc);
   carHome = abs(1 - carLoc) < 0.5 and (abs(derLoc) < 0.01);
   P_driving = -carEfficiency/100 * carDistance.y[1] * 60 / timeStepSize;
 
-  connect(carPowerBoundary.epp, carBattery.epp) annotation (Line(
-      points={{34,16},{44,16}},
+  connect(carPowerBoundary.epp, vehicleBattery.epp) annotation (Line(
+      points={{28,0},{38,0}},
       color={0,135,135},
       thickness=0.5));
   connect(powerToGrid.epp, epp) annotation (Line(
@@ -152,27 +198,27 @@ equation
       thickness=0.5));
   connect(P_batteryToGrid.y, powerToGrid.P_el_set)
     annotation (Line(points={{56.6,-56},{68,-56},{68,-66}}, color={0,0,127}));
-  connect(P_limit,min1. u1) annotation (Line(points={{-108,30},{-54,30},{-54,20},{-46,20}},       color={0,0,127}));
-  connect(p_control, product1.u2) annotation (Line(points={{-106,-32},{-54,-32},{-54,-26},{-46,-26}},       color={0,0,127}));
-  connect(chargingStationNormPower.y, product1.u1) annotation (Line(points={{-66.7,0},{-52,0},{-52,-14},{-46,-14}},                                     color={0,0,127}));
-  connect(chargingStationNormPower.y,min1. u2) annotation (Line(points={{-66.7,0},{-52,0},{-52,8},{-46,8}},         color={0,0,127}));
-  connect(P_set_battery.y, carBattery.P_set)
-    annotation (Line(points={{75,68},{74,68},{74,38},{62,38},{62,32.92}},
-                                                          color={0,0,127}));
-  connect(min1.y, P_set_battery.u1) annotation (Line(points={{-23,14},{-16,14},{-16,26},{-2,26},{-2,50},{46,50},{46,60},{52,60}},
-                           color={0,0,127}));
-  connect(product1.y, P_set_battery.u1) annotation (Line(points={{-23,-20},{-16,-20},{-16,26},{-2,26},{-2,50},{46,50},{46,60},{52,60}},
-                                 color={0,0,127}));
-  connect(chargingStationPower.y, P_set_battery.u1) annotation (Line(points={{39.3,37},{46,37},{46,60},{52,60}},
-                                             color={0,0,127}));
-  connect(drivingPower.y, P_set_battery.u3) annotation (Line(points={{43.7,90},{50,90},{50,82},{52,82},{52,76}},
-                                    color={0,0,127}));
-  connect(presence.y, charging.u[1]) annotation (Line(points={{-19,92},{-2,92},{-2,74.04},{6,74.04}}, color={255,0,255}));
-  connect(school.y, charging.u[2]) annotation (Line(points={{-19,56},{-8,56},{-8,66},{6,66},{6,71.52}}, color={255,0,255}));
-  connect(event.y, charging.u[3]) annotation (Line(points={{-19,68},{6,68},{6,69}},    color={255,0,255}));
-  connect(shopping.y, charging.u[4]) annotation (Line(points={{-19,80},{-4,80},{-4,70},{6,70},{6,66.48}}, color={255,0,255}));
-  connect(work.y, charging.u[5]) annotation (Line(points={{-19,45},{-6,45},{-6,64},{6,64},{6,63.96}}, color={255,0,255}));
-  connect(charging.y, P_set_battery.u2) annotation (Line(points={{25.35,69},{40,69},{40,68},{52,68}}, color={255,0,255}));
+  connect(P_set_battery.y, vehicleBattery.P_set) annotation (Line(points={{75,66},
+          {80,66},{80,22},{56,22},{56,16.92}}, color={0,0,127}));
+  connect(drivingPower.y, P_set_battery.u3) annotation (Line(points={{35.5,89},{
+          46,89},{46,74},{52,74}},  color={0,0,127}));
+  connect(presence.y, charging.u[1]) annotation (Line(points={{-38.4,85},{-20,85},
+          {-20,70.48},{-8,70.48}},                                                                    color={255,0,255}));
+  connect(school.y, charging.u[2]) annotation (Line(points={{-38.4,50},{-20,50},
+          {-20,68.24},{-8,68.24}},                                                                      color={255,0,255}));
+  connect(event.y, charging.u[3]) annotation (Line(points={{-38.4,62},{-24,62},{
+          -24,66},{-8,66}},                                                            color={255,0,255}));
+  connect(shopping.y, charging.u[4]) annotation (Line(points={{-38.4,74},{-20,74},
+          {-20,63.76},{-8,63.76}},                                                                        color={255,0,255}));
+  connect(work.y, charging.u[5]) annotation (Line(points={{-38.4,39},{-20,39},{-20,
+          61.52},{-8,61.52}},                                                                         color={255,0,255}));
+  connect(charging.y, P_set_battery.u2) annotation (Line(points={{9.2,66},{52,66}},                   color={255,0,255}));
+  connect(chargingStationPower.y, P_set_battery1.u3) annotation (Line(points={{
+          -58.7,23},{-36,23},{-36,34},{-10,34}}, color={0,0,127}));
+  connect(P_set_battery1.y, P_set_battery.u1) annotation (Line(points={{13,26},
+          {46,26},{46,58},{52,58}}, color={0,0,127}));
+  connect(P_SoC_Limit.y, P_set_battery1.u1) annotation (Line(points={{-48.7,1},
+          {-16,1},{-16,18},{-10,18}}, color={0,0,127}));
   annotation (
       Diagram(graphics={
         Line(
@@ -213,8 +259,7 @@ equation
           lineColor={0,0,0},
           lineThickness=1,
           fillColor={0,0,0},
-          fillPattern=FillPattern.Solid),
-        Rectangle(extent={{-100,100},{100,-100}}, lineColor={0,0,0})}),
+          fillPattern=FillPattern.Solid)}),
     experiment(StopTime=0, __Dymola_Algorithm="Dassl"),
     Documentation(info="<html>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">1. Purpose of model</span></b></p>

@@ -6,4 +6,5 @@ CheckTableBasedElectricConsumer
 CheckExponentialElectricConsumer
 CheckExponentialElectricConsumer2
 CheckDynamicExponentialElectricConsumerComplex
-CheckElectricCar
+CheckBatteryElectricVehicle
+CheckElectricCarWithControl

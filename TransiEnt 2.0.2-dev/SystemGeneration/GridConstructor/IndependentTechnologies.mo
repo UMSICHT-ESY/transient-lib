@@ -273,18 +273,19 @@ public
   TransiEnt.Producer.Heat.Power2Heat.Converter_Heat2Power converter_Heat2Power if NSH == 1 annotation (Placement(transformation(extent={{-32,28},{-12,48}})));
 
      //Wallbox and electric vehicle
-   Consumer.Electrical.ElectricCar electricCar(
-     carEfficiency=carEfficiency_wallbox,
-     E_max_car=E_max_car,
-     P_max_car_drive=P_max_car_drive,
-     P_max_car_charge=P_max_car_charge,
-     relativepath_carDistance=relativepath_carDistance,
-     relativepath_carLocation=relativepath_carLocation,
-     timeStepSize=timeStepSize_wallbox,
-     column_Location=column_Location_electricCar,
-     column_Distance=column_Distance_electricCar,
-     P_chargingStation=P_wallbox,              useExternalControl=false) if Wallbox==1
-                                               annotation (Placement(transformation(extent={{36,-32},{56,-12}})));
+  Consumer.Electrical.ElectricCar electricCar(
+    carEfficiency=carEfficiency_wallbox,
+    Bat_Capacity=E_max_car,
+    P_max_car_drive=P_max_car_drive,
+    P_max_car_charge=P_max_car_charge,
+    relativepath_carDistance=relativepath_carDistance,
+    relativepath_carLocation=relativepath_carLocation,
+    timeStepSize=timeStepSize_wallbox,
+    column_Location=column_Location_electricCar,
+    column_Distance=column_Distance_electricCar,
+    P_chargingStation=P_wallbox,
+    useExternalControl=false) if Wallbox == 1
+    annotation (Placement(transformation(extent={{36,-32},{56,-12}})));
 
   Modelica.Blocks.Sources.RealExpression propControl(y=simCenter.PropControlFactor)
                                                              annotation (Placement(transformation(extent={{16,-58},{30,-40}})));

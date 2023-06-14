@@ -121,11 +121,6 @@ model SimCenter "SimCenter for global parameters, ambient conditions and collect
   //Modelica.SIunits.Frequency f_global(start=50) "global Frequency in the electric grid" annotation (Dialog(tab="Electric Grid", group="Nominal values (Top Level)"));
 
 
-  parameter Boolean useExternalControl=false "Check box to enable external load control of consumers"   annotation (Evaluate=true, HideResult=true, choices(checkBox=true), Dialog(tab="Electric Grid", group="Load management"));
-  parameter String controlType="proportional" "Load control method"  annotation (Dialog(enable=useExternalControl, tab="Electric Grid", group="Load management"),
-                 choices(choice="limit",
-                 choice="proportional"));
-
   Real PropControlFactor=1 "Proportional control factor to regulate consumer loads in case of overload" annotation (Dialog(tab="Electric Grid", group="Load management"));
   Modelica.Units.SI.Power P_limit=1 "Maximum power to regulate consumer loads in case of overload" annotation (Dialog(tab="Electric Grid", group="Load management"));
 
