@@ -4,3 +4,4 @@ ControlHeatpump_heatdriven_BVTemp
 ControlHeatpump_priceoriented
 ControlHeatpump_PVoriented
 ControlHeatpump_Peakboiler_PVoriented
+ControlHeatpump_Peakboiler_PVoriented_parallel
