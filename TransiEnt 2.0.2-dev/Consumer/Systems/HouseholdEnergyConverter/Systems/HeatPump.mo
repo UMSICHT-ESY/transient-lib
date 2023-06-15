@@ -58,16 +58,16 @@ model HeatPump "HeatPump with thermal storage"
     choices(checkBox=true));
 
   parameter SI.TemperatureDifference Delta_T_internal=5 "Temperature difference between refrigerant and source/sink temperature" annotation (HideResult=true, Dialog(group="Heatpump"));
-  parameter SI.TemperatureDifference Delta_T_db=2 "Deadband of hysteresis control" annotation (HideResult=true, Dialog(group="Heatpump"));
+  parameter SI.TemperatureDifference Delta_T_db=2 "Deadband of heatpump hysteresis control" annotation (HideResult=true, Dialog(group="Heatpump"));
   parameter SI.HeatFlowRate Q_flow_n=3.5e3 "Nominal heat flow of heat pump at nominal conditions according to EN14511" annotation (HideResult=true, Dialog(group="Heatpump"));
   parameter Real COP_n=3.7 "Coefficient of performance at nominal conditions according to EN14511" annotation (HideResult=true, Dialog(group="Heatpump"));
 
   parameter SI.Power P_el_n=10e3 "Nominal electric power of the backup heater" annotation (HideResult=true, Dialog(group="Heatpump"));
   parameter SI.Efficiency eta_Heater=0.95 "Efficiency of the backup heater" annotation (HideResult=true, Dialog(group="Heatpump"));
 
-  parameter SI.Temperature T_s_max=T_set "Maximum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
-  parameter SI.Temperature T_set=65 + 273.25 "Heatpump supply temperature" annotation (Dialog(group="Heatpump"));
-  parameter SI.Temperature T_s_min=55 + 273.15 "Minimum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
+  SI.Temperature T_set=heatingCurve.T_supply+3 "Heatpump supply temperature" annotation (Dialog(group="Heatpump"));
+  SI.Temperature T_s_max=heatingCurve.T_supply_max "Maximum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
+  SI.Temperature T_s_min=heatingCurve.T_return "Minimum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
   parameter SI.Volume V_Storage=0.5 "Volume of the Storage" annotation (HideResult=true, Dialog(group="Storage"));
   parameter SI.Height height=1.3 "Height of heat storage" annotation (HideResult=true, Dialog(group="Storage"));
   parameter SI.Diameter d=sqrt(V_Storage/heatStorage.height*4/Modelica.Constants.pi) "Diameter of heat storage" annotation (HideResult=true, Dialog(group="Storage"));
@@ -88,7 +88,7 @@ model HeatPump "HeatPump with thermal storage"
   //           Instances of other Classes
   // _____________________________________________
 
-  TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower apparentPower(
+  Components.Boundaries.Electrical.ApparentPower.ApparentPower apparentPower(
     useInputConnectorQ=false,
     useInputConnectorP=true,
     useCosPhi=false) annotation (Placement(transformation(extent={{-60,-76},{-44,-60}})));
@@ -100,14 +100,14 @@ model HeatPump "HeatPump with thermal storage"
     T_source=T_source,
     useFluidPorts=false,
     useHeatPort=false,
-    T_set=T_s_max,
+    T_set=heatingCurve.T_supply + 3,
     redeclare connector PowerPortModel = TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort,
     redeclare model PowerBoundaryModel = TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower,
-    Power(useInputConnectorQ=false, useCosPhi=false)) annotation (Placement(transformation(extent={{16,-22},{38,0}})));
+    Power(useInputConnectorQ=false, useCosPhi=false)) annotation (Placement(transformation(extent={{14,-22},{36,0}})));
 
   TransiEnt.Storage.Heat.HotWaterStorage_constProp_L2.HotWaterStorage_constProp_L2 heatStorage(
     useFluidPorts=false,
-    T_s_max=T_s_max,
+    T_s_max(displayUnit="degC") = T_s_max,
     T_s_min=T_s_min,
     d=d,
     height=height,
@@ -115,7 +115,8 @@ model HeatPump "HeatPump with thermal storage"
     k=k,
     T_start=T_start) annotation (Placement(transformation(extent={{72,32},{92,52}})));
 
-  replaceable Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_heatdriven_BVheatLoad Controller constrainedby TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller(P_elHeater=P_el_n, CalculatePHeater=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) "Control mode of the heat pump" annotation (
+  replaceable Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_heatdriven_BVheatLoad Controller constrainedby
+    TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller(                                                                                                                      P_elHeater=P_el_n, CalculatePHeater=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) "Control mode of the heat pump" annotation (
     Dialog(group="System setup"),
     choicesAllMatching=true,
     Placement(transformation(extent={{-62,-26},{-40,-4}})));
@@ -136,8 +137,9 @@ model HeatPump "HeatPump with thermal storage"
     redeclare TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower powerBoundary(useInputConnectorQ=false, cosphi_boundary=0.99) "PowerBoundary for ApparentPowerPort") annotation (Placement(transformation(extent={{12,-68},{32,-48}})));
   Modelica.Blocks.Math.Add add3 annotation (Placement(transformation(extent={{56,-30},{72,-14}})));
 
-  Modelica.Blocks.Sources.RealExpression Tset(y=T_set) annotation (Placement(transformation(extent={{-90,-26},{-74,-8}})));
   Modelica.Blocks.Sources.RealExpression Tsource(y=heatPump.T_source_internal) annotation (Placement(transformation(extent={{-46,14},{-30,32}})));
+  Heat.Profiles.HeatingCurve heatingCurve  annotation (Dialog(group="System setup"), Placement(transformation(
+          extent={{-104,-28},{-84,-8}})));
 equation
 
   // _____________________________________________
@@ -162,7 +164,7 @@ equation
 
   if hotwater then
     connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(
-        points={{4.68,100.48},{-34,100.48},{-34,100},{-74,100},{-74,64},{-76,64},{-76,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}},
+        points={{4.68,100.48},{-16,100.48},{-16,100},{-56,100},{-56,64},{-58,64},{-58,16},{-74,16},{-74,-48},{-56.8,-48},{-56.8,-58.4}},
         color={175,0,0},
         pattern=LinePattern.Dash), Text(
         string="%first",
@@ -170,7 +172,7 @@ equation
         extent={{6,3},{6,3}},
         horizontalAlignment=TextAlignment.Left));
   else
-    connect(add2.y, apparentPower.P_el_set) annotation (Line(points={{-52,41.2},{-52,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}}, color={0,0,127}));
+    connect(add2.y, apparentPower.P_el_set) annotation (Line(points={{-52,41.2},{-52,16},{-74,16},{-74,-48},{-56.8,-48},{-56.8,-58.4}}, color={0,0,127}));
   end if;
 
   connect(apparentPower.epp, epp) annotation (Line(
@@ -184,7 +186,7 @@ equation
       color={162,29,33},
       pattern=LinePattern.Dash));
   connect(heatPump.Heat_output, add3.u1) annotation (Line(
-      points={{39.76,-4.62},{39.76,-14.5},{54.4,-14.5},{54.4,-17.2}},
+      points={{37.76,-4.62},{37.76,-14.5},{54.4,-14.5},{54.4,-17.2}},
       color={162,29,33},
       pattern=LinePattern.Dash));
   connect(electricHeater.epp, epp) annotation (Line(
@@ -211,16 +213,16 @@ equation
       pattern=LinePattern.Dash));
 
   connect(heatPump.epp, epp) annotation (Line(
-      points={{35.36,-22},{38,-22},{38,-86},{-80,-86},{-80,-98}},
+      points={{33.36,-22},{38,-22},{38,-86},{-80,-86},{-80,-98}},
       color={0,127,0},
       thickness=0.5));
-  connect(Tset.y, Controller.T_set) annotation (Line(points={{-73.2,-17},{-61.12,-16.54}}, color={0,0,127}));
   connect(Tsource.y, Controller.T_source) annotation (Line(points={{-29.2,23},{-24,23},{-24,2},{-46.71,2},{-46.71,-4.77}}, color={0,0,127}));
 
   connect(heatPump.Q_flow_set, Controller.Q_flow_set_HP) annotation (Line(
-      points={{15.34,-16.94},{-12.33,-16.94},{-12.33,-15.11},{-39.45,-15.11}},
+      points={{13.34,-16.94},{-12.33,-16.94},{-12.33,-15.11},{-39.45,-15.11}},
       color={175,0,0},
       pattern=LinePattern.Dash));
+  connect(heatingCurve.T_supply, Controller.T_set) annotation (Line(points={{-83.6,-16},{-66,-16},{-66,-16.54},{-61.12,-16.54}}, color={0,0,127}));
   annotation (Icon(graphics={
         Ellipse(
           lineColor={0,125,125},
