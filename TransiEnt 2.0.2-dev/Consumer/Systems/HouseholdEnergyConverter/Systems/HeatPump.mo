@@ -1,9 +1,6 @@
 ﻿within TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems;
 model HeatPump "HeatPump with thermal storage"
 
-
-
-
 //________________________________________________________________________________//
 // Component of the TransiEnt Library, version: 2.0.2                             //
 //                                                                                //
@@ -20,22 +17,17 @@ model HeatPump "HeatPump with thermal storage"
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
-
-
-
-
-
 
   // _____________________________________________
   //
   //          Imports and Class Hierarchy
   // _____________________________________________
 
-  extends Base.Systems(
+  extends TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems.Base.Systems(
     final DHN=false,
     final el_grid=true,
     final gas_grid=false);
@@ -48,7 +40,11 @@ model HeatPump "HeatPump with thermal storage"
   //          Parameters
   // _____________________________________________
 
-  parameter Boolean hotwater=true "Does the heat pump provide energy for the hot water? (if false: water is heated electrically)" annotation (
+  parameter Boolean hotwater=true "Does the heat pump provide energy for the hot water entirely? (if false: water is heated electrically)" annotation (
+    HideResult=true,
+    Dialog(group="System setup"),
+    choices(checkBox=true));
+  parameter Boolean hotwater_booster=false "Does the heat pump provide energy for hot water partially?" annotation (
     HideResult=true,
     Dialog(group="System setup"),
     choices(checkBox=true));
@@ -62,8 +58,8 @@ model HeatPump "HeatPump with thermal storage"
   parameter SI.HeatFlowRate Q_flow_n=3.5e3 "Nominal heat flow of heat pump at nominal conditions according to EN14511" annotation (HideResult=true, Dialog(group="Heatpump"));
   parameter Real COP_n=3.7 "Coefficient of performance at nominal conditions according to EN14511" annotation (HideResult=true, Dialog(group="Heatpump"));
 
-  parameter SI.Power P_el_n=10e3 "Nominal electric power of the backup heater" annotation (HideResult=true, Dialog(group="Heatpump"));
-  parameter SI.Efficiency eta_Heater=0.95 "Efficiency of the backup heater" annotation (HideResult=true, Dialog(group="Heatpump"));
+  parameter Modelica.Units.SI.Power P_el_n=10e3 "Nominal electric power of the backup heater" annotation (HideResult=true, Dialog(group="Heatpump"));
+  parameter Modelica.Units.SI.Efficiency eta_Heater=0.95 "Efficiency of the backup heater" annotation (HideResult=true, Dialog(group="Heatpump"));
 
   SI.Temperature T_set=heatingCurve.T_supply+3 "Heatpump supply temperature" annotation (Dialog(group="Heatpump"));
   SI.Temperature T_s_max=heatingCurve.T_supply_max "Maximum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
@@ -72,16 +68,16 @@ model HeatPump "HeatPump with thermal storage"
   parameter SI.Height height=1.3 "Height of heat storage" annotation (HideResult=true, Dialog(group="Storage"));
   parameter SI.Diameter d=sqrt(V_Storage/heatStorage.height*4/Modelica.Constants.pi) "Diameter of heat storage" annotation (HideResult=true, Dialog(group="Storage"));
   parameter Modelica.Units.NonSI.Temperature_degC T_amb=15 "Assumed constant ambient temperature" annotation (HideResult=true, Dialog(group="Storage"));
-  parameter SI.SurfaceCoefficientOfHeatTransfer k=0.08 "Coefficient of heat transfer through tank surface" annotation (HideResult=true, Dialog(group="Storage"));
-  parameter SI.Temperature T_start=60 + 273.15 "Start value of the storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
+  parameter Modelica.Units.SI.SurfaceCoefficientOfHeatTransfer k=0.08 "Coefficient of heat transfer through tank surface" annotation (HideResult=true, Dialog(group="Storage"));
+  parameter Modelica.Units.SI.Temperature T_start=60 + 273.15 "Start value of the storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
 
   // _____________________________________________
   //
   //                   Variables
   // _____________________________________________
 
-  SI.Power P "Consumed or produced electric power";
-  SI.Temperature T_source=simCenter.ambientConditions.temperature.value + 273.15 "Temperature of heat source" annotation (Dialog(group="Heatpump"));
+  Modelica.Units.SI.Power P "Consumed or produced electric power";
+  Modelica.Units.SI.Temperature T_source=simCenter.ambientConditions.temperature.value + 273.15 "Temperature of heat source" annotation (Dialog(group="Heatpump"));
 
   // _____________________________________________
   //
@@ -115,17 +111,20 @@ model HeatPump "HeatPump with thermal storage"
     k=k,
     T_start=T_start) annotation (Placement(transformation(extent={{72,32},{92,52}})));
 
-  replaceable Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_heatdriven_BVheatLoad Controller constrainedby TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller(P_elHeater=P_el_n, CalculatePHeater=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) "Control mode of the heat pump" annotation (
+  replaceable TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_heatdriven_BVheatLoad Controller constrainedby TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller(
+    P_elHeater=P_el_n,
+    CalculatePHeater=true,
+    Q_flow_n=heatPump.Q_flow_n,
+    Delta_T_db=Delta_T_db) "Control mode of the heat pump" annotation (
     Dialog(group="System setup"),
     choicesAllMatching=true,
     Placement(transformation(extent={{-62,-26},{-40,-4}})));
 
-  Modelica.Blocks.Math.Add add1 if
-                                  heating and hotwater annotation (Placement(transformation(extent={{30,48},{46,64}})));
-  Modelica.Blocks.Math.Add add2 if not hotwater annotation (Placement(transformation(
+  Modelica.Blocks.Math.Add add1 if heating and hotwater annotation (Placement(transformation(extent={{30,48},{46,64}})));
+  Modelica.Blocks.Math.Add add2 if not hotwater and not hotwater_booster annotation (Placement(transformation(
         extent={{8,-8},{-8,8}},
         rotation=90,
-        origin={-52,50})));
+        origin={-52,56})));
   TransiEnt.Producer.Heat.Power2Heat.ElectricBoiler.ElectricBoiler electricHeater(
     change_sign=true,
     Q_flow_n=P_el_n*eta_Heater,
@@ -139,6 +138,7 @@ model HeatPump "HeatPump with thermal storage"
   Modelica.Blocks.Sources.RealExpression Tsource(y=heatPump.T_source_internal) annotation (Placement(transformation(extent={{-46,14},{-30,32}})));
   Heat.Profiles.HeatingCurve heatingCurve  annotation (Dialog(group="System setup"), Placement(transformation(
           extent={{-104,-28},{-84,-8}})));
+  TransiEnt.Consumer.Heat.DHW_Booster dHW_Booster if hotwater_booster annotation (Placement(transformation(extent={{-12,48},{4,64}})));
 equation
 
   // _____________________________________________
@@ -153,26 +153,23 @@ equation
   //            Connect statements
   // _____________________________________________
 
-  if heating and hotwater then
+  if heating and hotwater and not hotwater_booster then
     connect(add1.y, heatStorage.Q_flow_demand) annotation (Line(points={{46.8,56},{98,56},{98,42},{92,42}}, color={0,0,127}));
-  elseif heating then
+    connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(points={{4.68,100.48},{-34,100.48},{-34,100},{-74,100},{-74,64},{-76,64},{-76,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}}, color={175,0,0}, pattern=LinePattern.Dash));
+  elseif heating and not hotwater_booster then
     connect(demand.heatingPowerDemand, heatStorage.Q_flow_demand) annotation (Line(points={{0,100.48},{0,80},{28,80},{28,68},{98,68},{98,40},{96,40},{96,42},{92,42}}, color={0,127,127}));
-  else
+    connect(add2.y, apparentPower.P_el_set) annotation (Line(points={{-52,47.2},{-52,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}}, color={0,0,127}));
+  elseif hotwater and not hotwater_booster then
     connect(demand.hotWaterPowerDemand, heatStorage.Q_flow_demand) annotation (Line(points={{-4.8,100.48},{-4.8,80},{28,80},{28,68},{100,68},{100,40},{96,40},{96,42},{92,42}}, color={0,127,127}));
+    connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(points={{4.68,100.48},{-34,100.48},{-34,100},{-74,100},{-74,64},{-76,64},{-76,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}}, color={175,0,0}, pattern=LinePattern.Dash));
+  else // this time hot water has to be true otherwise the system is not defined
+    connect(heatStorage.T_stor_out, dHW_Booster.T_storage_out) annotation (Line(points={{80.2,51.6},{52,51.6},{52,10},{-20,10},{-20,59.2},{-11.52,59.2}}, color={0,0,127}));
+    connect(dHW_Booster.electricDemand, demand.electricPowerDemand) annotation (Line(points={{-6.88,63.84},{-6.88,74},{4,74},{4,100.48},{4.68,100.48}}, color={0,0,127}));
+    connect(dHW_Booster.hotWaterDemand, demand.hotWaterPowerDemand) annotation (Line(points={{-0.88,63.92},{-0.88,72},{-16,72},{-16,80},{-4,80},{-4,84},{-4.8,84},{-4.8,100.48}}, color={0,0,127}));
+    connect(dHW_Booster.electricPower, apparentPower.P_el_set) annotation (Line(points={{-4.08,47.76},{-4.08,-58},{-40,-58},{-40,-52},{-56.8,-52},{-56.8,-58.4}}, color={0,0,127}));
+    connect(dHW_Booster.heatingPowerDemand_Storage, heatStorage.Q_flow_demand) annotation (Line(points={{4.24,56.08},{22,56.08},{22,70},{98,70},{98,42},{92,42}}, color={0,0,127}));
   end if;
 
-  if hotwater then
-    connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(
-        points={{4.68,100.48},{-16,100.48},{-16,100},{-56,100},{-56,64},{-58,64},{-58,16},{-74,16},{-74,-48},{-56.8,-48},{-56.8,-58.4}},
-        color={175,0,0},
-        pattern=LinePattern.Dash), Text(
-        string="%first",
-        index=-1,
-        extent={{6,3},{6,3}},
-        horizontalAlignment=TextAlignment.Left));
-  else
-    connect(add2.y, apparentPower.P_el_set) annotation (Line(points={{-52,41.2},{-52,16},{-74,16},{-74,-48},{-56.8,-48},{-56.8,-58.4}}, color={0,0,127}));
-  end if;
 
   connect(apparentPower.epp, epp) annotation (Line(
       points={{-60,-68},{-60,-66.04},{-80,-66.04},{-80,-98}},
@@ -195,10 +192,10 @@ equation
   connect(heatStorage.T_stor_out, Controller.T) annotation (Line(points={{80.2,51.6},{52,51.6},{52,10},{-66,10},{-66,-10.6},{-61.34,-10.6}}, color={0,0,127}));
 
   connect(demand.electricPowerDemand, add2.u1) annotation (Line(
-      points={{4.68,100.48},{-58,100.48},{-58,59.6},{-56.8,59.6}},
+      points={{4.68,100.48},{-58,100.48},{-58,65.6},{-56.8,65.6}},
       color={175,0,0},
       pattern=LinePattern.Dash));
-  connect(add2.u2, demand.hotWaterPowerDemand) annotation (Line(points={{-47.2,59.6},{-27.6,59.6},{-27.6,100.48},{-4.8,100.48}}, color={0,0,127}));
+  connect(add2.u2, demand.hotWaterPowerDemand) annotation (Line(points={{-47.2,65.6},{-27.6,65.6},{-27.6,100.48},{-4.8,100.48}}, color={0,0,127}));
   connect(add1.u1, demand.heatingPowerDemand) annotation (Line(points={{28.4,60.8},{28.4,80.4},{0,80.4},{0,100.48}}, color={0,0,127}));
   connect(add1.u2, demand.hotWaterPowerDemand) annotation (Line(points={{28.4,51.2},{28.4,77.6},{-4.8,77.6},{-4.8,100.48}}, color={0,0,127}));
 

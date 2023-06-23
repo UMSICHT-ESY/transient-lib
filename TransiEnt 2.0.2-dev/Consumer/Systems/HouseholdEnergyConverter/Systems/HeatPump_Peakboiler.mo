@@ -44,6 +44,10 @@ model HeatPump_Peakboiler "HeatPump with peak boiler and thermal storage"
     HideResult=true,
     Dialog(group="System setup"),
     choices(checkBox=true));
+  parameter Boolean hotwater_booster=false "Does the heat pump provide energy for hot water partially?" annotation (
+    HideResult=true,
+    Dialog(group="System setup"),
+    choices(checkBox=true));
   parameter Boolean heating=true "Does the heat pump provide energy for space heating? (if false: space heating not accounted for)" annotation (
     HideResult=true,
     Dialog(group="System setup"),
@@ -138,15 +142,16 @@ model HeatPump_Peakboiler "HeatPump with peak boiler and thermal storage"
     typeOfPrimaryEnergyCarrier=typeOfPrimaryEnergyCarrier,
     redeclare model BoilerCostModel = BoilerCostModel)      annotation (Placement(transformation(extent={{-2,-48},{18,-28}})));
 
-  Modelica.Blocks.Math.Add add1 if
-                                  heating and hotwater annotation (Placement(transformation(extent={{30,48},{46,64}})));
-  Modelica.Blocks.Math.Add add2 if not hotwater annotation (Placement(transformation(
+  Modelica.Blocks.Math.Add add1 if heating and hotwater annotation (Placement(transformation(extent={{30,48},{46,64}})));
+  Modelica.Blocks.Math.Add add2 if not hotwater and not hotwater_booster annotation (Placement(transformation(
         extent={{8,-8},{-8,8}},
         rotation=90,
         origin={-52,50})));
   Modelica.Blocks.Math.Add add3 annotation (Placement(transformation(extent={{56,-30},{72,-14}})));
 
   Modelica.Blocks.Sources.RealExpression Tsource(y=heatPump.T_source_internal) annotation (Placement(transformation(extent={{-46,14},{-30,32}})));
+
+  TransiEnt.Consumer.Heat.DHW_Booster dHW_Booster if hotwater_booster annotation (Placement(transformation(extent={{-12,48},{4,64}})));
 
 
   Heat.Profiles.HeatingCurve heatingCurve  annotation (Dialog(group="System setup"), Placement(transformation(
@@ -165,25 +170,21 @@ equation
   //            Connect statements
   // _____________________________________________
 
-  if heating and hotwater then
+  if heating and hotwater and not hotwater_booster then
     connect(add1.y, heatStorage.Q_flow_demand) annotation (Line(points={{46.8,56},{98,56},{98,42},{92,42}}, color={0,0,127}));
-  elseif heating then
+    connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(points={{4.68,100.48},{-34,100.48},{-34,100},{-74,100},{-74,64},{-76,64},{-76,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}}, color={175,0,0}, pattern=LinePattern.Dash));
+  elseif heating and not hotwater_booster then
     connect(demand.heatingPowerDemand, heatStorage.Q_flow_demand) annotation (Line(points={{0,100.48},{0,80},{28,80},{28,68},{98,68},{98,40},{96,40},{96,42},{92,42}}, color={0,127,127}));
-  else
+    connect(add2.y, apparentPower.P_el_set) annotation (Line(points={{-52,41.2},{-52,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}}, color={0,0,127}));
+  elseif hotwater and not hotwater_booster then
     connect(demand.hotWaterPowerDemand, heatStorage.Q_flow_demand) annotation (Line(points={{-4.8,100.48},{-4.8,80},{28,80},{28,68},{100,68},{100,40},{96,40},{96,42},{92,42}}, color={0,127,127}));
-  end if;
-
-  if hotwater then
-    connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(
-        points={{4.68,100.48},{-34,100.48},{-34,100},{-74,100},{-74,64},{-76,64},{-76,16},{-78,16},{-78,-48},{-56.8,-48},{-56.8,-58.4}},
-        color={175,0,0},
-        pattern=LinePattern.Dash), Text(
-        string="%first",
-        index=-1,
-        extent={{6,3},{6,3}},
-        horizontalAlignment=TextAlignment.Left));
-  else
-    connect(add2.y, apparentPower.P_el_set) annotation (Line(points={{-52,41.2},{-52,16},{-78,16},{-78,-48},{-56.8,-48},{-56.8,-58.4}}, color={0,0,127}));
+    connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(points={{4.68,100.48},{-34,100.48},{-34,100},{-74,100},{-74,64},{-76,64},{-76,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}}, color={175,0,0}, pattern=LinePattern.Dash));
+  else // this time hot water has to be true otherwise the system is not defined
+    connect(heatStorage.T_stor_out, dHW_Booster.T_storage_out) annotation (Line(points={{80.2,51.6},{52,51.6},{52,10},{-20,10},{-20,59.2},{-11.52,59.2}}, color={0,0,127}));
+    connect(dHW_Booster.electricDemand, demand.electricPowerDemand) annotation (Line(points={{-6.88,63.84},{-6.88,74},{4,74},{4,100.48},{4.68,100.48}}, color={0,0,127}));
+    connect(dHW_Booster.hotWaterDemand, demand.hotWaterPowerDemand) annotation (Line(points={{-0.88,63.92},{-0.88,72},{-16,72},{-16,80},{-4,80},{-4,84},{-4.8,84},{-4.8,100.48}}, color={0,0,127}));
+    connect(dHW_Booster.electricPower, apparentPower.P_el_set) annotation (Line(points={{-4.08,47.76},{-4.08,-58},{-40,-58},{-40,-52},{-56.8,-52},{-56.8,-58.4}}, color={0,0,127}));
+    connect(dHW_Booster.heatingPowerDemand_Storage, heatStorage.Q_flow_demand) annotation (Line(points={{4.24,56.08},{22,56.08},{22,70},{98,70},{98,42},{92,42}}, color={0,0,127}));
   end if;
 
   connect(apparentPower.epp, epp) annotation (Line(
