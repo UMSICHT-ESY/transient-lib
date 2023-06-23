@@ -101,7 +101,7 @@ model HeatPump_Peakboiler "HeatPump with peak boiler and thermal storage"
     T_source=T_source,
     useFluidPorts=false,
     useHeatPort=false,
-    T_set=T_s_max,
+    T_set=heatingCurve.T_supply + 3,
     redeclare connector PowerPortModel = TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort,
     redeclare model PowerBoundaryModel = TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower,
     Power(useInputConnectorQ=false, useCosPhi=false)) annotation (Placement(transformation(extent={{16,-22},{38,0}})));
@@ -146,11 +146,11 @@ model HeatPump_Peakboiler "HeatPump with peak boiler and thermal storage"
         origin={-52,50})));
   Modelica.Blocks.Math.Add add3 annotation (Placement(transformation(extent={{56,-30},{72,-14}})));
 
-  Modelica.Blocks.Sources.RealExpression Tset(y=T_set) annotation (Placement(transformation(extent={{-90,-26},{-74,-8}})));
-
   Modelica.Blocks.Sources.RealExpression Tsource(y=heatPump.T_source_internal) annotation (Placement(transformation(extent={{-46,14},{-30,32}})));
 
 
+  Heat.Profiles.HeatingCurve heatingCurve  annotation (Dialog(group="System setup"), Placement(transformation(
+          extent={{-102,-26},{-82,-6}})));
 equation
 
   // _____________________________________________
@@ -175,7 +175,7 @@ equation
 
   if hotwater then
     connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(
-        points={{4.68,100.48},{-34,100.48},{-34,100},{-74,100},{-74,64},{-76,64},{-76,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}},
+        points={{4.68,100.48},{-34,100.48},{-34,100},{-74,100},{-74,64},{-76,64},{-76,16},{-78,16},{-78,-48},{-56.8,-48},{-56.8,-58.4}},
         color={175,0,0},
         pattern=LinePattern.Dash), Text(
         string="%first",
@@ -183,7 +183,7 @@ equation
         extent={{6,3},{6,3}},
         horizontalAlignment=TextAlignment.Left));
   else
-    connect(add2.y, apparentPower.P_el_set) annotation (Line(points={{-52,41.2},{-52,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}}, color={0,0,127}));
+    connect(add2.y, apparentPower.P_el_set) annotation (Line(points={{-52,41.2},{-52,16},{-78,16},{-78,-48},{-56.8,-48},{-56.8,-58.4}}, color={0,0,127}));
   end if;
 
   connect(apparentPower.epp, epp) annotation (Line(
@@ -214,7 +214,6 @@ equation
       points={{35.36,-22},{38,-22},{38,-86},{-80,-86},{-80,-98}},
       color={0,127,0},
       thickness=0.5));
-  connect(Tset.y, Controller.T_set) annotation (Line(points={{-73.2,-17},{-61.12,-16.54}}, color={0,0,127}));
   connect(Tsource.y, Controller.T_source) annotation (Line(points={{-29.2,23},{-24,23},{-24,2},{-46.71,2},{-46.71,-4.77}}, color={0,0,127}));
 
   connect(heatPump.Q_flow_set, Controller.Q_flow_set_HP) annotation (Line(
@@ -233,6 +232,7 @@ equation
       points={{-39.45,-23.47},{8,-23.47},{8,-28}},
       color={0,135,135},
       pattern=LinePattern.Dash));
+  connect(heatingCurve.T_supply, Controller.T_set) annotation (Line(points={{-81.6,-14},{-66,-14},{-66,-16.54},{-61.12,-16.54}}, color={0,0,127}));
   annotation (Icon(graphics={
         Ellipse(
           lineColor={0,125,125},

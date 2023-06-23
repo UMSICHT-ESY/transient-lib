@@ -145,7 +145,7 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
     T_source=T_source,
     useFluidPorts=false,
     useHeatPort=false,
-    T_set=T_s_max,
+    T_set=heatingCurve.T_supply + 3,
     redeclare connector PowerPortModel = TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort,
     redeclare model PowerBoundaryModel = TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower,
     Power(useInputConnectorQ=false, useCosPhi=false)) annotation (Placement(transformation(extent={{26,-24},{48,-2}})));
@@ -229,8 +229,6 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
       cosphi_boundary=0.99) "PowerBoundary for ApparentPowerPort") annotation (Placement(transformation(extent={{34,-76},{54,-56}})));
   Modelica.Blocks.Math.Add add3 annotation (Placement(transformation(extent={{64,-46},{78,-32}})));
 
-  Modelica.Blocks.Sources.RealExpression Tset(y=T_set) annotation (Placement(transformation(extent={{-86,-20},{-70,-2}})));
-
   replaceable Control_Battery.MaxSelfConsumption controller1 if battery constrainedby Control_Battery.MaxSelfConsumption "Operation strategy of the battery" annotation (
     Dialog(group="Battery Parameters"),
     choicesAllMatching=true,
@@ -246,6 +244,8 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
         extent={{8,-8},{-8,8}},
         rotation=90,
         origin={-124,80})));
+  Heat.Profiles.HeatingCurve heatingCurve  annotation (Dialog(group="System setup"), Placement(transformation(
+          extent={{-88,-8},{-68,12}})));
 equation
 
   // _____________________________________________
@@ -320,7 +320,6 @@ equation
       points={{45.36,-24},{44,-24},{44,-52},{-50,-52},{-50,-76},{-62,-76},{-62,-98},{-80,-98}},
       color={0,127,0},
       thickness=0.5));
-  connect(Tset.y, controller.T_set) annotation (Line(points={{-69.2,-11},{-46,-11},{-46,-15.4},{-29.2,-15.4}}, color={0,0,127}));
   connect(controller.Q_flow_set_HP, heatPump.Q_flow_set) annotation (Line(
       points={{-9.5,-14.1},{16,-14.1},{16,-18.94},{25.34,-18.94}},
       color={175,0,0},
@@ -332,6 +331,7 @@ equation
       thickness=0.5));
   connect(controller1.P_set_battery, pV_battery.P_set) annotation (Line(points={{-114,28},{-114,10},{-113,10},{-113,5.46}}, color={0,0,127}));
   connect(excessPV1.y, controller1.P_Consumer) annotation (Line(points={{-124,71.2},{-124,48},{-118.8,48},{-118.8,43.36}}, color={0,0,127}));
+  connect(heatingCurve.T_supply, controller.T_set) annotation (Line(points={{-67.6,4},{-46,4},{-46,-15.4},{-29.2,-15.4}}, color={0,0,127}));
   annotation (
     HideResult=true,
     Dialog(tab="Tracking and Mounting"),

@@ -146,7 +146,7 @@ model PV_HeatPump_Peakboiler "PV + Heatpump with peak boiler and thermal storage
     T_source=T_source,
     useFluidPorts=false,
     useHeatPort=false,
-    T_set=T_s_max,
+    T_set=heatingCurve.T_supply + 3,
     redeclare connector PowerPortModel = TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort,
     redeclare model PowerBoundaryModel = TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower,
     Power(useInputConnectorQ=false, useCosPhi=false)) annotation (Placement(transformation(extent={{26,-24},{48,-2}})));
@@ -231,8 +231,6 @@ model PV_HeatPump_Peakboiler "PV + Heatpump with peak boiler and thermal storage
   Modelica.Blocks.Math.Add add1 if not hotwater annotation (Placement(transformation(extent={{-14,36},{-28,50}})));
   Modelica.Blocks.Math.Add add3 annotation (Placement(transformation(extent={{64,-46},{78,-32}})));
 
-  Modelica.Blocks.Sources.RealExpression Tset(y=T_set) annotation (Placement(transformation(extent={{-86,-20},{-70,-2}})));
-
   replaceable Control_Battery.MaxSelfConsumption controller1 if battery constrainedby Control_Battery.MaxSelfConsumption "Operation strategy of the battery" annotation (
     Dialog(group="Battery Parameters"),
     choicesAllMatching=true,
@@ -249,6 +247,8 @@ model PV_HeatPump_Peakboiler "PV + Heatpump with peak boiler and thermal storage
         rotation=90,
         origin={-126,78})));
 
+  Heat.Profiles.HeatingCurve heatingCurve  annotation (Dialog(group="System setup"), Placement(transformation(
+          extent={{-90,-12},{-70,8}})));
 equation
 
   // _____________________________________________
@@ -311,7 +311,6 @@ equation
       points={{45.36,-24},{44,-24},{44,-60},{-50,-60},{-50,-84},{-62,-84},{-62,-98},{-80,-98}},
       color={0,127,0},
       thickness=0.5));
-  connect(Tset.y, controller.T_set) annotation (Line(points={{-69.2,-11},{-46,-11},{-46,-15.4},{-29.2,-15.4}}, color={0,0,127}));
   connect(controller.Q_flow_set_HP, heatPump.Q_flow_set) annotation (Line(
       points={{-9.5,-14.1},{16,-14.1},{16,-18.94},{25.34,-18.94}},
       color={175,0,0},
@@ -335,6 +334,7 @@ equation
       points={{-106,-5},{-92,-5},{-92,-26},{-91,-26},{-91,-30.18}},
       color={0,135,135},
       thickness=0.5));
+  connect(heatingCurve.T_supply, controller.T_set) annotation (Line(points={{-69.6,0},{-46,0},{-46,-15.4},{-29.2,-15.4}}, color={0,0,127}));
   annotation (
     HideResult=true,
     Dialog(tab="Tracking and Mounting"),
