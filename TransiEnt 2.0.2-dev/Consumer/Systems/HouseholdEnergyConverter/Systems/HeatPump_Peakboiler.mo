@@ -172,13 +172,13 @@ equation
 
   if heating and hotwater and not hotwater_booster then
     connect(add1.y, heatStorage.Q_flow_demand) annotation (Line(points={{46.8,56},{98,56},{98,42},{92,42}}, color={0,0,127}));
-    connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(points={{4.68,100.48},{-34,100.48},{-34,100},{-74,100},{-74,64},{-76,64},{-76,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}}, color={175,0,0}, pattern=LinePattern.Dash), Text(string="%first", index=-1,extent={{6,3},{6,3}},horizontalAlignment=TextAlignment.Left));
+    connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(points={{4.68,100.48},{-34,100.48},{-34,100},{-74,100},{-74,64},{-76,64},{-76,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}}, color={175,0,0}, pattern=LinePattern.Dash));
   elseif heating and not hotwater_booster then
     connect(demand.heatingPowerDemand, heatStorage.Q_flow_demand) annotation (Line(points={{0,100.48},{0,80},{28,80},{28,68},{98,68},{98,40},{96,40},{96,42},{92,42}}, color={0,127,127}));
-    connect(add2.y, apparentPower.P_el_set) annotation (Line(points={{-52,47.2},{-52,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}}, color={0,0,127}));
+    connect(add2.y, apparentPower.P_el_set) annotation (Line(points={{-52,41.2},{-52,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}}, color={0,0,127}));
   elseif hotwater and not hotwater_booster then
     connect(demand.hotWaterPowerDemand, heatStorage.Q_flow_demand) annotation (Line(points={{-4.8,100.48},{-4.8,80},{28,80},{28,68},{100,68},{100,40},{96,40},{96,42},{92,42}}, color={0,127,127}));
-    connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(points={{4.68,100.48},{-34,100.48},{-34,100},{-74,100},{-74,64},{-76,64},{-76,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}}, color={175,0,0}, pattern=LinePattern.Dash), Text(string="%first", index=-1,extent={{6,3},{6,3}},horizontalAlignment=TextAlignment.Left));
+    connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(points={{4.68,100.48},{-34,100.48},{-34,100},{-74,100},{-74,64},{-76,64},{-76,16},{-92,16},{-92,-48},{-56.8,-48},{-56.8,-58.4}}, color={175,0,0}, pattern=LinePattern.Dash));
   else // this time hot water has to be true otherwise the system is not defined
     connect(heatStorage.T_stor_out, dHW_Booster.T_storage_out) annotation (Line(points={{80.2,51.6},{52,51.6},{52,10},{-20,10},{-20,59.2},{-11.52,59.2}}, color={0,0,127}));
     connect(dHW_Booster.electricDemand, demand.electricPowerDemand) annotation (Line(points={{-6.88,63.84},{-6.88,74},{4,74},{4,100.48},{4.68,100.48}}, color={0,0,127}));

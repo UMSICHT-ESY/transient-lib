@@ -27,9 +27,7 @@ model DHW_Booster "Provides remaining electrical heating power for the desired t
   //          Imports and Class Hierarchy
   // _____________________________________________
 
-  // Mal überlegen
-
-  Modelica.Blocks.Interfaces.RealOutput electricPower "Connector of Real output signal" annotation (Placement(transformation(
+  Modelica.Blocks.Interfaces.RealOutput electricDemand_households_dhw "Combined demand of electricity of households and domestic hot water" annotation (Placement(transformation(
         extent={{-17,-17},{17,17}},
         rotation=270,
         origin={-1,-111}), iconTransformation(extent={{-17,-17},{17,17}},
@@ -56,6 +54,8 @@ model DHW_Booster "Provides remaining electrical heating power for the desired t
         rotation=90,
         origin={-36,98})));
 
+  TransiEnt.Basics.Interfaces.General.TemperatureIn T_storage_out annotation (Placement(transformation(extent={{-17,-17},{17,17}}, origin={-103,1}), iconTransformation(extent={{-114,20},{-74,60}})));
+
   // _____________________________________________
   //
   //          Parameters
@@ -71,8 +71,8 @@ model DHW_Booster "Provides remaining electrical heating power for the desired t
   // _____________________________________________
 
   Modelica.Units.SI.MassFlowRate massflow_dhw "Massflowrate of domestic hot water supply";
-  TransiEnt.Basics.Interfaces.General.TemperatureIn T_storage_out annotation (Placement(transformation(extent={{-17,-17},{17,17}}, origin={-103,1}),
-                                                                                                                                      iconTransformation(extent={{-114,20},{-74,60}})));
+  Modelica.Units.SI.ElectricCurrent dhw_Booster_power;
+
 
 equation
 
@@ -80,10 +80,12 @@ equation
   heatingPowerDemand_Storage = massflow_dhw * cp * (T_storage_out - T_freshWater);
 
   if T_dhw > T_storage_out then // No issues during testing but a noEvent-operator might be necessary in the future
-    electricPower = massflow_dhw * cp * (T_dhw - T_storage_out);
+    dhw_Booster_power = massflow_dhw * cp * (T_dhw - T_storage_out);
   else
-    electricPower = 0;
+    dhw_Booster_power = 0;
   end if;
 
+  electricDemand_households_dhw  = dhw_Booster_power + electricDemand
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
+
 end DHW_Booster;
