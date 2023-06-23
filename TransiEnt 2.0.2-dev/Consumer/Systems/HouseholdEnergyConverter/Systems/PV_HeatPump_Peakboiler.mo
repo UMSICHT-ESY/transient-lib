@@ -61,7 +61,6 @@ model PV_HeatPump_Peakboiler "PV + Heatpump with peak boiler and thermal storage
   parameter SI.TemperatureDifference Delta_T_db=2 "Deadband of hysteresis control" annotation (HideResult=true, Dialog(group="Heatpump"));
   parameter SI.HeatFlowRate Q_flow_n=3.5e3 "Nominal heat flow of heat pump at nominal conditions according to EN14511" annotation (HideResult=true, Dialog(group="Heatpump"));
   parameter Real COP_n=3.7 "Coefficient of performance at nominal conditions according to EN14511" annotation (HideResult=true, Dialog(group="Heatpump"));
-  parameter SI.Temperature T_set=65 + 273.25 "Heatpump supply temperature" annotation (Dialog(group="Heatpump"));
 
   parameter Modelica.Units.SI.HeatFlowRate Q_flow_n_boiler=10e3 "Power of the peak boiler" annotation (HideResult=true, Dialog(group="Peak Boiler"));
   parameter Modelica.Units.SI.Efficiency eta=1.05 "Efficiency of the backup heater" annotation (HideResult=true, Dialog(group="Peak Boiler"));
@@ -75,8 +74,9 @@ model PV_HeatPump_Peakboiler "PV + Heatpump with peak boiler and thermal storage
   replaceable model BoilerCostModel = Components.Statistics.ConfigurationData.PowerProducerCostSpecs.GasBoiler annotation (__Dymola_choicesAllMatching=true, Dialog(group="Statistics"));
 
 
-  parameter SI.Temperature T_s_max=343.15 "Maximum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
-  parameter SI.Temperature T_s_min=323.15 "Minimum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
+  SI.Temperature T_set=heatingCurve.T_supply+3 "Heatpump supply temperature" annotation (Dialog(group="Heatpump"));
+  SI.Temperature T_s_max=heatingCurve.T_supply_max "Maximum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
+  SI.Temperature T_s_min=heatingCurve.T_return "Minimum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
   parameter SI.Temperature T_start=60 + 273.15 "Start value of the storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
   parameter SI.Volume V_Storage=0.5 "Volume of the Storage" annotation (Dialog(group="Storage"));
   parameter SI.Height height=1.3 "Height of heat storage" annotation (Dialog(group="Storage"));
@@ -282,7 +282,7 @@ equation
   else // this time hot water has to be true otherwise the system is not defined
     connect(dHW_Booster.electricDemand, demand.electricPowerDemand) annotation (Line(points={{-4.88,63.84},{-4.88,74},{4,74},{4,100.48},{4.68,100.48}}, color={0,0,127}));
     connect(dHW_Booster.hotWaterDemand, demand.hotWaterPowerDemand) annotation (Line(points={{1.12,63.92},{1.12,72},{-16,72},{-16,80},{-4,80},{-4,84},{-4.8,84},{-4.8,100.48}},   color={0,0,127}));
-    connect(dHW_Booster.electricPower, apparentPower1.P_el_set) annotation (Line(points={{-2.08,47.76},{-2.08,4},{-66.8,4},{-66.8,-22.4}},                         color={0,0,127}));
+    connect(dHW_Booster.electricDemand_households_dhw, apparentPower1.P_el_set) annotation (Line(points={{-2.08,47.76},{-2.08,4},{-66.8,4},{-66.8,-22.4}},                         color={0,0,127}));
     connect(dHW_Booster.heatingPowerDemand_Storage, heatStorage1.Q_flow_demand) annotation (Line(points={{6.24,56.08},{22,56.08},{22,56},{98,56},{98,46},{86,46}}, color={0,0,127}));
     connect(dHW_Booster.T_storage_out, heatStorage1.T_stor_out) annotation (Line(points={{-9.52,59.2},{-14,59.2},{-14,18},{88,18},{88,84},{74.2,84},{74.2,55.6}}, color={0,0,127}));
   end if;

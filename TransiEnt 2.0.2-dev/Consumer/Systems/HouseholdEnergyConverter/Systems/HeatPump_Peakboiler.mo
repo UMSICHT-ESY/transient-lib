@@ -55,7 +55,6 @@ model HeatPump_Peakboiler "HeatPump with peak boiler and thermal storage"
 
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_internal=5 "Temperature difference between refrigerant and source/sink temperature" annotation (HideResult=true, Dialog(group="Heatpump"));
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_db=2 "Deadband of hysteresis control" annotation (HideResult=true, Dialog(group="Heatpump"));
-  parameter Modelica.Units.SI.Temperature T_set=65 + 273.25 "Heatpump supply temperature" annotation (Dialog(group="Heatpump"));
   parameter Modelica.Units.SI.HeatFlowRate Q_flow_n=3.5e3 "Nominal heat flow of heat pump at nominal conditions according to EN14511" annotation (HideResult=true, Dialog(group="Heatpump"));
   parameter Real COP_n=3.7 "Coefficient of performance at nominal conditions according to EN14511" annotation (HideResult=true, Dialog(group="Heatpump"));
 
@@ -70,8 +69,9 @@ model HeatPump_Peakboiler "HeatPump with peak boiler and thermal storage"
   parameter Basics.Types.TypeOfPrimaryEnergyCarrierHeat typeOfPrimaryEnergyCarrier=TransiEnt.Basics.Types.TypeOfPrimaryEnergyCarrierHeat.NaturalGas "Type of primary energy carrier for co2 emissions global statistics" annotation (Dialog(group="Statistics"));
   replaceable model BoilerCostModel = Components.Statistics.ConfigurationData.PowerProducerCostSpecs.GasBoiler annotation (__Dymola_choicesAllMatching=true, Dialog(group="Statistics"));
 
-  parameter Modelica.Units.SI.Temperature T_s_max=T_set "Maximum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
-  parameter Modelica.Units.SI.Temperature T_s_min=55 + 273.15 "Minimum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
+  SI.Temperature T_set=heatingCurve.T_supply+3 "Heatpump supply temperature" annotation (Dialog(group="Heatpump"));
+  SI.Temperature T_s_max=heatingCurve.T_supply_max "Maximum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
+  SI.Temperature T_s_min=heatingCurve.T_return "Minimum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
   parameter Modelica.Units.SI.Volume V_Storage=0.5 "Volume of the Storage" annotation (HideResult=true, Dialog(group="Storage"));
   parameter Modelica.Units.SI.Height height=1.3 "Height of heat storage" annotation (HideResult=true, Dialog(group="Storage"));
   parameter Modelica.Units.SI.Diameter d=sqrt(V_Storage/heatStorage.height*4/Modelica.Constants.pi) "Diameter of heat storage" annotation (HideResult=true, Dialog(group="Storage"));
@@ -183,7 +183,7 @@ equation
     connect(heatStorage.T_stor_out, dHW_Booster.T_storage_out) annotation (Line(points={{80.2,51.6},{52,51.6},{52,10},{-20,10},{-20,59.2},{-11.52,59.2}}, color={0,0,127}));
     connect(dHW_Booster.electricDemand, demand.electricPowerDemand) annotation (Line(points={{-6.88,63.84},{-6.88,74},{4,74},{4,100.48},{4.68,100.48}}, color={0,0,127}));
     connect(dHW_Booster.hotWaterDemand, demand.hotWaterPowerDemand) annotation (Line(points={{-0.88,63.92},{-0.88,72},{-16,72},{-16,80},{-4,80},{-4,84},{-4.8,84},{-4.8,100.48}}, color={0,0,127}));
-    connect(dHW_Booster.electricPower, apparentPower.P_el_set) annotation (Line(points={{-4.08,47.76},{-4.08,-58},{-40,-58},{-40,-52},{-56.8,-52},{-56.8,-58.4}}, color={0,0,127}));
+    connect(dHW_Booster.electricDemand_households_dhw, apparentPower.P_el_set) annotation (Line(points={{-4.08,47.76},{-4.08,-58},{-40,-58},{-40,-52},{-56.8,-52},{-56.8,-58.4}}, color={0,0,127}));
     connect(dHW_Booster.heatingPowerDemand_Storage, heatStorage.Q_flow_demand) annotation (Line(points={{4.24,56.08},{22,56.08},{22,70},{98,70},{98,42},{92,42}}, color={0,0,127}));
   end if;
 

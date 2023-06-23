@@ -71,7 +71,7 @@ model DHW_Booster "Provides remaining electrical heating power for the desired t
   // _____________________________________________
 
   Modelica.Units.SI.MassFlowRate massflow_dhw "Massflowrate of domestic hot water supply";
-  Modelica.Units.SI.ElectricCurrent dhw_Booster_power;
+  Modelica.Units.SI.Power dhw_Booster_power;
 
 
 equation

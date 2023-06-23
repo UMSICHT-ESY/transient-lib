@@ -71,10 +71,10 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
   parameter Real COP_n=3.7 "Coefficient of performance at nominal conditions according to EN14511" annotation (HideResult=true, Dialog(group="Heatpump"));
   parameter SI.Power P_el_n=10e3 "Nominal electric power of the backup heater" annotation (HideResult=true, Dialog(group="Heatpump"));
   parameter SI.Efficiency eta_Heater=0.95 "Efficiency of the backup heater" annotation (HideResult=true, Dialog(group="Heatpump"));
-  parameter SI.Temperature T_set=65 + 273.25 "Heatpump supply temperature" annotation (Dialog(group="Heatpump"));
 
-  parameter SI.Temperature T_s_max=343.15 "Maximum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
-  parameter SI.Temperature T_s_min=323.15 "Minimum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
+  SI.Temperature T_set=heatingCurve.T_supply+3 "Heatpump supply temperature" annotation (Dialog(group="Heatpump"));
+  SI.Temperature T_s_max=heatingCurve.T_supply_max "Maximum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
+  SI.Temperature T_s_min=heatingCurve.T_return "Minimum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
   parameter SI.Temperature T_start=60 + 273.15 "Start value of the storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
   parameter SI.Volume V_Storage=0.5 "Volume of the Storage" annotation (Dialog(group="Storage"));
   parameter SI.Height height=1.3 "Height of heat storage" annotation (Dialog(group="Storage"));
@@ -282,7 +282,7 @@ equation
     connect(dHW_Booster.electricDemand, demand.electricPowerDemand) annotation (Line(points={{-6.88,47.84},{-6.88,74},{4,74},{4,84},{4.68,84},{4.68,100.48}}, color={0,0,127}));
     connect(dHW_Booster.T_storage_out, heatStorage1.T_stor_out) annotation (Line(points={{-11.52,43.2},{-14,43.2},{-14,16},{90,16},{90,62},{74.2,62},{74.2,55.6}}, color={0,0,127}));
     connect(dHW_Booster.hotWaterDemand, demand.hotWaterPowerDemand) annotation (Line(points={{-0.88,47.92},{-0.88,72},{10,72},{10,100.48},{-4.8,100.48}}, color={0,0,127}));
-    connect(dHW_Booster.electricPower, apparentPower1.P_el_set) annotation (Line(points={{-4.08,31.76},{-4.08,20},{-4,20},{-4,8},{-66,8},{-66,-14},{-66.8,-14},{-66.8,-22.4}},
+    connect(dHW_Booster.electricDemand_households_dhw, apparentPower1.P_el_set) annotation (Line(points={{-4.08,31.76},{-4.08,20},{-4,20},{-4,8},{-66,8},{-66,-14},{-66.8,-14},{-66.8,-22.4}},
                                                                                                                                                                    color={0,0,127}));
     connect(dHW_Booster.heatingPowerDemand_Storage, heatStorage1.Q_flow_demand) annotation (Line(points={{4.24,40.08},{12,40.08},{12,66},{56,66},{56,68},{98,68},{98,46},{86,46}},
                                                                                                                                                                    color={0,0,127}));
