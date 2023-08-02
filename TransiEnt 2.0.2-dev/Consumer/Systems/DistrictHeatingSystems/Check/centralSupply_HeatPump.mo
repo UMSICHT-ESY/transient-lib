@@ -1,4 +1,4 @@
-﻿within TransiEnt.Consumer.Systems.Systems_DistrictHeating.Check;
+﻿within TransiEnt.Consumer.Systems.DistrictHeatingSystems.Check;
 model centralSupply_HeatPump
 
 //________________________________________________________________________________//
@@ -73,7 +73,7 @@ model centralSupply_HeatPump
         rotation=0,
         origin={-64.5,-38})));
 
-  TransiEnt.Consumer.Systems.Systems_DistrictHeating.HeatPump_DistrictHeating heatPump_DistrictHeating(
+  TransiEnt.Consumer.Systems.DistrictHeatingSystems.HeatPump_DistrictHeating heatPump_DistrictHeating(
     useGasPort=false,
     useElectricityPort=true,
     Q_flow_n=5000,
@@ -82,8 +82,7 @@ model centralSupply_HeatPump
     V_Storage=5,
     height=3,
     T_start=338.15,
-    heatingCurve(heatingCurveType=1))
-                    annotation (Placement(transformation(extent={{-38,-66},{-18,-46}})));
+    heatingCurve(heatingCurveType=1)) annotation (Placement(transformation(extent={{-38,-66},{-18,-46}})));
   Modelica.Blocks.Sources.RealExpression Supply_Temperature(y=heatPump_DistrictHeating.heatStorage.T_stor_out) annotation (Placement(transformation(
         extent={{-11.5,-10},{11.5,10}},
         rotation=0,

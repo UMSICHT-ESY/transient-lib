@@ -1,5 +1,5 @@
-﻿within TransiEnt.Consumer.Systems.Systems_DistrictHeating.Check;
-model centralSupply_GasBoiler
+﻿within TransiEnt.Consumer.Systems.DistrictHeatingSystems.Check;
+model centralSupply_CHP
 
 //________________________________________________________________________________//
 // Component of the TransiEnt Library, version: 2.0.2                             //
@@ -62,27 +62,40 @@ model centralSupply_GasBoiler
         TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),
            TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters(),TransiEnt.SystemGeneration.GridConstructor.DataRecords.DHNParameters()})
                                   annotation (Placement(transformation(extent={{44,8},{74,32}})));
-  ClaRa.Components.BoundaryConditions.BoundaryVLE_pTxi supply_boundary(p_const=10e5, T_const(displayUnit="degC") = 363.15) annotation (Placement(transformation(extent={{-80,46},{-64,62}})));
-  ClaRa.Components.BoundaryConditions.BoundaryVLE_pTxi return_boundary(p_const=5e5, T_const(displayUnit="degC") = 343.15)                 annotation (Placement(transformation(extent={{-80,26},{-64,40}})));
+  ClaRa.Components.BoundaryConditions.BoundaryVLE_pTxi supply_boundary(
+    variable_T=true,                                                   p_const=10e5,
+    T_const(displayUnit="degC") = 343.15)                                                                                  annotation (Placement(transformation(extent={{-56,44},{-40,60}})));
+  ClaRa.Components.BoundaryConditions.BoundaryVLE_pTxi return_boundary(p_const=5e5, T_const(displayUnit="degC") = 343.15)                 annotation (Placement(transformation(extent={{-56,24},{-40,38}})));
   ClaRa.Components.Sensors.SensorVLE_L1_T T_supply annotation (Placement(transformation(extent={{18,50},{38,70}})));
   ClaRa.Components.Sensors.SensorVLE_L1_T T_return annotation (Placement(transformation(extent={{18,-14},{38,-34}})));
   Modelica.Blocks.Sources.RealExpression Q_flow_demand_heating_grid(y=grid.Basic_Grid_Elements[1].main_dhn_pipe.waterPortIn_supply.m_flow*4200*(T_supply.T - T_return.T)) annotation (Placement(transformation(
         extent={{-11.5,-10},{11.5,10}},
         rotation=0,
-        origin={-64.5,-56})));
-  Boiler_DistrictHeating boiler_DistrictHeating(useGasPort=false, useElectricityPort=false) annotation (Placement(transformation(extent={{-42,-84},{-22,-64}})));
+        origin={-68.5,-38})));
+
+  Modelica.Blocks.Sources.RealExpression Suppy_Temperature(y=cHP_Boiler_Storage_DistrictHeating.Storage.T_stor_out)      annotation (Placement(transformation(
+        extent={{-11.5,-10},{11.5,10}},
+        rotation=0,
+        origin={-82.5,52})));
+  CHP_Boiler_Storage_DistrictHeating cHP_Boiler_Storage_DistrictHeating(
+    useGasPort=true,
+    useElectricityPort=true,
+    controller(control_SoC=true),
+    gasBoilerGasAdaptive(useGasPort=false),
+    smallScaleCHP_simple(useGasPort=true, usePowerPort=true)) annotation (Placement(transformation(extent={{-34,-66},{-14,-46}})));
+  Components.Boundaries.Gas.BoundaryRealGas_pTxi           gasSource annotation (Placement(transformation(extent={{22,-82},{6,-66}})));
 equation
   connect(ElectricGrid.epp, grid.epp_p) annotation (Line(
       points={{-62,-3},{38,-3},{38,14},{44,14}},
       color={0,127,0},
       thickness=0.5));
   connect(return_boundary.steam_a, grid.waterPortOut_return) annotation (Line(
-      points={{-64,33},{-20,33},{-20,18},{44,18}},
+      points={{-40,31},{10,31},{10,18},{44,18}},
       color={0,131,169},
       pattern=LinePattern.Solid,
       thickness=0.5));
   connect(supply_boundary.steam_a, grid.waterPortIn_supply) annotation (Line(
-      points={{-64,54},{-16,54},{-16,22},{44,22}},
+      points={{-40,52},{12,52},{12,22},{44,22}},
       color={0,131,169},
       pattern=LinePattern.Solid,
       thickness=0.5));
@@ -96,10 +109,19 @@ equation
       color={0,131,169},
       pattern=LinePattern.Solid,
       thickness=0.5));
-  connect(Q_flow_demand_heating_grid.y, boiler_DistrictHeating.heatDemand) annotation (Line(points={{-51.85,-56},{-32,-56},{-32,-63.6}}, color={0,0,127}));
+  connect(Suppy_Temperature.y, supply_boundary.T) annotation (Line(points={{-69.85,52},{-56,52}}, color={0,0,127}));
+  connect(Q_flow_demand_heating_grid.y, cHP_Boiler_Storage_DistrictHeating.heatDemand) annotation (Line(points={{-55.85,-38},{-24,-38},{-24,-45.6}}, color={0,0,127}));
+  connect(cHP_Boiler_Storage_DistrictHeating.epp, ElectricGrid.epp) annotation (Line(
+      points={{-32,-65.8},{-32,-68},{-10,-68},{-10,-3},{-62,-3}},
+      color={0,127,0},
+      thickness=0.5));
+  connect(gasSource.gasPort, cHP_Boiler_Storage_DistrictHeating.gasPortIn) annotation (Line(
+      points={{6,-74},{-16,-74},{-16,-65.6}},
+      color={255,255,0},
+      thickness=1.5));
   annotation (                                  experiment(
-      StopTime=604800,
-      Interval=3600.00288,
+      StopTime=2678400,
+      Interval=900,
       __Dymola_Algorithm="Cvode"),
     __Dymola_experimentSetupOutput(events=false));
-end centralSupply_GasBoiler;
+end centralSupply_CHP;

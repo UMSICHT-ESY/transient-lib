@@ -1,4 +1,4 @@
-﻿within TransiEnt.Consumer.Systems.Systems_DistrictHeating.Check;
+﻿within TransiEnt.Consumer.Systems.DistrictHeatingSystems.Check;
 model centralSupply_HeatPump_Peakboiler
 
 //________________________________________________________________________________//
@@ -77,9 +77,11 @@ model centralSupply_HeatPump_Peakboiler
         extent={{-11.5,-10},{11.5,10}},
         rotation=0,
         origin={-82.5,52})));
-  TransiEnt.Consumer.Systems.Systems_DistrictHeating.HeatPump_DistrictHeating_Peakboiler heatPump_DistrictHeating_Peakboiler(Q_flow_n_boiler=20000, eta=0.95,
+  TransiEnt.Consumer.Systems.DistrictHeatingSystems.HeatPump_DistrictHeating_Peakboiler heatPump_DistrictHeating_Peakboiler(
+    Q_flow_n_boiler=20000,
+    eta=0.95,
     heatingCurve(heatingCurveType=1),
-    gasBoiler(useGasPort=false))                                                                                                                              annotation (Placement(transformation(extent={{-44,-64},{-24,-44}})));
+    gasBoiler(useGasPort=false)) annotation (Placement(transformation(extent={{-44,-64},{-24,-44}})));
 equation
   connect(ElectricGrid.epp, grid.epp_p) annotation (Line(
       points={{-62,-3},{38,-3},{38,14},{44,14}},

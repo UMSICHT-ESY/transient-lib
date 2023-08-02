@@ -1,4 +1,4 @@
-﻿within TransiEnt.Consumer.Systems.Systems_DistrictHeating;
+﻿within TransiEnt.Consumer.Systems.DistrictHeatingSystems;
 model Boiler_DistrictHeating "Gas boilerfor central heat supply in a district heating grid."
 
 //________________________________________________________________________________//
@@ -27,7 +27,7 @@ model Boiler_DistrictHeating "Gas boilerfor central heat supply in a district he
   //          Imports and Class Hierarchy
   // _____________________________________________
 
-  extends TransiEnt.Consumer.Systems.Systems_DistrictHeating.Base.Systems_DistrictHeating(
+  extends TransiEnt.Consumer.Systems.DistrictHeatingSystems.Base.Systems_DistrictHeating(
     final el_grid=useElectricityPort,
     final gas_grid=useGasPort,
     medium1=FuelMedium);

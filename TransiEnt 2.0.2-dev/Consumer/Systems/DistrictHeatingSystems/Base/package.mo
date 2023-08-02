@@ -1,3 +1,3 @@
-within TransiEnt.Consumer.Systems.Systems_DistrictHeating;
+within TransiEnt.Consumer.Systems.DistrictHeatingSystems;
 package Base "Contains base classes of central heat supply units."
 end Base;

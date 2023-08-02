@@ -1,4 +1,4 @@
-﻿within TransiEnt.Consumer.Systems.Systems_DistrictHeating.Base;
+﻿within TransiEnt.Consumer.Systems.DistrictHeatingSystems.Base;
 partial model Systems_DistrictHeating
 
 //________________________________________________________________________________//

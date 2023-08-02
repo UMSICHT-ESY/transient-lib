@@ -1,4 +1,4 @@
-﻿within TransiEnt.Consumer.Systems.Systems_DistrictHeating;
+﻿within TransiEnt.Consumer.Systems.DistrictHeatingSystems;
 model CHP_Boiler_Storage_DistrictHeating "CHP unit, thermal storage and gas boiler"
 
 //________________________________________________________________________________//
@@ -27,11 +27,10 @@ model CHP_Boiler_Storage_DistrictHeating "CHP unit, thermal storage and gas boil
   //          Imports and Class Hierarchy
   // ___________________________________________________________________________
 
-  extends TransiEnt.Consumer.Systems.Systems_DistrictHeating.Base.Systems_DistrictHeating(
+  extends TransiEnt.Consumer.Systems.DistrictHeatingSystems.Base.Systems_DistrictHeating(
     final el_grid=useElectricityPort,
     final gas_grid=useGasPort,
     medium1=FuelMedium);
-
 
   //___________________________________________________________________________
   //
