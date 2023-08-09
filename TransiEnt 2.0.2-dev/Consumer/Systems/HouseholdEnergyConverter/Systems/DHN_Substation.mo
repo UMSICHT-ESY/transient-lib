@@ -20,7 +20,7 @@ model DHN_Substation "Substation for district hot water"
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -36,9 +36,9 @@ model DHN_Substation "Substation for district hot water"
   // _____________________________________________
 
   extends Base.Systems(
-    final DHN=true,
-    final el_grid=true,
-    final gas_grid=false);
+    DHN=true,
+    el_grid=true,
+    gas_grid=false);
 
   import TIL = TILMedia.VLEFluidFunctions;
   // _____________________________________________
@@ -59,7 +59,6 @@ model DHN_Substation "Substation for district hot water"
 
   TransiEnt.Producer.Heat.Heat2Heat.Substation_indirect_noStorage_L1 substation_indirect_noStorage_L1_1(
     T_start=T_start,
-    dT=dT,
     m_flow_min=m_flow_min) annotation (Placement(transformation(extent={{-14,6},{14,26}})));
 equation
 
