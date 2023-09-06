@@ -28,9 +28,9 @@ model PV_Boiler "PV + gas boiler"
   // _____________________________________________
 
   extends Base.Systems(
-    final DHN=false,
-    final el_grid=true,
-    final gas_grid=useGasPort,
+    DHN=false,
+    el_grid=true,
+    gas_grid=useGasPort,
     medium1=FuelMedium);
 
   outer TransiEnt.SimCenter simCenter;
@@ -173,7 +173,7 @@ public
     T_amb=T_amb,
     k=k) annotation (Placement(transformation(extent={{52,16},{72,36}})));
 
-  Modelica.Blocks.Math.Add add1  if waterHeating=="gas" annotation (Placement(transformation(extent={{20,62},{34,48}})));
+  Modelica.Blocks.Math.Add add1 if  waterHeating=="gas" annotation (Placement(transformation(extent={{20,62},{34,48}})));
 
   Modelica.Blocks.Continuous.LimPID PID(
     controllerType=Modelica.Blocks.Types.SimpleController.P,
@@ -186,8 +186,8 @@ public
         rotation=0,
         origin={68,-9})));
 
-  TransiEnt.Storage.Electrical.LithiumIonBattery pV_battery(use_PowerRateLimiter=false, StorageModelParams(selfDischargeRate=4e-9) = params)
-                                                                                                                       if battery annotation (Placement(transformation(extent={{-38,-42},{-20,-24}})));
+  TransiEnt.Storage.Electrical.LithiumIonBattery pV_battery(use_PowerRateLimiter=false, StorageModelParams(selfDischargeRate=4e-9) = params) if
+                                                                                                                          battery annotation (Placement(transformation(extent={{-38,-42},{-20,-24}})));
 
   replaceable TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems.Control_Battery.MaxSelfConsumption controller if battery constrainedby Control_Battery.Base.Controller_PV_Battery
                                                                                                                                                                                  "Operation strategy of the battery" annotation (

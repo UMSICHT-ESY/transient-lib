@@ -20,7 +20,7 @@ model CHP_Boiler_Storage "CHP unit, thermal storage and gas boiler"
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -36,9 +36,9 @@ model CHP_Boiler_Storage "CHP unit, thermal storage and gas boiler"
   // ___________________________________________________________________________
 
   extends Base.Systems(
-    final DHN=false,
-    final el_grid=true,
-    final gas_grid=useGasPort,
+    DHN=false,
+    el_grid=true,
+    gas_grid=useGasPort,
     medium1=FuelMedium);
 
   //___________________________________________________________________________

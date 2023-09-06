@@ -36,9 +36,9 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
   // _____________________________________________
 
   extends Base.Systems(
-    final DHN=false,
-    final el_grid=true,
-    final gas_grid=false);
+    DHN=false,
+    el_grid=true,
+    gas_grid=false);
 
   outer TransiEnt.SimCenter simCenter;
   outer TransiEnt.ModelStatistics modelStatistics;

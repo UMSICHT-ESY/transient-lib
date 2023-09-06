@@ -20,7 +20,7 @@ model solarThermal_Boiler "Solar heating and gas boiler"
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -36,9 +36,9 @@ model solarThermal_Boiler "Solar heating and gas boiler"
   // _____________________________________________
 
   extends TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems.Base.Systems(
-    final DHN=false,
-    final gas_grid=useGasPort,
-    final el_grid=true,
+    DHN=false,
+    gas_grid=useGasPort,
+    el_grid=true,
     medium1=FuelMedium);
 
   // _____________________________________________

@@ -17,7 +17,7 @@ model PV_Boiler_heatStorage "PV + gas boiler with heat storage"
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -28,9 +28,9 @@ model PV_Boiler_heatStorage "PV + gas boiler with heat storage"
   // _____________________________________________
 
   extends Base.Systems(
-    final DHN=false,
-    final el_grid=true,
-    final gas_grid=useGasPort,
+    DHN=false,
+    el_grid=true,
+    gas_grid=useGasPort,
     medium1=FuelMedium);
 
   outer TransiEnt.SimCenter simCenter;
