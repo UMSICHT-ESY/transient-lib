@@ -164,27 +164,7 @@ public
 
   Modelica.Blocks.Math.Add add if waterHeating=="electrical" annotation (Placement(transformation(extent={{-14,48},{-28,62}})));
 
-  TransiEnt.Storage.Heat.HotWaterStorage_constProp_L2.HotWaterStorage_constProp_L2 heatStorage(
-    useFluidPorts=false,
-    T_s_max=T_s_max,
-    T_s_min=T_s_min,
-    d=d,
-    height=height,
-    T_amb=T_amb,
-    k=k) annotation (Placement(transformation(extent={{52,16},{72,36}})));
-
   Modelica.Blocks.Math.Add add1 if  waterHeating=="gas" annotation (Placement(transformation(extent={{20,62},{34,48}})));
-
-  Modelica.Blocks.Continuous.LimPID PID(
-    controllerType=Modelica.Blocks.Types.SimpleController.P,
-    yMin=0,
-    yMax=Q_flow_n_boiler,
-    k=Q_flow_n_boiler*10) annotation (Placement(transformation(extent={{52,-16},{38,-2}})));
-
-  Modelica.Blocks.Sources.RealExpression setpoint(y=0.9) annotation (Placement(transformation(
-        extent={{6,-5},{-6,5}},
-        rotation=0,
-        origin={68,-9})));
 
   TransiEnt.Storage.Electrical.LithiumIonBattery pV_battery(use_PowerRateLimiter=false, StorageModelParams(selfDischargeRate=4e-9) = params) if
                                                                                                                           battery annotation (Placement(transformation(extent={{-38,-42},{-20,-24}})));
