@@ -20,7 +20,7 @@ model HeatPump "HeatPump with thermal storage"
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -216,7 +216,7 @@ equation
   connect(Tset.y, Controller.T_set) annotation (Line(points={{-73.2,-17},{-61.12,-16.54}}, color={0,0,127}));
   connect(Tsource.y, Controller.T_source) annotation (Line(points={{-29.2,23},{-24,23},{-24,2},{-46.71,2},{-46.71,-4.77}}, color={0,0,127}));
 
-  connect(heatPump.Set_value, Controller.Q_flow_set_HP) annotation (Line(
+  connect(heatPump.Q_flow_set, Controller.Q_flow_set_HP) annotation (Line(
       points={{15.34,-16.94},{-12.33,-16.94},{-12.33,-15.11},{-39.45,-15.11}},
       color={175,0,0},
       pattern=LinePattern.Dash));

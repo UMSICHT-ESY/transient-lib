@@ -77,6 +77,8 @@ public
   Real COP;
   Real P_el;
   Real Q_flow;
+  Real P_el_max;
+  Real Q_flow_max;
 
 
   input Modelica.Units.SI.Temperature T_set=50 + 273.15 "Heatpump supply temperature" annotation (Dialog(group="Heat pump parameters"));

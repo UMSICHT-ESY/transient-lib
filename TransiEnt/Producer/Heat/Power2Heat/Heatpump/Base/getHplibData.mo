@@ -22,8 +22,8 @@ function getHplibData "function to get the regression parameters of the the hpli
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
 
-  input TransiEnt.Components.Electrical.Grid.Characteristics.LVCabletypes heatpump_type "type of low voltage cable";
-  output Real hplib_data[4] "returns cable data. [r1,x1,c1,ir]";
+  input TransiEnt.Producer.Heat.Power2Heat.Heatpump.Base.HeatpumpTypes heatpump_type "type of heat pump";
+  output Real hplib_data[8] "returns heat pump data. [p1_cop, p2_cop, p3_cop, p4_cop, p1_P_el_h, p2_P_el_h, p3_P_el_h, p4_P_el_h]";
 algorithm
   // saved heat pump data
   // Data p1_cop, p2_cop, p3_cop, p4_cop, p1_P_el_h, p2_P_el_h, p3_P_el_h, p4_P_el_h
