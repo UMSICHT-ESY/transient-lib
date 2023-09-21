@@ -37,7 +37,7 @@ model Heatpump_hplib "Simple heatpump model that is based on regression models f
   parameter Modelica.Units.SI.HeatFlowRate Q_flow_n=3.5e3 "Nominal heat flow of heat pump at nominal conditions according to EN14511" annotation (Dialog(group="Heat pump parameters"));
   parameter Real COP_n=3.7 "Coefficient of performance at nominal conditions according to EN14511" annotation (Dialog(group="Heat pump parameters"));
 
-  final parameter Real eta_HP=COP_n/((273.15 + 40)/(40 - 2));
+  //final parameter Real eta_HP=COP_n/((273.15 + 40)/(40 - 2));
   final parameter Modelica.Units.SI.Power P_el_n=Q_flow_n/COP_n;
 
   Modelica.Units.SI.Temperature T_source=simCenter.ambientConditions.temperature.value + 273.15 "Temperature of heat source" annotation (Dialog(group="Heat pump parameters", enable=not use_T_source_input_K), choices(choice=simCenter.ambientConditions.temperature.value + 273.15 "Ambient Temperature", choice=IntegraNet.SimCenter.Ground_Temperature + 273.15 "Ground Temperature"));
@@ -179,21 +179,19 @@ equation
      T_source_internal =T_source;
    end if;
 
-  // Apply Regression Model for COP
-  COP =  p1_COP * (T_source_internal - 273.15) + p2_COP * (T_set - 273.15) + p3_COP + p4_COP *(T_source_internal - 273.15); // The temperatures has to be given in °C
+   // Apply Regression Model for COP
+   COP =  p1_COP * (T_source_internal - 273.15) + p2_COP * (T_set - 273.15) + p3_COP + p4_COP *(T_source_internal - 273.15); // The temperatures has to be given in °C
 
-   /*
-   We should somehow account for a maximum possible thermal Power of the Heatpump?
-   P_el_hplib = p1_P_el_h * (T_source - 273.15) + p2_P_el_h * (T_set - 273.15) + p3_P_el_h + p4_P_el_h *(T_source - 273.15); // The temperatures has to be given in °C 
-   Q_flow_max = COP*P_el_hplib;
+   //We should somehow account for a maximum possible thermal or electricel power that is given within the regression models
+   P_el_max = P_el_n * (T_source - 273.15) + p2_P_el_h * (T_set - 273.15) + p3_P_el_h + p4_P_el_h *(T_source - 273.15); // The temperatures has to be given in °C
+   Q_flow_max = COP*P_el_max;
 
-   
+
    if Q_flow_set > Q_flow_max then
      Q_flow = Q_flow_max;
    else
      Q_flow = Q_flow_set;
      end if;
-   */
 
    Q_flow = P_el*COP;
    Power.P_el_set = P_el;
