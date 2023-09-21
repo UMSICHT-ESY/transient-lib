@@ -292,7 +292,7 @@ equation
       color={0,127,0},
       thickness=0.5));
   connect(Tset.y, controller.T_set) annotation (Line(points={{-69.2,-11},{-46,-11},{-46,-15.4},{-29.2,-15.4}}, color={0,0,127}));
-  connect(controller.Q_flow_set_HP, heatPump.Q_flow_set) annotation (Line(
+  connect(controller.Q_flow_set_HP, heatPump.Set_value) annotation (Line(
       points={{-9.5,-14.1},{16,-14.1},{16,-18.94},{25.34,-18.94}},
       color={175,0,0},
       pattern=LinePattern.Dash));
