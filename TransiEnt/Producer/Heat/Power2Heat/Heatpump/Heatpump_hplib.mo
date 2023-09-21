@@ -32,6 +32,7 @@ model Heatpump_hplib "Simple heatpump model that is based on regression models f
 
   parameter Boolean use_T_source_input_K=false "False, use outer ambient conditions" annotation (Dialog(group="Heat pump parameters"));
   parameter Boolean usePowerPort=true "True if power port shall be used" annotation (Dialog(group="Fundamental Definitions"), choices(checkBox=true));
+  parameter Boolean useElectricSetValue=false "True if set value shall be elctrical instead of thermal" annotation (Dialog(group="Fundamental Definitions"), choices(checkBox=true));
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_internal=5 "Temperature difference between refrigerant and source/sink temperature" annotation (Dialog(group="Heat pump parameters"));
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_db=2 "Deadband of hysteresis control" annotation (Dialog(group="Heat pump parameters"));
   parameter Modelica.Units.SI.HeatFlowRate Q_flow_n=3.5e3 "Nominal heat flow of heat pump at nominal conditions according to EN14511" annotation (Dialog(group="Heat pump parameters"));
@@ -92,7 +93,7 @@ public
         rotation=-90,
         origin={2,104})));
 
-  TransiEnt.Basics.Interfaces.Thermal.HeatFlowRateIn Q_flow_set "Heatflow set point" annotation (Placement(transformation(extent={{-126,-74},{-86,-34}}), iconTransformation(extent={{-126,-74},{-86,-34}})));
+  Modelica.Blocks.Interfaces.RealInput Set_value "Heatflow or electric power set point" annotation (Placement(transformation(extent={{-126,-74},{-86,-34}}), iconTransformation(extent={{-126,-74},{-86,-34}})));
   TransiEnt.Basics.Interfaces.Thermal.HeatFlowRateOut Heat_output    "Setpoint value, e.g. Storage setpoint temperature"  annotation (Placement(transformation(extent={{96,38},{136,78}}),
         iconTransformation(extent={{96,38},{136,78}})));
 
@@ -186,16 +187,23 @@ equation
    P_el_max = P_el_n * (T_source - 273.15) + p2_P_el_h * (T_set - 273.15) + p3_P_el_h + p4_P_el_h *(T_source - 273.15); // The temperatures has to be given in °C
    Q_flow_max = COP*P_el_max;
 
-
-   if Q_flow_set > Q_flow_max then
-     Q_flow = Q_flow_max;
-   else
-     Q_flow = Q_flow_set;
-     end if;
-
    Q_flow = P_el*COP;
    Power.P_el_set = P_el;
-   Q_flow = Q_flow_set;
+   //Q_flow = Q_flow_set;
+
+  if not useElectricSetValue then
+    if Set_value > Q_flow_max then
+     Q_flow = Q_flow_max;
+   else
+     Q_flow = Set_value;
+    end if;
+  else
+    if Set_value > P_el_max then
+      P_el = P_el_max;
+    else
+      P_el = Set_value;
+    end if;
+  end if;
 
    collectElectricPower.powerCollector.P=-P_el;
    collectHeatingPower.heatFlowCollector.Q_flow=Q_flow;
