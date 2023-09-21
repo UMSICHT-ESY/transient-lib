@@ -1,7 +1,5 @@
 ﻿within TransiEnt.Producer.Heat.Power2Heat.Heatpump;
-model Heatpump "Simple heatpump model that calculates the heat output from the externally specified electric power"
-
-
+model Heatpump "Simple heatpump model that calculates the heat output from the externally specified electric or thermal power"
 
 //________________________________________________________________________________//
 // Component of the TransiEnt Library, version: 2.0.2                             //
@@ -19,15 +17,10 @@ model Heatpump "Simple heatpump model that calculates the heat output from the e
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
-
-
-
-
-
 
  outer TransiEnt.SimCenter simCenter;
  outer TransiEnt.ModelStatistics modelStatistics;
@@ -39,6 +32,7 @@ model Heatpump "Simple heatpump model that calculates the heat output from the e
 
   parameter Boolean use_T_source_input_K=false "False, use outer ambient conditions" annotation (Dialog(group="Heat pump parameters"));
   parameter Boolean usePowerPort=true "True if power port shall be used" annotation (Dialog(group="Fundamental Definitions"), choices(checkBox=true));
+  parameter Boolean useElectricSetValue=false "True if set value shall be elctrical instead of thermal" annotation (Dialog(group="Fundamental Definitions"), choices(checkBox=true));
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_internal=5 "Temperature difference between refrigerant and source/sink temperature" annotation (Dialog(group="Heat pump parameters"));
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_db=2 "Deadband of hysteresis control" annotation (Dialog(group="Heat pump parameters"));
   parameter Modelica.Units.SI.HeatFlowRate Q_flow_n=3.5e3 "Nominal heat flow of heat pump at nominal conditions according to EN14511" annotation (Dialog(group="Heat pump parameters"));
@@ -63,6 +57,9 @@ model Heatpump "Simple heatpump model that calculates the heat output from the e
    //___________________________________________________________________________
 
   Real COP_Carnot=(T_set + Delta_T_internal)/max(2*Delta_T_internal, T_set + 2*Delta_T_internal - T_source_internal);
+  Real COP = COP_Carnot*eta_HP;
+  Real P_el;
+  Real Q_flow;
 
   input SI.Temperature T_set=50+273.15 "Heatpump supply temperature" annotation (Dialog(group="Heat pump parameters"));
 
@@ -78,7 +75,7 @@ model Heatpump "Simple heatpump model that calculates the heat output from the e
         rotation=-90,
         origin={2,104})));
 
-  Basics.Interfaces.Thermal.HeatFlowRateIn               Q_flow_set "Heatflow set point" annotation (Placement(transformation(extent={{-126,-74},{-86,-34}}), iconTransformation(extent={{-126,-74},{-86,-34}})));
+  Modelica.Blocks.Interfaces.RealInput Set_value "Heatflow or electric power set point" annotation (Placement(transformation(extent={{-126,-74},{-86,-34}}), iconTransformation(extent={{-126,-74},{-86,-34}})));
   TransiEnt.Basics.Interfaces.Thermal.HeatFlowRateOut Heat_output    "Setpoint value, e.g. Storage setpoint temperature"  annotation (Placement(transformation(extent={{96,38},{136,78}}),
         iconTransformation(extent={{96,38},{136,78}})));
 
@@ -100,15 +97,12 @@ model Heatpump "Simple heatpump model that calculates the heat output from the e
   //
   //           Instances of other Classes
   // _____________________________________________
-public
-  Modelica.Blocks.Math.Division P_el annotation (Placement(transformation(extent={{-26,30},{-6,50}})));
-  Modelica.Blocks.Sources.RealExpression COP(y=COP_Carnot*eta_HP) annotation (Placement(transformation(extent={{-64,24},{-44,44}})));
 
   TransiEnt.Components.Statistics.Collectors.LocalCollectors.HeatingPlantCost heatingPlantCost(
     calculateCost=true,
     consumes_H_flow=false,
     Q_flow_n=Q_flow_n,
-    Q_flow_is=-P_el.y,
+    Q_flow_is=-P_el,
     produces_m_flow_CDE=false,
     m_flow_CDE_is=0) annotation (Placement(transformation(extent={{-60,-100},{-40,-80}})));
 
@@ -155,6 +149,7 @@ public
    TransiEnt.Components.Statistics.Collectors.LocalCollectors.CollectHeatingPower collectHeatingPower(typeOfResource=TransiEnt.Basics.Types.TypeOfResource.Conventional)
                                                                                                                                                                     annotation (Placement(transformation(extent={{-80,-100},{-60,-80}})));
 
+  Modelica.Blocks.Sources.RealExpression Q_flow_internal(y=Q_flow) annotation (Placement(transformation(extent={{-32,16},{-12,36}})));
 equation
 
   // _____________________________________________
@@ -166,11 +161,20 @@ equation
     T_source_internal =T_source;
   end if;
 
- collectElectricPower.powerCollector.P=Q_flow_set;
- collectHeatingPower.heatFlowCollector.Q_flow=-P_el.y;
+ Q_flow = P_el*COP;
+ Power.P_el_set = P_el;
 
+ if not useElectricSetValue then
+   Q_flow =Set_value;
+ else
+   P_el =Set_value;
+ end if;
+
+ collectElectricPower.powerCollector.P=-P_el;
+ collectHeatingPower.heatFlowCollector.Q_flow=Q_flow;
+
+// connect(Q_flow_set,Q_flow);
   connect(T_source_internal, T_source_input_K);
-
   connect(modelStatistics.powerCollector[collectElectricPower.typeOfResource],collectElectricPower.powerCollector);
   connect(modelStatistics.heatFlowCollector[collectHeatingPower.typeOfResource],collectHeatingPower.heatFlowCollector);
   connect(modelStatistics.costsCollector, heatingPlantCost.costsCollector);
@@ -210,12 +214,9 @@ equation
       points={{-6,-80},{76,-80},{76,-100}},
       color={0,135,135},
       thickness=0.5));
-  connect(Q_flow_set, P_el.u1) annotation (Line(points={{-106,-54},{-36,-54},{-36,16},{28,16},{28,72},{-74,72},{-74,46},{-28,46}}, color={0,127,127}));
-  connect(P_el.u2, COP.y) annotation (Line(points={{-28,34},{-43,34}}, color={0,0,127}));
-  connect(P_el.y, Power.P_el_set) annotation (Line(points={{-5,40},{0,40},{0,-60},{-10,-60},{-10,-68}}, color={0,0,127}));
-  connect(Q_flow_set, heatFlowBoundary.Q_flow_prescribed) annotation (Line(points={{-106,-54},{2,-54},{2,-50},{10,-50}}, color={0,127,127}));
-  connect(Q_flow_set, prescribedHeatFlow.Q_flow) annotation (Line(points={{-106,-54},{-36,-54},{-36,16},{28,16},{28,78},{46,78}}, color={0,127,127}));
-  connect(Q_flow_set, Heat_output) annotation (Line(points={{-106,-54},{-36,-54},{-36,16},{50,16},{50,58},{116,58}}, color={0,127,127}));
+  connect(Q_flow_internal.y, heatFlowBoundary.Q_flow_prescribed) annotation (Line(points={{-11,26},{4,26},{4,-50},{10,-50}}, color={0,0,127}));
+  connect(Q_flow_internal.y, prescribedHeatFlow.Q_flow) annotation (Line(points={{-11,26},{40,26},{40,78},{46,78}}, color={0,0,127}));
+  connect(Q_flow_internal.y, Heat_output) annotation (Line(points={{-11,26},{40,26},{40,58},{116,58}}, color={0,0,127}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
                                    Ellipse(
           lineColor={0,125,125},

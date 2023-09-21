@@ -123,7 +123,7 @@ model BivalentHeatPumpWithControl "Heatpump with selectable Controller and elect
 
   replaceable connector PowerPortModel = Basics.Interfaces.Electrical.ActivePowerPort constrainedby Basics.Interfaces.Electrical.ActivePowerPort "Choice of power port" annotation (choicesAllMatching=true, Dialog(group="Replaceable Components"));
 
-  PowerPortModel epp  if usePowerPort annotation (Placement(transformation(extent={{48,-108},{68,-88}})));
+  PowerPortModel epp if  usePowerPort annotation (Placement(transformation(extent={{48,-108},{68,-88}})));
 
   ElectricBoiler.ElectricBoiler electricBoiler(
     change_sign=true,
@@ -133,7 +133,7 @@ model BivalentHeatPumpWithControl "Heatpump with selectable Controller and elect
     useHeatPort=useHeatPort,
     usePowerPort=usePowerPort,
     redeclare connector PowerPortModel = PowerPortModel,
-    redeclare model PowerBoundaryModel = PowerBoundaryModel)                                                       if CalculatePHeater annotation (Placement(transformation(extent={{2,-78},{34,-46}})));
+    redeclare model PowerBoundaryModel = PowerBoundaryModel) if                                                       CalculatePHeater annotation (Placement(transformation(extent={{2,-78},{34,-46}})));
 
    //___________________________________________________________________________
    //
@@ -148,7 +148,7 @@ protected
   TransiEnt.Basics.Interfaces.General.TemperatureIn T_source_internal "Temperature of heat source used for calculation";
 
 public
-  TransiEnt.Basics.Interfaces.General.TemperatureIn T_source_input_K   if use_T_source_input_K "Input ambient temperature in Kelvin" annotation (Placement(transformation(
+  TransiEnt.Basics.Interfaces.General.TemperatureIn T_source_input_K if   use_T_source_input_K "Input ambient temperature in Kelvin" annotation (Placement(transformation(
         extent={{-20,-20},{20,20}},
         rotation=270,
         origin={0,106})));
@@ -169,7 +169,7 @@ equation
   end if;
 
   connect(T_source_internal, T_source_input_K);
-  connect(controller.Q_flow_set_HP, heatPump.Q_flow_set) annotation (Line(
+  connect(controller.Q_flow_set_HP, heatPump.Set_value) annotation (Line(
       points={{-22.95,-19.21},{-10,-19.21},{-10,-18.8},{0.74,-18.8}},
       color={0,135,135},
       pattern=LinePattern.Dash));
