@@ -20,7 +20,7 @@ model DHN_Substation "Substation for district hot water"
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -49,50 +49,80 @@ model DHN_Substation "Substation for district hot water"
   parameter SI.MassFlowRate m_flow_min=0.0001 "Minimum massflow rate";
   parameter SI.Temperature T_start=90 + 273.15 "Temperature at start of the simulation" annotation (Dialog(group="Temperature"));
   parameter Real dT=20 "Constant Temperature Difference between supply and return" annotation (Dialog(group="Temperature"));
+  parameter Boolean hotwater=true "domestic hot water is covered by the district heating grid";
 
   // _____________________________________________
   //
   //           Instances of other Classes
   // _____________________________________________
 
-  TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower apparentPower(useInputConnectorQ=false, useInputConnectorP=true) annotation (Placement(transformation(extent={{-76,-30},{-56,-10}})));
+  TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower apparentPower(useInputConnectorQ=false, useInputConnectorP=true) annotation (Placement(transformation(extent={{-74,-22},{-54,-2}})));
 
   TransiEnt.Producer.Heat.Heat2Heat.Substation_indirect_noStorage_L1 substation_indirect_noStorage_L1_1(
     T_start=T_start,
-    dT=dT,
     m_flow_min=m_flow_min) annotation (Placement(transformation(extent={{-14,6},{14,26}})));
+  Modelica.Blocks.Math.Add add1 if not hotwater             annotation (Placement(transformation(extent={{-8,-8},{8,8}},
+        rotation=270,
+        origin={-48,46})));
+  Modelica.Blocks.Sources.RealExpression No_DHWDemand(y=0) annotation (Placement(transformation(
+        extent={{-7,-5},{7,5}},
+        rotation=270,
+        origin={35,75})));
+public
+  Modelica.Blocks.Logical.Switch switch1 annotation (Placement(transformation(
+        extent={{6,-6},{-6,6}},
+        rotation=90,
+        origin={22,42})));
+  Modelica.Blocks.Sources.BooleanExpression IsHotWaterCovered(y=hotwater) annotation (Placement(transformation(
+        extent={{-7,-6},{7,6}},
+        rotation=270,
+        origin={22,75})));
 equation
 
-  connect(apparentPower.P_el_set, demand.electricPowerDemand) annotation (Line(points={{-72,-8},{-72,81.8},{4.68,81.8},{4.68,100.48}}, color={0,0,127}));
   connect(apparentPower.epp, epp) annotation (Line(
-      points={{-76,-20},{-76,-20},{-80,-20},{-80,-98}},
+      points={{-74,-12},{-80,-12},{-80,-98}},
       color={0,127,0},
       thickness=0.5));
 
   connect(substation_indirect_noStorage_L1_1.waterPortIn, waterPortIn) annotation (Line(
-      points={{-6,6},{-20,6},{-20,-98}},
+      points={{-6,6},{-6,-84},{-20,-84},{-20,-98}},
       color={175,0,0},
       thickness=0.5));
   connect(substation_indirect_noStorage_L1_1.waterPortOut, waterPortOut) annotation (Line(
-      points={{6.1,5.9},{20,5.9},{20,-98}},
+      points={{6.1,5.9},{6.1,-84},{20,-84},{20,-98}},
       color={175,0,0},
       thickness=0.5));
   connect(demand.heatingPowerDemand, substation_indirect_noStorage_L1_1.Q_demand_RH) annotation (Line(
-      points={{0,100.48},{0,62},{-8,62},{-8,34},{-10,34},{-10,30},{-11,30},{-11,25}},
+      points={{0,100.48},{0,30},{-11,30},{-11,25}},
       color={175,0,0},
+      pattern=LinePattern.Dash));
+  connect(demand.hotWaterPowerDemand, switch1.u1) annotation (Line(
+      points={{-4.8,100.48},{-4.8,49.2},{17.2,49.2}},
+      color={102,44,145},
+      pattern=LinePattern.Dash));
+  connect(switch1.y, substation_indirect_noStorage_L1_1.Q_demand_DHW) annotation (Line(points={{22,35.4},{22,30},{11,30},{11,25}}, color={0,0,127}));
+  connect(IsHotWaterCovered.y, switch1.u2) annotation (Line(points={{22,67.3},{22,49.2}}, color={255,0,255}));
+  connect(switch1.u3, No_DHWDemand.y) annotation (Line(points={{26.8,49.2},{26.8,62},{35,62},{35,67.3}}, color={0,0,127}));
+
+  if not hotwater then
+     connect(demand.hotWaterPowerDemand, add1.u1) annotation (Line(
+      points={{-4.8,100.48},{-4.8,60},{-43.2,60},{-43.2,55.6}},
+      color={102,44,145},
+      pattern=LinePattern.Dash));
+     connect(add1.u2, demand.electricPowerDemand) annotation (Line(points={{-52.8,55.6},{-52.8,82},{4.68,82},{4.68,100.48}}, color={0,0,127}));
+     connect(apparentPower.P_el_set, add1.y) annotation (Line(points={{-70,0},{-70,32},{-48,32},{-48,37.2}}, color={0,127,127}));
+  else
+    connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(
+      points={{4.68,100.48},{4.68,82},{-70,82},{-70,0}},
+      color={102,44,145},
       pattern=LinePattern.Dash), Text(
       string="%first",
       index=-1,
       extent={{6,3},{6,3}},
       horizontalAlignment=TextAlignment.Left));
-  connect(demand.hotWaterPowerDemand, substation_indirect_noStorage_L1_1.Q_demand_DHW) annotation (Line(
-      points={{-4.8,100.48},{-4.8,62},{12,62},{12,42},{11,42},{11,25}},
-      color={175,0,0},
-      pattern=LinePattern.Dash), Text(
-      string="%first",
-      index=-1,
-      extent={{-6,3},{-6,3}},
-      horizontalAlignment=TextAlignment.Right));
+  end if;
+
+
   annotation (Icon(graphics={
         Ellipse(
           lineColor={0,125,125},
