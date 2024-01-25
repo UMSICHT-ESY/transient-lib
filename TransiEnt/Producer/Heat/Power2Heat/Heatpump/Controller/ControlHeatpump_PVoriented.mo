@@ -35,7 +35,8 @@ model ControlHeatpump_PVoriented "Operation preferably when excess PV energy ava
   //          Imports and Class Hierarchy
   // _____________________________________________
 
-  extends TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller_PV;
+  extends
+    TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller_PV;
   extends TransiEnt.Basics.Icons.Controller;
 
    //___________________________________________________________________________
@@ -90,34 +91,44 @@ model ControlHeatpump_PVoriented "Operation preferably when excess PV energy ava
   Modelica.Blocks.Logical.Switch switch1 annotation (Placement(transformation(
         extent={{7,-7},{-7,7}},
         rotation=180,
-        origin={83,1})));
-  Modelica.Blocks.Sources.RealExpression zero(y=0) annotation (Placement(transformation(extent={{42,6},{58,22}})));
+        origin={73,1})));
+  Modelica.Blocks.Sources.RealExpression zero(y=0) annotation (Placement(transformation(extent={{32,6},{
+            48,22}})));
 
-  Modelica.Blocks.Logical.Not Not  annotation (Placement(transformation(extent={{-32,-22},{-22,-12}})));
-  Modelica.Blocks.Sources.RealExpression uHigh(y=uHigh_HP)  annotation (Placement(transformation(extent={{-74,-20},{-58,-4}})));
-  Modelica.Blocks.Sources.RealExpression uLow(y=uLow_HP)   annotation (Placement(transformation(extent={{-76,-34},{-60,-18}})));
-  TransiEnt.Basics.Blocks.Hysteresis_inputVariable hysteresis_upperStoragePart annotation (Placement(transformation(extent={{-52,-24},{-38,-10}})));
-  Modelica.Blocks.Sources.RealExpression Q_flow(y=Q_flow_n) if not Modulating annotation (Placement(transformation(extent={{24,-32},{40,-16}})));
-  Modelica.Blocks.Logical.And and1  annotation (Placement(transformation(extent={{-14,28},{-2,40}})));
+  Modelica.Blocks.Logical.Not Not  annotation (Placement(transformation(extent={{-36,-22},
+            {-26,-12}})));
+  Modelica.Blocks.Sources.RealExpression uHigh(y=uHigh_HP)  annotation (Placement(transformation(extent={{-78,-20},
+            {-62,-4}})));
+  Modelica.Blocks.Sources.RealExpression uLow(y=uLow_HP)   annotation (Placement(transformation(extent={{-80,-34},
+            {-64,-18}})));
+  TransiEnt.Basics.Blocks.Hysteresis_inputVariable hysteresis_upperStoragePart annotation (Placement(transformation(extent={{-56,-24},
+            {-42,-10}})));
+  Modelica.Blocks.Sources.RealExpression Q_flow(y=Q_flow_n) if not Modulating annotation (Placement(transformation(extent={{20,-32},
+            {36,-16}})));
+  Modelica.Blocks.Logical.And and1  annotation (Placement(transformation(extent={{-18,28},
+            {-6,40}})));
   Modelica.Blocks.Logical.Greater greaterThreshold annotation (Placement(transformation(extent={{-62,44},{-50,56}})));
   Modelica.Blocks.Sources.RealExpression P_Threshold(y=Threshold) annotation (Placement(transformation(extent={{-84,34},{-70,48}})));
 
-  Modelica.Blocks.Logical.Or  and2  annotation (Placement(transformation(extent={{4,40},{16,28}})));
+  Modelica.Blocks.Logical.Or  and2  annotation (Placement(transformation(extent={{0,40},{
+            12,28}})));
   Modelica.Blocks.Sources.RealExpression uHigh2(y=uHigh2_HP)  annotation (Placement(transformation(extent={{-32,74},{-15,90}})));
   Modelica.Blocks.Sources.RealExpression uLow2(y=uLow2_HP)  annotation (Placement(transformation(extent={{-30,58},{-14,74}})));
   TransiEnt.Basics.Blocks.Hysteresis_inputVariable hysteresis_lowerStoragePart annotation (Placement(transformation(extent={{-6,68},{8,82}})));
   Modelica.Blocks.Logical.Not not2   annotation (Placement(transformation(extent={{14,70},{24,80}})));
-  Basics.Blocks.SwitchAtSeason  summerWinterSwitch(summer_start=summer_start, winter_start=winter_start) annotation (Placement(transformation(extent={{2,-6},{16,6}})));
+  Basics.Blocks.SwitchAtSeason  summerWinterSwitch(summer_start=summer_start, winter_start=winter_start) annotation (Placement(transformation(extent={{-8,-6},
+            {6,6}})));
 
 
   Modelica.Blocks.Logical.LogicalSwitch switch3 annotation (Placement(transformation(
         extent={{6,6},{-6,-6}},
         rotation=180,
-        origin={32,0})));
+        origin={22,0})));
   TransiEnt.Basics.Blocks.OnOffRelais onOffRelais(
     init_state=2,
     t_min_on=t_min_on,
-    t_min_off=t_min_off) if MinTimes and not Modulating annotation (Placement(transformation(extent={{44,-6},{56,6}})));
+    t_min_off=t_min_off) if MinTimes and not Modulating annotation (Placement(transformation(extent={{34,-6},
+            {46,6}})));
 
   Modelica.Blocks.Sources.RealExpression uHigh3(y=uHigh_Heater)  annotation (Placement(transformation(extent={{-62,-80},{-46,-66}})));
   Modelica.Blocks.Sources.RealExpression uLow3(y=uLow_Heater) annotation (Placement(transformation(extent={{-58,-96},{-44,-84}})));
@@ -129,16 +140,23 @@ model ControlHeatpump_PVoriented "Operation preferably when excess PV energy ava
         extent={{8,-8},{-8,8}},
         rotation=180,
         origin={68,-82})));
-  Modelica.Blocks.Sources.RealExpression Setpoint_HP(y=uSet_HP) if Modulating  annotation (Placement(transformation(extent={{26,-50},{42,-34}})));
+  Modelica.Blocks.Sources.RealExpression Setpoint_HP(y=uSet_HP) if Modulating  annotation (Placement(transformation(extent={{22,-50},
+            {38,-34}})));
   Modelica.Blocks.Continuous.LimPID PID(
-    Ti=1,
-    controllerType=Modelica.Blocks.Types.SimpleController.P,
+    Ti=1000,
+    controllerType=Modelica.Blocks.Types.SimpleController.PI,
     yMin=0,
-    k=5,
+    k=0.5,
     yMax=Q_flow_n) if
-                    Modulating  annotation (Placement(transformation(extent={{54,-44},{64,-34}})));
+                    Modulating  annotation (Placement(transformation(extent={{50,-44},
+            {60,-34}})));
 
 
+  Modelica.Blocks.Continuous.FirstOrder firstOrder(T=1) if Modulating
+    annotation (Placement(transformation(extent={{84,-4},{94,6}})));
+  Modelica.Blocks.Continuous.FirstOrder firstOrder1(T=1) if
+                                                           Modulating
+    annotation (Placement(transformation(extent={{84,-74},{94,-64}})));
 equation
   // ___________________________________________________________________________
   //
@@ -159,33 +177,38 @@ equation
   //               Connect Statements
   // _____________________________________________
 
-  connect(uLow.y, hysteresis_upperStoragePart.uLow) annotation (Line(points={{-59.2,-26},{-56,-26},{-56,-22.6},{-52.7,-22.6}}, color={0,0,127}));
-  connect(uHigh.y, hysteresis_upperStoragePart.uHigh) annotation (Line(points={{-57.2,-12},{-57.2,-12},{-58,-12},{-58,-11.4},{-52.42,-11.4}}, color={0,0,127}));
-  connect(Q_flow.y, switch1.u1) annotation (Line(points={{40.8,-24},{56,-24},{56,-4},{74.6,-4},{74.6,-4.6}},
-                                                                                                       color={0,0,127}));
-  connect(SoC, hysteresis_upperStoragePart.u) annotation (Line(points={{-102,-20},{-80,-20},{-80,-18},{-52.7,-18},{-52.7,-17}},
-                                                                                                                              color={0,0,127}));
-  connect(greaterThreshold.y, and1.u1) annotation (Line(points={{-49.4,50},{-20,50},{-20,34},{-15.2,34}},    color={255,0,255}));
-  connect(and1.y, and2.u1) annotation (Line(points={{-1.4,34},{2.8,34}},                  color={255,0,255}));
-  connect(not2.y, and2.u2) annotation (Line(points={{24.5,75},{28,75},{28,44},{2.8,44},{2.8,38.8}},     color={255,0,255}));
+  connect(uLow.y, hysteresis_upperStoragePart.uLow) annotation (Line(points={{-63.2,
+          -26},{-60,-26},{-60,-22.6},{-56.7,-22.6}},                                                                           color={0,0,127}));
+  connect(uHigh.y, hysteresis_upperStoragePart.uHigh) annotation (Line(points={{-61.2,
+          -12},{-62,-12},{-62,-11.4},{-56.42,-11.4}},                                                                                         color={0,0,127}));
+  connect(Q_flow.y, switch1.u1) annotation (Line(points={{36.8,-24},{52,-24},{
+          52,-4},{64.6,-4},{64.6,-4.6}},                                                               color={0,0,127}));
+  connect(SoC, hysteresis_upperStoragePart.u) annotation (Line(points={{-102,
+          -20},{-84,-20},{-84,-18},{-56.7,-18},{-56.7,-17}},                                                                  color={0,0,127}));
+  connect(greaterThreshold.y, and1.u1) annotation (Line(points={{-49.4,50},{-24,
+          50},{-24,34},{-19.2,34}},                                                                          color={255,0,255}));
+  connect(and1.y, and2.u1) annotation (Line(points={{-5.4,34},{-1.2,34}},                 color={255,0,255}));
+  connect(not2.y, and2.u2) annotation (Line(points={{24.5,75},{28,75},{28,44},{
+          -1.2,44},{-1.2,38.8}},                                                                        color={255,0,255}));
   connect(hysteresis_lowerStoragePart.y, not2.u) annotation (Line(points={{8.7,75},{13,75}},                        color={255,0,255}));
   connect(uHigh2.y, hysteresis_lowerStoragePart.uHigh) annotation (Line(points={{-14.15,82},{-10.725,82},{-10.725,80.6},{-6.42,80.6}},  color={0,0,127}));
   connect(uLow2.y, hysteresis_lowerStoragePart.uLow) annotation (Line(points={{-13.2,66},{-9.225,66},{-9.225,69.4},{-6.7,69.4}},    color={0,0,127}));
   connect(SoC, hysteresis_lowerStoragePart.u) annotation (Line(points={{-102,-20},{-90,-20},{-90,20},{-40,20},{-40,74},{-12,74},{-12,75},{-6.7,75}},
                                                                                                                                   color={0,0,127}));
 
-  connect(summerWinterSwitch.summer_operation,switch3. u2) annotation (Line(points={{16.42,0},{24.8,1.11022e-15}},
-                                                                                                             color={255,0,255}));
+  connect(summerWinterSwitch.summer_operation,switch3. u2) annotation (Line(points={{6.42,0},
+          {14.8,1.11022e-15}},                                                                               color={255,0,255}));
 
-  connect(switch1.y, Q_flow_set_HP) annotation (Line(points={{90.7,1},{90.7,0},{108,0}}, color={0,0,127}));
-  connect(and2.y,switch3. u1) annotation (Line(points={{16.6,34},{20,34},{20,6},{24.8,6},{24.8,4.8}},
-                                                                                                   color={255,0,255}));
-  connect(switch3.y, onOffRelais.u) annotation (Line(points={{38.6,-7.21645e-16},{43.76,0}}, color={255,0,255}));
-  connect(onOffRelais.y, switch1.u2) annotation (Line(points={{56.6,0},{56.6,1},{74.6,1}}, color={255,0,255}));
-  connect(Not.y, and1.u2) annotation (Line(points={{-21.5,-17},{-20,-17},{-20,29.2},{-15.2,29.2}}, color={255,0,255}));
-  connect(Not.y,switch3. u3) annotation (Line(points={{-21.5,-17},{-16,-17},{-16,-18},{18,-18},{18,-4},{24.8,-4},{24.8,-4.8}},
-                                                                                                     color={255,0,255}));
-  connect(zero.y, switch1.u3) annotation (Line(points={{58.8,14},{74.6,14},{74.6,6.6}},          color={0,0,127}));
+  connect(switch3.y, onOffRelais.u) annotation (Line(points={{28.6,-7.21645e-16},
+          {33.76,0}},                                                                        color={255,0,255}));
+  connect(onOffRelais.y, switch1.u2) annotation (Line(points={{46.6,0},{46.6,1},
+          {64.6,1}},                                                                       color={255,0,255}));
+  connect(Not.y, and1.u2) annotation (Line(points={{-25.5,-17},{-20,-17},{-20,
+          29.2},{-19.2,29.2}},                                                                     color={255,0,255}));
+  connect(Not.y,switch3. u3) annotation (Line(points={{-25.5,-17},{-20,-17},{
+          -20,-18},{14,-18},{14,-4},{14.8,-4},{14.8,-4.8}},                                          color={255,0,255}));
+  connect(zero.y, switch1.u3) annotation (Line(points={{48.8,14},{64.6,14},{
+          64.6,6.6}},                                                                            color={0,0,127}));
   connect(PV_excess, greaterThreshold.u1) annotation (Line(points={{-82,100},{-82,62},{-76,62},{-76,54},{-63.2,54},{-63.2,50}},
                                                                                                                       color={0,127,127}));
   connect(hysteresis_heater.u, SoC) annotation (Line(points={{-32.7,-83},{-90,-83},{-90,-20},{-102,-20}},           color={0,0,127}));
@@ -195,23 +218,37 @@ equation
   connect(uLow3.y, hysteresis_heater.uLow) annotation (Line(points={{-43.3,-90},{-38,-90},{-38,-88.6},{-32.7,-88.6}}, color={0,0,127}));
   connect(uHigh3.y,hysteresis_heater. uHigh) annotation (Line(points={{-45.2,-73},{-38,-73},{-38,-77.4},{-32.42,-77.4}},
                                                                                                                        color={0,0,127}));
-  connect(switch2.y, P_set_electricHeater) annotation (Line(points={{76.8,-82},{88,-82},{88,-69},{109,-69}},
-                                                                                                     color={0,0,127}));
   connect(Not1.y,switch2. u2) annotation (Line(points={{-1.5,-83},{-1.5,-82},{58.4,-82}},
                                                                               color={255,0,255}));
   connect(hysteresis_heater.y, Not1.u) annotation (Line(points={{-17.3,-83},{-13,-83}},            color={255,0,255}));
-  connect(hysteresis_upperStoragePart.y, Not.u) annotation (Line(points={{-37.3,-17},{-34,-17},{-33,-17}},     color={255,0,255}));
-  connect(T, hysteresis_upperStoragePart.u) annotation (Line(points={{-102,20},{-82,20},{-82,-17},{-52.7,-17}},                   color={0,0,127}));
+  connect(hysteresis_upperStoragePart.y, Not.u) annotation (Line(points={{-41.3,
+          -17},{-37,-17}},                                                                                     color={255,0,255}));
+  connect(T, hysteresis_upperStoragePart.u) annotation (Line(points={{-102,20},
+          {-86,20},{-86,-17},{-56.7,-17}},                                                                                        color={0,0,127}));
   connect(T, hysteresis_heater.u) annotation (Line(points={{-102,20},{-92,20},{-92,18},{-90,18},{-90,-83},{-32.7,-83}}, color={0,0,127}));
   connect(T, hysteresis_lowerStoragePart.u) annotation (Line(points={{-102,20},{-40,20},{-40,75},{-6.7,75}}, color={0,0,127}));
   connect(P_Threshold.y, greaterThreshold.u2) annotation (Line(points={{-69.3,41},{-64,41},{-64,45.2},{-63.2,45.2}}, color={0,0,127}));
-  connect(Setpoint_HP.y, PID.u_s) annotation (Line(points={{42.8,-42},{50,-42},{50,-39},{53,-39}}, color={0,0,127}));
-  connect(SoC, PID.u_m) annotation (Line(points={{-102,-20},{-90,-20},{-90,-52},{60,-52},{60,-45},{59,-45}}, color={0,0,127}));
-  connect(T, PID.u_m) annotation (Line(points={{-102,20},{-90,20},{-90,-52},{60,-52},{60,-45},{59,-45}}, color={0,0,127}));
+  connect(Setpoint_HP.y, PID.u_s) annotation (Line(points={{38.8,-42},{46,-42},
+          {46,-39},{49,-39}},                                                                      color={0,0,127}));
+  connect(SoC, PID.u_m) annotation (Line(points={{-102,-20},{-90,-20},{-90,-52},
+          {60,-52},{60,-45},{55,-45}},                                                                       color={0,0,127}));
+  connect(T, PID.u_m) annotation (Line(points={{-102,20},{-90,20},{-90,-52},{60,
+          -52},{60,-45},{55,-45}},                                                                       color={0,0,127}));
   if not MinTimes or Modulating then
     connect(switch3.y,switch1.u2);
   end if;
-  connect(PID.y, switch1.u1) annotation (Line(points={{64.5,-39},{74.6,-39},{74.6,-4.6}}, color={0,0,127}));
+  connect(PID.y, switch1.u1) annotation (Line(points={{60.5,-39},{64.6,-39},{
+          64.6,-4.6}},                                                                    color={0,0,127}));
+  connect(and2.y, switch3.u1) annotation (Line(points={{12.6,34},{16,34},{16,10},
+          {14.8,10},{14.8,4.8}}, color={255,0,255}));
+  connect(switch1.y, firstOrder.u)
+    annotation (Line(points={{80.7,1},{83,1}}, color={0,0,127}));
+  connect(firstOrder.y, Q_flow_set_HP)
+    annotation (Line(points={{94.5,1},{108,0}}, color={0,0,127}));
+  connect(firstOrder1.y, P_set_electricHeater)
+    annotation (Line(points={{94.5,-69},{109,-69}}, color={0,0,127}));
+  connect(switch2.y, firstOrder1.u) annotation (Line(points={{76.8,-82},{80,-82},
+          {80,-69},{83,-69}}, color={0,0,127}));
   annotation (Diagram(coordinateSystem(extent={{-100,-100},{100,100}}), graphics={
         Rectangle(
           extent={{-96,58},{-46,30}},
@@ -234,11 +271,11 @@ excess PV?"),
           pattern=LinePattern.Dash,
           textString="Lower threshold to offer flexibility in summer operation"),
         Rectangle(
-          extent={{-78,-2},{-18,-30}},
+          extent={{-82,-2},{-22,-30}},
           lineColor={0,0,0},
           pattern=LinePattern.Dash),
         Text(
-          extent={{-76,-34},{6,-44}},
+          extent={{-80,-34},{2,-44}},
           lineColor={0,0,0},
           pattern=LinePattern.Dash,
           fontSize=8,

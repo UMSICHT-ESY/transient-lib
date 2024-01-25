@@ -20,7 +20,7 @@ model ControlHeatpump_heatdriven_BVTemp "Heat-driven operation with optional sta
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -30,7 +30,8 @@ model ControlHeatpump_heatdriven_BVTemp "Heat-driven operation with optional sta
 
 
 
-  extends TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller(control_SoC=false);
+  extends
+    TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller(      control_SoC=false);
   extends TransiEnt.Basics.Icons.Controller;
 
    //___________________________________________________________________________
@@ -62,8 +63,8 @@ model ControlHeatpump_heatdriven_BVTemp "Heat-driven operation with optional sta
     init_state=init_state,
     t_min_on=t_min_on,
     t_min_off=t_min_off) if MinTimes and not Modulating annotation (Placement(transformation(extent={{-24,2},{-12,14}})));
-  Modelica.Blocks.Math.BooleanToReal P_el_HP(realFalse=0, realTrue=Q_flow_n)
-                                                                           if not Modulating annotation (Placement(transformation(extent={{18,-2},{34,14}})));
+  Modelica.Blocks.Math.BooleanToReal P_el_HP(realFalse=0, realTrue=Q_flow_n) if
+                                                                              not Modulating annotation (Placement(transformation(extent={{18,-2},{34,14}})));
   Modelica.Blocks.Continuous.FirstOrder shutdown(T=60) if Startupramp annotation (Placement(transformation(extent={{30,-30},{42,-18}})));
   Modelica.Blocks.Sources.BooleanExpression booleanExpression(y=onOffRelais.switch_to_on.outPort.set) if Startupramp and MinTimes and not Modulating annotation (Placement(transformation(extent={{18,-50},{38,-30}})));
   Modelica.Blocks.Continuous.FirstOrder startup(T=10) if Startupramp annotation (Placement(transformation(extent={{28,-66},{44,-50}})));
@@ -76,18 +77,24 @@ model ControlHeatpump_heatdriven_BVTemp "Heat-driven operation with optional sta
     controllerType=Modelica.Blocks.Types.SimpleController.P,
     yMin=0,
     k=1000,
-    yMax=Q_flow_n)
-                  if Modulating annotation (Placement(transformation(extent={{-74,-44},{-60,-30}})));
+    yMax=Q_flow_n) if
+                     Modulating annotation (Placement(transformation(extent={{-74,-44},{-60,-30}})));
   Modelica.Blocks.Sources.RealExpression zero(y=0) if Modulating annotation (Placement(transformation(extent={{-54,-70},{-38,-52}})));
   Basics.Blocks.Hysteresis_inputVariable controller(pre_y_start=true) annotation (Placement(transformation(extent={{-40,2},{-28,14}})));
   Modelica.Blocks.Sources.RealExpression uHigh(y=if control_SoC then SoCHigh_HP else Delta_T_db/2) annotation (Placement(transformation(extent={{-74,16},{-58,34}})));
   Modelica.Blocks.Sources.RealExpression uLow(y=if control_SoC then SoCLow_HP else -Delta_T_db/2) annotation (Placement(transformation(extent={{-74,-18},{-58,0}})));
   Modelica.Blocks.Sources.Constant zero1(k=0) annotation (Placement(transformation(extent={{42,19},{52,29}})));
-  Modelica.Blocks.Logical.Switch Q_flow_peakload if CalculatePHeater annotation (Placement(transformation(extent={{66,29},{80,43}})));
+  Modelica.Blocks.Logical.Switch Q_flow_peakload if CalculatePHeater annotation (Placement(transformation(extent={{62,29},
+            {76,43}})));
   Modelica.Blocks.Sources.RealExpression P_heater(y=P_elHeater) annotation (Placement(transformation(extent={{39,58},{59,78}})));
-  Modelica.Blocks.Logical.And and_heater                                         if CalculatePHeater annotation (Placement(transformation(extent={{26,48},{38,60}})));
-  Modelica.Blocks.Logical.Not isBaseload2                                        if CalculatePHeater annotation (Placement(transformation(extent={{4,66},{16,78}})));
+  Modelica.Blocks.Logical.And and_heater if                                         CalculatePHeater annotation (Placement(transformation(extent={{26,48},{38,60}})));
+  Modelica.Blocks.Logical.Not isBaseload2 if                                        CalculatePHeater annotation (Placement(transformation(extent={{4,66},{16,78}})));
   Modelica.Blocks.Sources.RealExpression uLow1(y=if control_SoC then SoCSet_HP else T_set) annotation (Placement(transformation(extent={{-126,-50},{-110,-32}})));
+  Modelica.Blocks.Continuous.FirstOrder firstOrder(T=1) if Modulating
+    annotation (Placement(transformation(extent={{82,30},{94,42}})));
+  Modelica.Blocks.Continuous.FirstOrder firstOrder1(T=1) if
+                                                           Modulating
+    annotation (Placement(transformation(extent={{30,-90},{42,-78}})));
 equation
   // _____________________________________________
   //
@@ -100,7 +107,6 @@ equation
   connect(booleanExpression.y, dynamic.u2) annotation (Line(points={{39,-40},{54,-40},{54,-38},{60,-38}}, color={255,0,255}));
   connect(P_el_HP.y, shutdown.u) annotation (Line(points={{34.8,6},{54,6},{54,-12},{24,-12},{24,-24},{28.8,-24}}, color={0,0,127}));
   connect(P_el_HP.y, startup.u) annotation (Line(points={{34.8,6},{38,6},{38,-12},{24,-12},{24,-24},{14,-24},{14,-58},{26.4,-58}}, color={0,0,127}));
-  connect(dynamic.y, Q_flow_set_HP) annotation (Line(points={{83,-38},{84,-38},{84,0},{108,0}}, color={0,0,127}));
   connect(T_source, isBaseload.u) annotation (Line(points={{24,104},{24,94},{-44,94},{-44,80},{-31.2,80}}, color={0,0,127}));
   connect(T_source, isHeatdemand.u) annotation (Line(points={{24,104},{24,94},{-58,94},{-58,49},{-31,49}}, color={0,0,127}));
   connect(onOffRelais.y, isStartRequest.u[1]) annotation (Line(points={{-11.4,8},{-8,8},{-8,8.8},{-2,8.8}}, color={255,0,255}));
@@ -115,7 +121,7 @@ equation
 
   if not Startupramp then
     connect(P_el_HP.y, Q_flow_set_HP);
-    connect(Q_modulating.y, Q_flow_set_HP);
+    connect(firstOrder1.y, Q_flow_set_HP);
   end if;
 
   if not MinTimes or Modulating then
@@ -142,18 +148,28 @@ equation
   connect(uLow.y, controller.uLow) annotation (Line(points={{-57.2,-9},{-40.6,-9},{-40.6,3.2}}, color={0,0,127}));
   connect(controller.u, SoC) annotation (Line(points={{-40.6,8},{-48,8},{-48,-4},{-82,-4},{-82,-20},{-102,-20}}, color={0,0,127}));
   connect(controller.u, add.y) annotation (Line(points={{-40.6,8},{-55.4,8}}, color={0,0,127}));
-  connect(Q_flow_peakload.y, P_set_electricHeater) annotation (Line(points={{80.7,36},{88,36},{88,-69},{109,-69}}, color={0,0,127}));
 
   connect(onOffRelais.y, and_heater.u2) annotation (Line(points={{-11.4,8},{-6,8},{-6,44},{24.8,44},{24.8,49.2}}, color={255,0,255}));
-  connect(and_heater.y, Q_flow_peakload.u2) annotation (Line(points={{38.6,54},{58,54},{58,36},{64.6,36}}, color={255,0,255}));
+  connect(and_heater.y, Q_flow_peakload.u2) annotation (Line(points={{38.6,54},{
+          58,54},{58,36},{60.6,36}},                                                                       color={255,0,255}));
   connect(isBaseload.y, isBaseload2.u) annotation (Line(points={{-17.4,80},{-2,80},{-2,72},{2.8,72}}, color={255,0,255}));
   connect(isBaseload2.y, and_heater.u1) annotation (Line(points={{16.6,72},{20,72},{20,54},{24.8,54}}, color={255,0,255}));
-  connect(zero1.y, Q_flow_peakload.u3) annotation (Line(points={{52.5,24},{64.6,24},{64.6,30.4}}, color={0,0,127}));
-  connect(P_heater.y, Q_flow_peakload.u1) annotation (Line(points={{60,68},{64.6,68},{64.6,41.6}}, color={0,0,127}));
+  connect(zero1.y, Q_flow_peakload.u3) annotation (Line(points={{52.5,24},{60.6,
+          24},{60.6,30.4}},                                                                       color={0,0,127}));
+  connect(P_heater.y, Q_flow_peakload.u1) annotation (Line(points={{60,68},{60.6,
+          68},{60.6,41.6}},                                                                        color={0,0,127}));
   connect(PID.y,Q_modulating. u1) annotation (Line(points={{-59.3,-37},{-26,-37},{-26,-34},{-22,-34}}, color={0,0,127}));
   connect(zero.y,Q_modulating. u3) annotation (Line(points={{-37.2,-61},{-28,-61},{-28,-50},{-22,-50}}, color={0,0,127}));
   connect(SoC, PID.u_m) annotation (Line(points={{-102,-20},{-94,-20},{-94,-44},{-67,-44},{-67,-45.4}}, color={0,0,127}));
   connect(uLow1.y, PID.u_s) annotation (Line(points={{-109.2,-41},{-82,-41},{-82,-37},{-75.4,-37}}, color={0,0,127}));
+  connect(Q_flow_peakload.y, firstOrder.u)
+    annotation (Line(points={{76.7,36},{80.8,36}}, color={0,0,127}));
+  connect(firstOrder.y, P_set_electricHeater) annotation (Line(points={{94.6,36},
+          {100,36},{100,16},{92,16},{92,-69},{109,-69}}, color={0,0,127}));
+  connect(dynamic.y, Q_flow_set_HP) annotation (Line(points={{83,-38},{88,-38},{
+          88,0},{108,0}}, color={0,0,127}));
+  connect(firstOrder1.u, Q_modulating.y) annotation (Line(points={{28.8,-84},{8,
+          -84},{8,-42},{1,-42}}, color={0,0,127}));
   annotation (
     Diagram(coordinateSystem(extent={{-100,-100},{100,100}})),
     Icon(coordinateSystem(extent={{-100,-100},{100,100}})),

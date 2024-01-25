@@ -20,7 +20,7 @@ model ControlHeatpump_heatdriven_BVheatLoad "Heat-driven operation, if bivalent 
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -30,7 +30,8 @@ model ControlHeatpump_heatdriven_BVheatLoad "Heat-driven operation, if bivalent 
 
 
 
-  extends TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller;
+  extends
+    TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller;
   extends TransiEnt.Basics.Icons.Controller;
 
    //___________________________________________________________________________
@@ -86,28 +87,33 @@ public
     t_min_off=t_min_off) if MinTimes and not Modulating
     annotation (Placement(transformation(extent={{32,28},{44,40}})));
 public
-  Modelica.Blocks.Logical.Switch switch2  if CalculatePHeater  annotation (Placement(transformation(
+  Modelica.Blocks.Logical.Switch switch2 if  CalculatePHeater  annotation (Placement(transformation(
         extent={{7,-7},{-7,7}},
         rotation=180,
-        origin={71,-69})));
-  Modelica.Blocks.Sources.RealExpression zero1(y=0)  if CalculatePHeater  annotation (Placement(transformation(extent={{32,-66},{50,-48}})));
-  Modelica.Blocks.Sources.RealExpression P_Heater(y=P_elHeater)  if CalculatePHeater  annotation (Placement(transformation(extent={{32,-92},{50,-72}})));
-  TransiEnt.Basics.Blocks.Hysteresis_inputVariable hysteresis_heater  if CalculatePHeater  annotation (Placement(transformation(extent={{-26,-76},{-10,-60}})));
-  Modelica.Blocks.Sources.RealExpression uHigh1(y=uHigh_Heater)  if CalculatePHeater
+        origin={65,-69})));
+  Modelica.Blocks.Sources.RealExpression zero1(y=0) if  CalculatePHeater  annotation (Placement(transformation(extent={{32,-66},{50,-48}})));
+  Modelica.Blocks.Sources.RealExpression P_Heater(y=P_elHeater) if  CalculatePHeater  annotation (Placement(transformation(extent={{32,-92},{50,-72}})));
+  TransiEnt.Basics.Blocks.Hysteresis_inputVariable hysteresis_heater if  CalculatePHeater  annotation (Placement(transformation(extent={{-26,-76},{-10,-60}})));
+  Modelica.Blocks.Sources.RealExpression uHigh1(y=uHigh_Heater) if  CalculatePHeater
     annotation (Placement(transformation(extent={{-66,-70},{-46,-48}})));
-  Modelica.Blocks.Sources.RealExpression uLow1(y=uLow_Heater)  if CalculatePHeater  annotation (Placement(transformation(extent={{-66,-90},{-46,-68}})));
+  Modelica.Blocks.Sources.RealExpression uLow1(y=uLow_Heater) if  CalculatePHeater  annotation (Placement(transformation(extent={{-66,-90},{-46,-68}})));
   Modelica.Blocks.Logical.Not Not1 if CalculatePHeater
     annotation (Placement(transformation(extent={{0,-76},{14,-62}})));
   Modelica.Blocks.Sources.RealExpression Setpoint_HP(y=uSet_HP) if Modulating annotation (Placement(transformation(extent={{-52,-28},{-34,-10}})));
   Modelica.Blocks.Continuous.LimPID PID(
-    Ti=1,
-    controllerType=Modelica.Blocks.Types.SimpleController.P,
+    Ti=1000,
+    controllerType=Modelica.Blocks.Types.SimpleController.PI,
     yMin=0,
-    k=5,
+    k=0.5,
     yMax=1) if Modulating annotation (Placement(transformation(extent={{-20,-26},{-6,-12}})));
   Modelica.Blocks.Sources.RealExpression Q_flow(y=Q_flow_n)
                                                           annotation (Placement(transformation(extent={{2,-16},{18,0}})));
   Modelica.Blocks.Math.Product gain if Modulating annotation (Placement(transformation(extent={{32,-20},{46,-6}})));
+  Modelica.Blocks.Continuous.FirstOrder firstOrder(T=1) if Modulating
+    annotation (Placement(transformation(extent={{64,-20},{78,-6}})));
+  Modelica.Blocks.Continuous.FirstOrder firstOrder1(T=1) if
+                                                           CalculatePHeater
+    annotation (Placement(transformation(extent={{78,-76},{92,-62}})));
 equation
   // ___________________________________________________________________________
   //
@@ -134,17 +140,17 @@ equation
                                   color={255,0,255}));
   connect(T, hysteresis_HP.u) annotation (Line(points={{-102,20},{-80,20},{-80,34},{-30.8,34}},
                                                                                 color={0,0,127}));
-  connect(switch1.y, Q_flow_set_HP) annotation (Line(points={{78.8,34},{90,34},{90,0},{108,0}}, color={0,0,127}));
-  connect(switch2.y, P_set_electricHeater) annotation (Line(points={{78.7,-69},{109,-69}},           color={0,0,127}));
-  connect(zero1.y, switch2.u3) annotation (Line(points={{50.9,-57},{53.45,-57},{53.45,-63.4},{62.6,-63.4}}, color={0,0,127}));
+  connect(zero1.y, switch2.u3) annotation (Line(points={{50.9,-57},{53.45,-57},{
+          53.45,-63.4},{56.6,-63.4}},                                                                       color={0,0,127}));
   connect(hysteresis_heater.u, T) annotation (Line(points={{-26.8,-68},{-26.8,-68},{-80,-68},{-80,20},{-102,20}},   color={0,0,127}));
   connect(uHigh1.y, hysteresis_heater.uHigh) annotation (Line(points={{-45,-59},{-36,-59},{-36,-61.6},{-26.48,-61.6}}, color={0,0,127}));
   connect(uLow1.y, hysteresis_heater.uLow) annotation (Line(points={{-45,-79},{-36,-79},{-36,-74.4},{-26.8,-74.4}}, color={0,0,127}));
   connect(hysteresis_heater.y, Not1.u) annotation (Line(points={{-9.2,-68},{-6,-68},{-6,-69},{-1.4,-69}}, color={255,0,255}));
-  connect(Not1.y, switch2.u2) annotation (Line(points={{14.7,-69},{14.7,-69},{62.6,-69}}, color={255,0,255}));
+  connect(Not1.y, switch2.u2) annotation (Line(points={{14.7,-69},{56.6,-69}},            color={255,0,255}));
   connect(zero.y, switch1.u3) annotation (Line(points={{48.9,49},{56,49},{56,40.4},{60.4,40.4}},
                                                                                                color={0,0,127}));
-  connect(P_Heater.y, switch2.u1) annotation (Line(points={{50.9,-82},{56,-82},{56,-74.6},{62.6,-74.6}}, color={0,0,127}));
+  connect(P_Heater.y, switch2.u1) annotation (Line(points={{50.9,-82},{56,-82},{
+          56,-74.6},{56.6,-74.6}},                                                                       color={0,0,127}));
   connect(SoC, hysteresis_HP.u) annotation (Line(points={{-102,-20},{-80,-20},{-80,34},{-30.8,34}},
                                                                                                   color={0,0,127}));
   connect(SoC, hysteresis_heater.u) annotation (Line(points={{-102,-20},{-80,-20},{-80,-68},{-26.8,-68}}, color={0,0,127}));
@@ -152,15 +158,24 @@ equation
   connect(PID.y, gain.u2) annotation (Line(points={{-5.3,-19},{-4,-19},{-4,-20},{22,-20},{22,-17.2},{30.6,-17.2}}, color={0,0,127}));
   connect(Q_flow.y, gain.u1) annotation (Line(points={{18.8,-8},{30.6,-8.8}}, color={0,0,127}));
   if not Modulating then
-  connect(Q_flow.y, switch1.u1) annotation (Line(points={{18.8,-8},{22,-8},{22,8},{60.4,8},{60.4,27.6}},   color={0,0,127}));
+  connect(switch1.y, Q_flow_set_HP) annotation (Line(points={{78.8,34},{90,34},{90,0},{108,0}}, color={0,0,127}));
   end if;
 
   if not MinTimes or Modulating then
     connect(Not.y,switch1.u2);
   end if;
-  connect(gain.y, switch1.u1) annotation (Line(points={{46.7,-13},{60.4,-13},{60.4,27.6}}, color={0,0,127}));
   connect(SoC, PID.u_m) annotation (Line(points={{-102,-20},{-80,-20},{-80,-32},{-13,-32},{-13,-27.4}}, color={0,0,127}));
   connect(T, PID.u_m) annotation (Line(points={{-102,20},{-80,20},{-80,-32},{-13,-32},{-13,-27.4}},                   color={0,0,127}));
+  connect(gain.y, firstOrder.u)
+    annotation (Line(points={{46.7,-13},{62.6,-13}}, color={0,0,127}));
+  connect(firstOrder.y, Q_flow_set_HP) annotation (Line(points={{78.7,-13},{90,-13},
+          {90,0},{108,0}}, color={0,0,127}));
+  connect(switch2.y, firstOrder1.u)
+    annotation (Line(points={{72.7,-69},{76.6,-69}}, color={0,0,127}));
+  connect(firstOrder1.y, P_set_electricHeater)
+    annotation (Line(points={{92.7,-69},{109,-69}}, color={0,0,127}));
+  connect(switch1.u1, Q_flow.y) annotation (Line(points={{60.4,27.6},{60.4,0},{
+          24,0},{24,-8},{18.8,-8}}, color={0,0,127}));
   annotation (Diagram(coordinateSystem(extent={{-100,-100},{100,100}})), Icon(
         coordinateSystem(extent={{-100,-100},{100,100}})),
     Documentation(info="<html>
