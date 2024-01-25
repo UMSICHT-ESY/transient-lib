@@ -237,8 +237,7 @@ model PV_HeatPump_Peakboiler "PV + Heatpump with peak boiler and thermal storage
 
   Modelica.Blocks.Sources.RealExpression Tset(y=T_set) annotation (Placement(transformation(extent={{-86,-20},{-70,-2}})));
 
-  replaceable Control_Battery.MaxSelfConsumption controller1 if battery constrainedby
-    Control_Battery.MaxSelfConsumption                                                                                   "Operation strategy of the battery" annotation (
+  replaceable Control_Battery.MaxSelfConsumption controller1 if battery constrainedby Control_Battery.MaxSelfConsumption "Operation strategy of the battery" annotation (
     Dialog(group="Battery Parameters"),
     choicesAllMatching=true,
     Placement(transformation(
@@ -254,7 +253,7 @@ model PV_HeatPump_Peakboiler "PV + Heatpump with peak boiler and thermal storage
         rotation=90,
         origin={-126,78})));
 
-  Modelica.Blocks.Sources.RealExpression PHeater_to_0(y=0) if not controller.CalculatePHeater
+  Modelica.Blocks.Sources.RealExpression PHeater_to_0(y=0) if not controller.CalculatePeakBoiler
     annotation (Placement(transformation(extent={{-30,-52},{-14,-34}})));
 equation
 
