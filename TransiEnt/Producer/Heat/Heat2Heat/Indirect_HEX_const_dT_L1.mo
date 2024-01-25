@@ -91,20 +91,25 @@ equation
         coordinateSystem(preserveAspectRatio=false)),
     Documentation(info="<html>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">1. Purpose of model</span></b></p>
-<p>Simple heat exchanger model specifically modeled to be used in district heating networks.</p>
+<p>Simple heat exchanger model specifically modeled to be used as a substation in district heating networks. Supply temperature and heat demand are given as RealInputs and a constant difference between flow and return temperatures is set as a parameter. Mass flow and return temperature are calculated accordingly and given as a RealOutput. </p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">2. Level of detail, physical effects considered, and physical insight</span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">3. Limits of validity </span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">4. Interfaces</span></b></p>
-<p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
+<p><u>Input:</u> </p>
+<p>RealInput Q_demand: Heat supply demand </p>
+<p>RealInput T_in: Supply temperature </p>
+<p><u>Output:</u> </p>
+<p>T_out_calc: Outlet temperature </p>
+<p>m_flow: mass flow rate </p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">5. Nomenclature</span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">6. Governing Equations</span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">Calculates the necessary mass flow for a constant dT between supply and return:</span></p>
-<p><img src=\"modelica://TransiEnt/Resources/Images/equations/equation-6awzfCmN.png\" alt=\"Q  = m * cp * dT_const \"/></p>
+<p><span style=\"font-family: MS Shell Dlg 2;\">mass flow rate = Q_demand/(c_p*dT_set); </span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">7. Remarks for Usage</span></b> </p>
-<p>Due to the simple nature of the model, it is important to have a realistic supply temperature to avoid the return temperature to fall below possible values. </p>
+<p>Due to the simple nature of the model, it is important to set a realistic supply temperature to avoid the return temperature to fall below possible values. </p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">8. Validation</span></b></p>
 <p>(no remarks)</p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">9. References</span></b></p>

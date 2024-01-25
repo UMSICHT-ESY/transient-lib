@@ -215,7 +215,10 @@ boundaryVLE_pTxi.eye.T")}),
     experiment(StopTime=432000, Interval=900),
     Documentation(info="<html>
 <h4><span style=\"color: #008000\">1. Purpose of model</span></h4>
-<p>Test environment for HeatPumpElectricCharline</p>
+<p>Test environment for HeatPumpElectricCharline. Four different versions of the model are implemented that differentiate in their parameter settings and the inputs that are used. 
+In the upper models, the fluid ports are deactivated and instead, the temperature output of the heat pump is set by a FixedTemperature-Source via the heat port.  
+In the lower models, the fluid ports are used which are in this case connected to a fluid sink and source. 
+The two heatpump models on the left use the heat flow setpoint whereas the models on the right use an electric power setpoint.  </p>
 <h4><span style=\"color: #008000\">2. Level of detail, physical effects considered, and physical insight</span></h4>
 <p>(Purely technical component without physical modeling.)</p>
 <h4><span style=\"color: #008000\">3. Limits of validity </span></h4>

@@ -100,20 +100,25 @@ equation
     Diagram(coordinateSystem(preserveAspectRatio=false)),
     Documentation(info="<html>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">1. Purpose of model</span></b></p>
-<p>Simple heat exchanger model specifically modeled to be used in district heating networks.</p>
+<p>Simple heat exchanger model specifically modeled to be used as a substation in district heating networks. Supply temperature and heat demand are given as RealInputs and a constant return temperature is set as a parameter. The mass flow is calculated accordingly and given as a RealOutput. </p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">2. Level of detail, physical effects considered, and physical insight</span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">3. Limits of validity </span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">4. Interfaces</span></b></p>
-<p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
+<p><u>Input:</u> </p>
+<p>RealInput Q_demand: Heat supply demand </p>
+<p>RealInput T_in: Supply temperature </p>
+<p><u>Output:</u> </p>
+<p>T_out_calc: Desired constant outlet temperature </p>
+<p>m_flow: mass flow rate </p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">5. Nomenclature</span></b></p>
-<p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
+<p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span> </p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">6. Governing Equations</span></b></p>
-<p><span style=\"font-family: MS Shell Dlg 2;\">Calculates the necessary mass flow for a constant dT between supply and return:</span></p>
-<p><img src=\"modelica://IntegraNet/Resources/Images/equations/equation-W7rTOKK8.png\" alt=\"Q = m * cp * dT\"/></p>
+<p><span style=\"font-family: MS Shell Dlg 2;\">Calculates the necessary mass flow for a given T_out:</span></p>
+<p><span style=\"font-family: MS Shell Dlg 2;\">mass flow rate = Q_demand/(c_p*(T_in - T_out))</span> </p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">7. Remarks for Usage</span></b> </p>
-<p>Due to the simple nature of the model it is important to have a realistic supply temperature such that the return temperature doesn&apos;t fall below possible values. </p>
+<p>Due to the simple nature of the model it is important to have a realistic supply temperature so that the return temperature doesn&apos;t fall below possible values. </p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">8. Validation</span></b></p>
 <p>(no remarks)</p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">9. References</span></b></p>
