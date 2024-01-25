@@ -68,7 +68,8 @@ model PV_HeatPump_Peakboiler "PV + Heatpump with peak boiler and thermal storage
       choice=simCenter.HeatingValue_pellets "wood pellets"));
   parameter Boolean useGasPort=false "True if gas port shall be used" annotation (Dialog(group="System setup"), choices(checkBox=true));
   parameter Basics.Types.TypeOfPrimaryEnergyCarrierHeat typeOfPrimaryEnergyCarrier=TransiEnt.Basics.Types.TypeOfPrimaryEnergyCarrierHeat.NaturalGas "Type of primary energy carrier for co2 emissions global statistics" annotation (Dialog(group="Statistics"));
-  replaceable model BoilerCostModel = Components.Statistics.ConfigurationData.PowerProducerCostSpecs.GasBoiler annotation (__Dymola_choicesAllMatching=true, Dialog(group="Statistics"));
+  replaceable model BoilerCostModel =
+      Components.Statistics.ConfigurationData.PowerProducerCostSpecs.GasBoiler                                 annotation (__Dymola_choicesAllMatching=true, Dialog(group="Statistics"));
 
 
   parameter SI.Temperature T_s_max=343.15 "Maximum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
@@ -147,8 +148,10 @@ model PV_HeatPump_Peakboiler "PV + Heatpump with peak boiler and thermal storage
     useFluidPorts=false,
     useHeatPort=false,
     T_set=T_s_max,
-    redeclare connector PowerPortModel = TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort,
-    redeclare model PowerBoundaryModel = TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower,
+    redeclare connector PowerPortModel =
+        TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort,
+    redeclare model PowerBoundaryModel =
+        TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower,
     Power(useInputConnectorQ=false, useCosPhi=false)) annotation (Placement(transformation(extent={{26,-24},{48,-2}})));
 
   TransiEnt.Producer.Heat.Gas2Heat.SimpleGasBoiler.SimpleBoiler gasBoiler(
@@ -174,7 +177,8 @@ model PV_HeatPump_Peakboiler "PV + Heatpump with peak boiler and thermal storage
     T_start=T_start) annotation (Placement(transformation(extent={{66,36},{86,56}})));
 
   replaceable Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_Peakboiler_PVoriented controller
-                                                                                                           constrainedby TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller_PV_Peakboiler(Q_flow_peakBoiler=Q_flow_n_boiler, CalculatePeakBoiler=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) annotation (
+                                                                                                           constrainedby
+    TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller_PV_Peakboiler(                                                                                                                     Q_flow_peakBoiler=Q_flow_n_boiler, CalculatePeakBoiler=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) annotation (
     Dialog(group="System setup"),
     choicesAllMatching=true,
     Placement(transformation(extent={{-30,-24},{-10,-4}})));
@@ -233,7 +237,8 @@ model PV_HeatPump_Peakboiler "PV + Heatpump with peak boiler and thermal storage
 
   Modelica.Blocks.Sources.RealExpression Tset(y=T_set) annotation (Placement(transformation(extent={{-86,-20},{-70,-2}})));
 
-  replaceable Control_Battery.MaxSelfConsumption controller1 if battery constrainedby Control_Battery.MaxSelfConsumption "Operation strategy of the battery" annotation (
+  replaceable Control_Battery.MaxSelfConsumption controller1 if battery constrainedby
+    Control_Battery.MaxSelfConsumption                                                                                   "Operation strategy of the battery" annotation (
     Dialog(group="Battery Parameters"),
     choicesAllMatching=true,
     Placement(transformation(
@@ -249,6 +254,8 @@ model PV_HeatPump_Peakboiler "PV + Heatpump with peak boiler and thermal storage
         rotation=90,
         origin={-126,78})));
 
+  Modelica.Blocks.Sources.RealExpression PHeater_to_0(y=0) if not controller.CalculatePHeater
+    annotation (Placement(transformation(extent={{-30,-52},{-14,-34}})));
 equation
 
   // _____________________________________________
@@ -335,6 +342,9 @@ equation
       points={{-106,-5},{-92,-5},{-92,-26},{-91,-26},{-91,-30.18}},
       color={0,135,135},
       thickness=0.5));
+  connect(PHeater_to_0.y, gasBoiler.Q_flow_set) annotation (Line(points={{-13.2,
+          -43},{-8,-43},{-8,-28},{-6,-28},{-6,-24},{0,-24},{0,-28},{8,-28}},
+        color={0,0,127}));
   annotation (
     HideResult=true,
     Dialog(tab="Tracking and Mounting"),

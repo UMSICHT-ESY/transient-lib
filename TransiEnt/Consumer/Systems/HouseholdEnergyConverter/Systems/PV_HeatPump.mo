@@ -146,8 +146,10 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
     useFluidPorts=false,
     useHeatPort=false,
     T_set=T_s_max,
-    redeclare connector PowerPortModel = TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort,
-    redeclare model PowerBoundaryModel = TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower,
+    redeclare connector PowerPortModel =
+        TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort,
+    redeclare model PowerBoundaryModel =
+        TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower,
     Power(useInputConnectorQ=false, useCosPhi=false)) annotation (Placement(transformation(extent={{26,-24},{48,-2}})));
 
   TransiEnt.Storage.Heat.HotWaterStorage_constProp_L2.HotWaterStorage_constProp_L2 heatStorage1(
@@ -160,7 +162,8 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
     k=k,
     T_start=T_start) annotation (Placement(transformation(extent={{66,36},{86,56}})));
 
-  replaceable TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_PVoriented controller constrainedby TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller_PV(P_elHeater=P_el_n, CalculatePHeater=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) annotation (
+  replaceable TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_PVoriented controller constrainedby
+    TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller_PV(                                                                                                                     P_elHeater=P_el_n, CalculatePHeater=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) annotation (
     Dialog(group="System setup"),
     choicesAllMatching=true,
     Placement(transformation(extent={{-30,-24},{-10,-4}})));
@@ -231,7 +234,8 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
 
   Modelica.Blocks.Sources.RealExpression Tset(y=T_set) annotation (Placement(transformation(extent={{-86,-20},{-70,-2}})));
 
-  replaceable Control_Battery.MaxSelfConsumption controller1 if battery constrainedby Control_Battery.MaxSelfConsumption "Operation strategy of the battery" annotation (
+  replaceable Control_Battery.MaxSelfConsumption controller1 if battery constrainedby
+    Control_Battery.MaxSelfConsumption                                                                                   "Operation strategy of the battery" annotation (
     Dialog(group="Battery Parameters"),
     choicesAllMatching=true,
     Placement(transformation(extent={{-8,-8},{8,8}},
@@ -246,6 +250,8 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
         extent={{8,-8},{-8,8}},
         rotation=90,
         origin={-124,80})));
+  Modelica.Blocks.Sources.RealExpression PHeater_to_0(y=0) if not controller.CalculatePHeater
+    annotation (Placement(transformation(extent={{-22,-72},{-6,-54}})));
 equation
 
   // _____________________________________________
@@ -332,6 +338,8 @@ equation
       thickness=0.5));
   connect(controller1.P_set_battery, pV_battery.P_set) annotation (Line(points={{-114,28},{-114,10},{-113,10},{-113,5.46}}, color={0,0,127}));
   connect(excessPV1.y, controller1.P_Consumer) annotation (Line(points={{-124,71.2},{-124,48},{-118.8,48},{-118.8,43.36}}, color={0,0,127}));
+  connect(PHeater_to_0.y, electricHeater.P_el_set) annotation (Line(points={{-5.2,
+          -63},{8,-63},{8,-68.4},{34.4,-68.4}}, color={0,0,127}));
   annotation (
     HideResult=true,
     Dialog(tab="Tracking and Mounting"),

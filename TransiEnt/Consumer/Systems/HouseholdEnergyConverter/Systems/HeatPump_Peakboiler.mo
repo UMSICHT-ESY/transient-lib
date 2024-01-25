@@ -64,7 +64,8 @@ model HeatPump_Peakboiler "HeatPump with peak boiler and thermal storage"
       choice=simCenter.HeatingValue_pellets "wood pellets"));
   parameter Boolean useGasPort=false "True if gas port shall be used" annotation (Dialog(group="System setup"), choices(checkBox=true));
   parameter Basics.Types.TypeOfPrimaryEnergyCarrierHeat typeOfPrimaryEnergyCarrier=TransiEnt.Basics.Types.TypeOfPrimaryEnergyCarrierHeat.NaturalGas "Type of primary energy carrier for co2 emissions global statistics" annotation (Dialog(group="Statistics"));
-  replaceable model BoilerCostModel = Components.Statistics.ConfigurationData.PowerProducerCostSpecs.GasBoiler annotation (__Dymola_choicesAllMatching=true, Dialog(group="Statistics"));
+  replaceable model BoilerCostModel =
+      Components.Statistics.ConfigurationData.PowerProducerCostSpecs.GasBoiler                                 annotation (__Dymola_choicesAllMatching=true, Dialog(group="Statistics"));
 
   parameter Modelica.Units.SI.Temperature T_s_max=T_set "Maximum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
   parameter Modelica.Units.SI.Temperature T_s_min=55 + 273.15 "Minimum storage temperature" annotation (HideResult=true, Dialog(group="Storage"));
@@ -102,8 +103,10 @@ model HeatPump_Peakboiler "HeatPump with peak boiler and thermal storage"
     useFluidPorts=false,
     useHeatPort=false,
     T_set=T_s_max,
-    redeclare connector PowerPortModel = TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort,
-    redeclare model PowerBoundaryModel = TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower,
+    redeclare connector PowerPortModel =
+        TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort,
+    redeclare model PowerBoundaryModel =
+        TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower,
     Power(useInputConnectorQ=false, useCosPhi=false)) annotation (Placement(transformation(extent={{16,-22},{38,0}})));
 
   TransiEnt.Storage.Heat.HotWaterStorage_constProp_L2.HotWaterStorage_constProp_L2 heatStorage(
@@ -117,7 +120,8 @@ model HeatPump_Peakboiler "HeatPump with peak boiler and thermal storage"
     T_start=T_start) annotation (Placement(transformation(extent={{72,32},{92,52}})));
 
   replaceable TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_heatdriven_BVTemp Controller(CalculatePHeater=true)
-                                                                                                                  constrainedby TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller(
+                                                                                                                  constrainedby
+    TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller(
     P_elHeater=Q_flow_n_boiler,
     CalculatePHeater=true,
     Q_flow_n=heatPump.Q_flow_n,
@@ -151,6 +155,8 @@ model HeatPump_Peakboiler "HeatPump with peak boiler and thermal storage"
   Modelica.Blocks.Sources.RealExpression Tsource(y=heatPump.T_source_internal) annotation (Placement(transformation(extent={{-46,14},{-30,32}})));
 
 
+  Modelica.Blocks.Sources.RealExpression PHeater_to_0(y=0) if not Controller.CalculatePHeater
+    annotation (Placement(transformation(extent={{-26,-54},{-10,-36}})));
 equation
 
   // _____________________________________________
@@ -233,6 +239,8 @@ equation
       points={{-39.45,-23.47},{8,-23.47},{8,-28}},
       color={0,135,135},
       pattern=LinePattern.Dash));
+  connect(PHeater_to_0.y, gasBoiler.Q_flow_set) annotation (Line(points={{-9.2,
+          -45},{-8,-45},{-8,-22},{8,-22},{8,-28}}, color={0,0,127}));
   annotation (Icon(graphics={
         Ellipse(
           lineColor={0,125,125},

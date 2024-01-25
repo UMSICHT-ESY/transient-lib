@@ -20,7 +20,7 @@ model HeatPump "HeatPump with thermal storage"
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -101,8 +101,10 @@ model HeatPump "HeatPump with thermal storage"
     useFluidPorts=false,
     useHeatPort=false,
     T_set=T_s_max,
-    redeclare connector PowerPortModel = TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort,
-    redeclare model PowerBoundaryModel = TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower,
+    redeclare connector PowerPortModel =
+        TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort,
+    redeclare model PowerBoundaryModel =
+        TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower,
     Power(useInputConnectorQ=false, useCosPhi=false)) annotation (Placement(transformation(extent={{16,-22},{38,0}})));
 
   TransiEnt.Storage.Heat.HotWaterStorage_constProp_L2.HotWaterStorage_constProp_L2 heatStorage(
@@ -115,13 +117,14 @@ model HeatPump "HeatPump with thermal storage"
     k=k,
     T_start=T_start) annotation (Placement(transformation(extent={{72,32},{92,52}})));
 
-  replaceable Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_heatdriven_BVheatLoad Controller constrainedby TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller(P_elHeater=P_el_n, CalculatePHeater=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) "Control mode of the heat pump" annotation (
+  replaceable Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_heatdriven_BVheatLoad Controller constrainedby
+    TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller(                                                                                                                      P_elHeater=P_el_n, CalculatePHeater=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) "Control mode of the heat pump" annotation (
     Dialog(group="System setup"),
     choicesAllMatching=true,
     Placement(transformation(extent={{-62,-26},{-40,-4}})));
 
-  Modelica.Blocks.Math.Add add1
-                               if heating and hotwater annotation (Placement(transformation(extent={{30,48},{46,64}})));
+  Modelica.Blocks.Math.Add add1 if
+                                  heating and hotwater annotation (Placement(transformation(extent={{30,48},{46,64}})));
   Modelica.Blocks.Math.Add add2 if not hotwater annotation (Placement(transformation(
         extent={{8,-8},{-8,8}},
         rotation=90,
@@ -138,6 +141,8 @@ model HeatPump "HeatPump with thermal storage"
 
   Modelica.Blocks.Sources.RealExpression Tset(y=T_set) annotation (Placement(transformation(extent={{-90,-26},{-74,-8}})));
   Modelica.Blocks.Sources.RealExpression Tsource(y=heatPump.T_source_internal) annotation (Placement(transformation(extent={{-46,14},{-30,32}})));
+  Modelica.Blocks.Sources.RealExpression PHeater_to_0(y=0) if not Controller.CalculatePHeater
+    annotation (Placement(transformation(extent={{-12,-58},{4,-40}})));
 equation
 
   // _____________________________________________
@@ -221,6 +226,8 @@ equation
       points={{15.34,-16.94},{-12.33,-16.94},{-12.33,-15.11},{-39.45,-15.11}},
       color={175,0,0},
       pattern=LinePattern.Dash));
+  connect(PHeater_to_0.y, electricHeater.Q_flow_set) annotation (Line(points={{4.8,
+          -49},{8,-49},{8,-52},{11.6,-52},{11.6,-57}}, color={0,0,127}));
   annotation (Icon(graphics={
         Ellipse(
           lineColor={0,125,125},

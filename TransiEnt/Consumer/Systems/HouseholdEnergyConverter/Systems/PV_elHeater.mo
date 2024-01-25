@@ -20,7 +20,7 @@ model PV_elHeater "PV, gas boiler and electrical heater"
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -181,7 +181,9 @@ model PV_elHeater "PV, gas boiler and electrical heater"
     redeclare TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower powerBoundary(useInputConnectorQ=false, cosphi_boundary=0.99) "PowerBoundary for ApparentPowerPort") annotation (Placement(transformation(extent={{4,-32},{24,-12}})));
 
   Modelica.Blocks.Math.Add add2 annotation (Placement(transformation(extent={{42,-24},{58,-8}})));
-  replaceable Control_elHeater.ElectricHeater_PV_oriented controller(Threshold=P_el_n, P_elHeater=P_el_n) constrainedby TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems.Control_elHeater.Base.Controller_elHeater annotation (
+  replaceable Control_elHeater.ElectricHeater_PV_oriented controller(Threshold=P_el_n, P_elHeater=P_el_n) constrainedby
+    TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems.Control_elHeater.Base.Controller_elHeater
+                                                                                                                                                                                                            annotation (
     Dialog(group="System setup"),
     choicesAllMatching=true,
     Placement(transformation(extent={{-34,-14},{-14,6}})));
@@ -199,6 +201,8 @@ model PV_elHeater "PV, gas boiler and electrical heater"
     change_sign=true,
     gasMedium=FuelMedium) annotation (Placement(transformation(extent={{48,-58},{68,-38}})));
 
+  Modelica.Blocks.Sources.RealExpression PHeater_to_0(y=0) if not controller.CalculatePHeater
+    annotation (Placement(transformation(extent={{-32,-50},{-16,-32}})));
 equation
 
   // _____________________________________________
@@ -270,6 +274,8 @@ equation
       points={{-13.9,-8.3},{-4,-8.3},{-4,-24.4},{4.4,-24.4}},
       color={0,135,135},
       pattern=LinePattern.Dash));
+  connect(PHeater_to_0.y, electricHeater.P_el_set) annotation (Line(points={{-15.2,
+          -41},{-4,-41},{-4,-24.4},{4.4,-24.4}}, color={0,0,127}));
   annotation (Icon(graphics={
         Ellipse(
           lineColor={0,125,125},
