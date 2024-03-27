@@ -83,7 +83,7 @@ public
   Real T_supply;
 
 
-  input Modelica.Units.SI.Temperature T_set=50 "Heatpump supply temperature" annotation (Dialog(group="Heat pump parameters"));
+  input Modelica.Units.SI.Temperature T_set=50+273.15 "Heatpump supply temperature" annotation (Dialog(group="Heat pump parameters"));
 
    //___________________________________________________________________________
    //
