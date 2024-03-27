@@ -48,6 +48,7 @@ model TestHeatpump_hplib
   ClaRa.Components.Sensors.SensorVLE_L1_T temperature1
                                                       annotation (Placement(transformation(extent={{26,12},{46,32}})));
   TransiEnt.Producer.Heat.Power2Heat.Heatpump.Heatpump_hplib heatpump_hplib(
+    use_T_storage=true,
     usePowerPort=true,
     useElectricSetValue=true,
     T_set=323.15) annotation (Placement(transformation(extent={{-20,-16},{0,4}})));

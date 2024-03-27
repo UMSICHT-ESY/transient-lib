@@ -98,7 +98,7 @@ equation
       color={0,131,169},
       pattern=LinePattern.Solid,
       thickness=0.5));
-  connect(heatpump.Set_value, Q_flow_set.y) annotation (Line(points={{-14.6,-5.4},{-14.6,-5},{-38.15,-5}}, color={0,0,127}));
+  connect(Q_flow_set.y, heatpump.Q_flow_set) annotation (Line(points={{-38.15,-5},{-38.15,-5.4},{-14.6,-5.4}}, color={0,0,127}));
   annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
             -100},{100,100}}), graphics={Text(
           extent={{-82,76},{84,52}},

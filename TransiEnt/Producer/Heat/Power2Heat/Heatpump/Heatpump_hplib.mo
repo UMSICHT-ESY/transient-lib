@@ -30,8 +30,8 @@ model Heatpump_hplib "Simple heatpump model that is based on regression models f
    //                      Parameters
    //___________________________________________________________________________
 
-  parameter Boolean use_T_source_input_K=false "False, use outer ambient conditions" annotation (Dialog(group="Heat pump parameters"));
-  parameter Boolean use_T_storage=true "False, use constant suppyl temperature defined by T_set" annotation (Dialog(group="Heat pump parameters"));
+  parameter Boolean use_T_source_input_K=false "False, use outer ambient conditions" annotation (Dialog(group="Heat pump parameters"),choices(checkBox=true));
+  parameter Boolean use_T_storage=true "False, use constant suppyl temperature defined by T_set" annotation (Dialog(group="Heat pump parameters"), choices(checkBox=true));
   parameter Boolean usePowerPort=true "True if power port shall be used" annotation (Dialog(group="Fundamental Definitions"), choices(checkBox=true));
   parameter Boolean useElectricSetValue=false "True if set value shall be elctrical instead of thermal" annotation (Dialog(group="Fundamental Definitions"), choices(checkBox=true));
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_internal=5 "Temperature difference between refrigerant and source/sink temperature" annotation (Dialog(group="Heat pump parameters"));
@@ -83,7 +83,7 @@ public
   Real T_supply;
 
 
-  input Modelica.Units.SI.Temperature T_set=50+273.15 "Heatpump supply temperature" annotation (Dialog(group="Heat pump parameters"));
+  input Modelica.Units.SI.Temperature T_set=50+273.15 "Heatpump supply temperature" annotation (Dialog(group="Heat pump parameters", enable=not use_T_storage));
 
    //___________________________________________________________________________
    //
