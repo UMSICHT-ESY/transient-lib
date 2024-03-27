@@ -31,6 +31,7 @@ model Heatpump_hplib "Simple heatpump model that is based on regression models f
    //___________________________________________________________________________
 
   parameter Boolean use_T_source_input_K=false "False, use outer ambient conditions" annotation (Dialog(group="Heat pump parameters"));
+  parameter Boolean use_T_storage=true "False, use constant suppyl temperature defined by T_set" annotation (Dialog(group="Heat pump parameters"));
   parameter Boolean usePowerPort=true "True if power port shall be used" annotation (Dialog(group="Fundamental Definitions"), choices(checkBox=true));
   parameter Boolean useElectricSetValue=false "True if set value shall be elctrical instead of thermal" annotation (Dialog(group="Fundamental Definitions"), choices(checkBox=true));
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_internal=5 "Temperature difference between refrigerant and source/sink temperature" annotation (Dialog(group="Heat pump parameters"));
@@ -79,16 +80,17 @@ public
   Real Q_flow;
   Real P_el_max;
   Real Q_flow_max;
+  Real T_supply;
 
 
-  input Modelica.Units.SI.Temperature T_set=50 + 273.15 "Heatpump supply temperature" annotation (Dialog(group="Heat pump parameters"));
+  input Modelica.Units.SI.Temperature T_set=50 "Heatpump supply temperature" annotation (Dialog(group="Heat pump parameters"));
 
    //___________________________________________________________________________
    //
    //                      Interfaces
    //___________________________________________________________________________
 
- // TransiEnt.Basics.Interfaces.General.TemperatureIn T_set "Setpoint value, e.g. Storage setpoint temperature" annotation (Placement(transformation(extent={{-126,40},{-86,80}})));
+  TransiEnt.Basics.Interfaces.General.TemperatureIn T_storage if use_T_storage "Setpoint value, e.g. Storage setpoint temperature" annotation (Placement(transformation(extent={{-126,40},{-86,80}})));
   TransiEnt.Basics.Interfaces.General.TemperatureIn T_source_input_K if use_T_source_input_K "Temperature of source" annotation (Placement(transformation(extent={{-20,-20},{20,20}},
         rotation=-90,
         origin={0,106}), iconTransformation(extent={{-20,-20},{20,20}},
@@ -182,11 +184,24 @@ equation
      T_source_internal =T_source;
    end if;
 
+   //Calculate Supply Temperature if heat storage temperature is given else use constant suppy temperature defined by T_set
+   if use_T_storage then
+     T_supply = T_storage + 5;
+   else
+     T_supply = T_set;
+   end if;
+
    // Apply Regression Model for COP
-   COP =  p1_COP * (T_source_internal - 273.15) + p2_COP * (T_set - 273.15) + p3_COP + p4_COP *(T_source_internal - 273.15); // The temperatures has to be given in °C
+   COP =  p1_COP * (T_source - 273.15) + p2_COP * (T_supply - 273.15) + p3_COP + p4_COP *(T_source - 273.15); // The temperatures has to be given in °C
+
+   //if COP < 1 then
+   //  COP = 1;
+   //else
+   //  COP = COP;
+   //end if;
 
    //We should somehow account for a maximum possible thermal or electricel power that is given within the regression models
-   P_el_max = P_el_n * (T_source - 273.15) + p2_P_el_h * (T_set - 273.15) + p3_P_el_h + p4_P_el_h *(T_source - 273.15); // The temperatures has to be given in °C
+   P_el_max = P_el_n * ((T_source - 273.15) + p2_P_el_h * (T_supply - 273.15) + p3_P_el_h + p4_P_el_h *(T_source - 273.15)); // The temperatures has to be given in °C
    Q_flow_max = COP*P_el_max;
 
    Q_flow = P_el*COP;
