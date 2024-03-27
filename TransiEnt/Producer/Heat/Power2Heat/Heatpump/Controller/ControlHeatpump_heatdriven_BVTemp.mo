@@ -124,6 +124,10 @@ equation
     connect(firstOrder1.y, Q_flow_set_HP);
   end if;
 
+  if not Modulating then
+    connect(Q_flow_peakload.y, P_set_electricHeater);
+  end if;
+
   if not MinTimes or Modulating then
     connect(controller.y, dynamic.u2);
     if CalculatePHeater then
@@ -138,6 +142,8 @@ equation
   end if;
 
   connect(controller.y, onOffRelais.u) annotation (Line(points={{-27.4,8},{-27.4,12},{-28,12},{-28,4},{-24.24,4},{-24.24,8}}, color={255,0,255}));
+
+
 
   connect(T, PID.u_m) annotation (Line(points={{-102,20},{-84,20},{-84,-56},{-67,-56},{-67,-45.4}}, color={0,0,127}));
   connect(isStartRequest.y,Q_modulating. u2) annotation (Line(points={{10.9,6},{10.9,-14},{-48,-14},{-48,-42},{-22,-42}}, color={255,0,255}));

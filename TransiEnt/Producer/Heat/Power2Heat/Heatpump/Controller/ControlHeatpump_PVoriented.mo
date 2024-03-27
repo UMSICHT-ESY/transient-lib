@@ -20,7 +20,7 @@ model ControlHeatpump_PVoriented "Operation preferably when excess PV energy ava
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen						  //
+// Gas- und Wärme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -35,8 +35,7 @@ model ControlHeatpump_PVoriented "Operation preferably when excess PV energy ava
   //          Imports and Class Hierarchy
   // _____________________________________________
 
-  extends
-    TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller_PV;
+  extends TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller_PV;
   extends TransiEnt.Basics.Icons.Controller;
 
    //___________________________________________________________________________
@@ -198,6 +197,11 @@ equation
 
   connect(summerWinterSwitch.summer_operation,switch3. u2) annotation (Line(points={{6.42,0},
           {14.8,1.11022e-15}},                                                                               color={255,0,255}));
+
+  if not Modulating then
+    connect(switch1.y, Q_flow_set_HP);
+    connect(switch2.y, P_set_electricHeater);
+  end if;
 
   connect(switch3.y, onOffRelais.u) annotation (Line(points={{28.6,-7.21645e-16},
           {33.76,0}},                                                                        color={255,0,255}));
