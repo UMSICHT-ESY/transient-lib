@@ -1,5 +1,5 @@
 ﻿within TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems;
-model PV_Boiler "PV + gas boiler"
+model PV_Boiler_heatStorage "PV + gas boiler with heat storage"
 
 //________________________________________________________________________________//
 // Component of the TransiEnt Library, version: 2.0.2                             //
@@ -17,7 +17,7 @@ model PV_Boiler "PV + gas boiler"
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und Wärme-Institut Essen                                                  //
+// Gas- und Wärme-Institut Essen						  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -97,6 +97,14 @@ model PV_Boiler "PV + gas boiler"
   parameter SI.Angle Azimuth=Modelica.Units.Conversions.from_deg(0) "Gyration of surface; Orientation: +90=West, -90=East, 0=South" annotation (Dialog(group="Radiation Parameters"), HideResult=true);
   parameter Real Albedo=0.25 "Average annual losses of radiation in % due to soiling" annotation (HideResult=true, Dialog(group="Radiation Parameters"));
 
+  parameter SI.Temperature T_s_max=363.15 "Maximum storage temperature" annotation (HideResult=true, Dialog(group="Storage Parameters"));
+  parameter SI.Temperature T_s_min=303.15 "Minimum storage temperature" annotation (HideResult=true, Dialog(group="Storage Parameters"));
+  parameter SI.Volume V_Storage=0.5 "Volume of the Storage" annotation (HideResult=true, Dialog(group="Storage Parameters"));
+  parameter SI.Height height=1.3 "Height of heat storage" annotation (HideResult=true, Dialog(group="Storage Parameters"));
+  final parameter SI.Diameter d=sqrt(4*V_Storage/Modelica.Constants.pi/height) "Diameter of heat storage" annotation (Dialog(group="Storage parameters"));
+  parameter Modelica.Units.NonSI.Temperature_degC T_amb=15 "Assumed constant temperature in tank installation room" annotation (HideResult=true, Dialog(group="Storage Parameters"));
+  parameter SI.SurfaceCoefficientOfHeatTransfer k=0.08 "Coefficient of heat Transfer" annotation (HideResult=true, Dialog(group="Storage Parameters"));
+
   parameter TransiEnt.Basics.Units.MonetaryUnitPerEnergy Cspec_demAndRev_gas_fuel=simCenter.Cfue_GasBoiler "|Statistics|Specific demand-related cost per gas energy" annotation (HideResult=true);
   parameter TransiEnt.Basics.Types.TypeOfResource TypeOfResource1=TransiEnt.Basics.Types.TypeOfResource.Conventional "|Statistics|Type of resource for boiler" annotation (HideResult=true);
   parameter TransiEnt.Basics.Types.TypeOfResource TypeOfResource2=TransiEnt.Basics.Types.TypeOfResource.Renewable "|Statistics|Type of resource for PV" annotation (HideResult=true);
@@ -173,7 +181,7 @@ public
     T_amb=T_amb,
     k=k) annotation (Placement(transformation(extent={{52,16},{72,36}})));
 
-  Modelica.Blocks.Math.Add add1  if waterHeating=="gas" annotation (Placement(transformation(extent={{20,62},{34,48}})));
+  Modelica.Blocks.Math.Add add1 if  waterHeating=="gas" annotation (Placement(transformation(extent={{20,62},{34,48}})));
 
   Modelica.Blocks.Continuous.LimPID PID(
     controllerType=Modelica.Blocks.Types.SimpleController.P,
@@ -186,8 +194,8 @@ public
         rotation=0,
         origin={68,-9})));
 
-  TransiEnt.Storage.Electrical.LithiumIonBattery pV_battery(use_PowerRateLimiter=false, StorageModelParams(selfDischargeRate=4e-9) = params)
-                                                                                                                       if battery annotation (Placement(transformation(extent={{-38,-42},{-20,-24}})));
+  TransiEnt.Storage.Electrical.LithiumIonBattery pV_battery(use_PowerRateLimiter=false, StorageModelParams(selfDischargeRate=4e-9) = params) if
+                                                                                                                          battery annotation (Placement(transformation(extent={{-38,-42},{-20,-24}})));
 
   replaceable TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems.Control_Battery.MaxSelfConsumption controller if battery constrainedby Control_Battery.Base.Controller_PV_Battery
                                                                                                                                                                                  "Operation strategy of the battery" annotation (
@@ -221,7 +229,7 @@ public
     HoC_fuel=HoC_fuel,
     change_sign=true,
     gasMedium=FuelMedium,
-    useGasPort=useGasPort) annotation (Placement(transformation(extent={{60,-34},{80,-14}})));
+    useGasPort=useGasPort) annotation (Placement(transformation(extent={{14,-52},{34,-32}})));
   inner SimCenter simCenter1 annotation (Placement(transformation(extent={{54,64},{74,84}})));
 
 equation
@@ -253,12 +261,12 @@ equation
   //            Connect statements
   // _____________________________________________
 
-
-   if waterHeating == "electrical" then
-    connect(add.y, apparentPower.P_el_set) annotation (Line(points={{-28.7,55},{-32,55},{-32,40},{0,40},{0,24}},     color={0,0,127}));
-    connect(demand.heatingPowerDemand, gasBoiler.Q_flow_set) annotation (Line(points={{0,100.48},{2,100.48},{2,40},{70,40},{70,-14}},color={0,127,127}));
+  if waterHeating == "electrical" then
+    connect(add.y, apparentPower.P_el_set) annotation (Line(points={{-28.7,55},{-32,55},{-32,50},{-32,40},{0,40},{0,24}}, color={0,0,127}));
+    connect(demand.heatingPowerDemand, heatStorage.Q_flow_demand) annotation (Line(points={{0,100.48},{0,50},{12,50},{12,42},{88,42},{88,26},{72,26}}, color={0,127,127}));
   else
-    connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(points={{4.68,100.48},{4.68,40},{0,40},{0,24}},     color={0,127,127}));
+    connect(add1.y, heatStorage.Q_flow_demand) annotation (Line(points={{34.7,55},{86,55},{86,26},{72,26}}, color={0,0,127}));
+    connect(demand.electricPowerDemand, apparentPower.P_el_set) annotation (Line(points={{4.68,100.48},{4.68,62},{0,62},{0,24}}, color={0,127,127}));
   end if;
 
   connect(modelStatistics.powerCollector[TypeOfResource2], collectElectricPower.powerCollector);
@@ -278,6 +286,14 @@ equation
   connect(demand.heatingPowerDemand, add1.u1) annotation (Line(points={{0,100.48},{0,100.48},{0,50.8},{18.6,50.8}}, color={0,127,127}));
   connect(demand.hotWaterPowerDemand, add1.u2) annotation (Line(points={{-4.8,100.48},{2,100.48},{2,84},{2,60},{18.6,60},{18.6,59.2}}, color={0,127,127}));
 
+  connect(setpoint.y, PID.u_s) annotation (Line(points={{61.4,-9},{61.4,-9},{53.4,-9}}, color={0,0,127}));
+
+  connect(gasBoiler.Q_flow_set, PID.y) annotation (Line(
+      points={{24,-32},{24,-32},{24,-9},{18,-9},{37.3,-9}},
+      color={162,29,33},
+      pattern=LinePattern.Dash));
+
+  connect(heatStorage.SoC, PID.u_m) annotation (Line(points={{63.8,35.6},{63.8,40},{76,40},{76,0},{78,0},{78,-22},{45,-22},{45,-17.4}}, color={0,0,127}));
   connect(pV_battery.epp, inverter.epp_DC) annotation (Line(
       points={{-20,-33},{-14,-33},{-14,-56},{-28.22,-56}},
       color={0,135,135},
@@ -294,11 +310,15 @@ equation
   connect(directSolarRadiation.y, pVModule.DNI_in) annotation (Line(points={{-63.1,31},{-57.55,31},{-57.55,24.4},{-50,24.4}}, color={0,0,127}));
   connect(diffuseSolarRadiation.y, pVModule.DHI_in) annotation (Line(points={{-63.1,17},{-57.55,17},{-57.55,19.4},{-50,19.4}}, color={0,0,127}));
   connect(pVModule.WindSpeed_in, wind.y) annotation (Line(points={{-50,14},{-56,14},{-56,5},{-63.1,5}}, color={0,0,127}));
+  connect(heatStorage.Q_flow_store, gasBoiler.Q_flow_set) annotation (Line(
+      points={{52.6,26},{26,26},{26,-8},{24,-8},{24,-32}},
+      color={175,0,0},
+      pattern=LinePattern.Dash));
+  connect(PID.y, gasBoiler.Q_flow_set) annotation (Line(points={{37.3,-9},{24,-9},{24,-32}}, color={0,0,127}));
   connect(gasBoiler.gasIn, gasPortIn) annotation (Line(
-      points={{70.2,-34},{70.2,-82},{80,-82},{80,-96}},
+      points={{24.2,-52},{22,-52},{22,-84},{80,-84},{80,-96}},
       color={255,255,0},
       thickness=1.5));
-  connect(add1.y, gasBoiler.Q_flow_set) annotation (Line(points={{34.7,55},{34.7,20.5},{70,20.5},{70,-14}}, color={0,0,127}));
   annotation (Icon(graphics={
         Ellipse(
           lineColor={0,125,125},
@@ -385,4 +405,4 @@ equation
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">10. Version History</span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">Model created by Anne Hagemeier, Fraunhofer UMSICHT in 2017</span></p>
 </html>"));
-end PV_Boiler;
+end PV_Boiler_heatStorage;
