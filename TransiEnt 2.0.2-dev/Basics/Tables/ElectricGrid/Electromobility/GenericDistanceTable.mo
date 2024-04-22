@@ -1,5 +1,5 @@
 ﻿within TransiEnt.Basics.Tables.ElectricGrid.Electromobility;
-model GenericCarLocationTable
+model GenericDistanceTable
 
 //________________________________________________________________________________//
 // Component of the TransiEnt Library, version: 2.0.2                             //
@@ -23,10 +23,11 @@ model GenericCarLocationTable
 //________________________________________________________________________________//
 
   extends GenericDataTable;
+  extends TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.DistanceTable;
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
     Documentation(info="<html>
 <p><b><span style=\"color: #008000;\">1. Purpose of model</span></b></p>
-<p>This model creates a generic data table to be used for car location time series</p>
+<p>This model creates a generic data table to be used for car distance time series</p>
 <p><b><span style=\"color: #008000;\">2. Level of detail, physical effects considered, and physical insight</span></b></p>
 <p>(none)</p>
 <p><b><span style=\"color: #008000;\">3. Limits of validity </span></b></p>
@@ -45,6 +46,6 @@ model GenericCarLocationTable
 <p><b><span style=\"color: #008000;\">9. References</span></b></p>
 <p>(none)</p>
 <p><b><span style=\"color: #008000;\">10. Version History</span></b></p>
-<p>Model created by Anne Hagemeier (anne.hagemeier@umsicht.fraunhofer.de), June 202e</p>
+<p>Model created by Anne Hagemeier (anne.hagemeier@umsicht.fraunhofer.de), June 2022</p>
 </html>"));
-end GenericCarLocationTable;
+end GenericDistanceTable;

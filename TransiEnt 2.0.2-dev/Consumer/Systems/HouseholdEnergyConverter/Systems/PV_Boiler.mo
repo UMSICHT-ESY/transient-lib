@@ -140,7 +140,8 @@ model PV_Boiler "PV + gas boiler"
   //           Instances of other Classes
   // _____________________________________________
 
-  replaceable model ProducerCosts = TransiEnt.Components.Statistics.ConfigurationData.PowerProducerCostSpecs.PV constrainedby TransiEnt.Components.Statistics.ConfigurationData.PowerProducerCostSpecs.PV "|Statistics|PV Cost Specification" annotation (Dialog(group="Statistics"), __Dymola_choicesAllMatching=true);
+  replaceable model ProducerCosts = TransiEnt.Components.Statistics.ConfigurationData.PowerProducerCostSpecs.PV constrainedby
+    TransiEnt.Components.Statistics.ConfigurationData.PowerProducerCostSpecs.PV                                                                                                                           "|Statistics|PV Cost Specification" annotation (Dialog(group="Statistics"), __Dymola_choicesAllMatching=true);
 
   TransiEnt.Components.Statistics.Collectors.LocalCollectors.CollectElectricPower collectElectricPower(typeOfResource=TransiEnt.Basics.Types.TypeOfResource.Renewable) annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
   TransiEnt.Components.Statistics.Collectors.LocalCollectors.CollectGwpEmissionsElectric collectGwpEmissions_PV(typeOfEnergyCarrier=TransiEnt.Basics.Types.TypeOfPrimaryEnergyCarrier.Solar) annotation (Placement(transformation(extent={{-80,80},{-60,100}})));

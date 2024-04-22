@@ -1,5 +1,7 @@
-GenericCarDistanceTable
-GenericCarLocationTable
-CarDistanceTable
-CarLocationTable
-Table_Vehicle
+Base
+GenericDistanceTable
+GenericLocationTable
+GenericSoCTable
+DistanceTable
+LocationTable
+SoCTable

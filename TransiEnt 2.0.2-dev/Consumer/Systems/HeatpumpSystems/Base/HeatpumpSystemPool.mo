@@ -51,7 +51,8 @@ model HeatpumpSystemPool
       TransiEnt.Producer.Heat.Power2Heat.Heatpump.Base.nPar - 1)
                                                              "Input Matrix with Heat Pump Properties";
 
-  replaceable TransiEnt.Consumer.Systems.HeatpumpSystems.Base.BivalentHeatpumpSystemDSM[N] HeatPumpSystem(final A=A) constrainedby TransiEnt.Consumer.Systems.HeatpumpSystems.Base.PartialHeatPumpSystemDSM(A=A) annotation (Placement(transformation(extent={{-22,-16},{24,16}})), choicesAllMatching=true);
+  replaceable TransiEnt.Consumer.Systems.HeatpumpSystems.Base.BivalentHeatpumpSystemDSM[N] HeatPumpSystem(final A=A) constrainedby
+    TransiEnt.Consumer.Systems.HeatpumpSystems.Base.PartialHeatPumpSystemDSM(                                                                                                                               A=A) annotation (Placement(transformation(extent={{-22,-16},{24,16}})), choicesAllMatching=true);
 
   // _____________________________________________
   //

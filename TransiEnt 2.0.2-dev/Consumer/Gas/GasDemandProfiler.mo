@@ -68,7 +68,8 @@ model GasDemandProfiler "Gas demand profile (H_flow or m_flow) composed of heat 
   parameter Real gasDemand_base_a=1.838698E+16 "|Gas base demand|Annual gas base demand in J (or kg if mFlowOut=true)";
 
   //Heat gas charline
-  replaceable parameter TransiEnt.Grid.Heat.HeatGridControl.HeatDemandPrediction.HeatingDemandCharacteristic.CharLineHeatDemandHH HeatCharLine constrainedby TransiEnt.Grid.Heat.HeatGridControl.HeatDemandPrediction.HeatingDemandCharacteristic.CharLineHeatDemand "|Heat demand charline||Choose City's Characteristic Line" annotation (choicesAllMatching);
+  replaceable parameter TransiEnt.Grid.Heat.HeatGridControl.HeatDemandPrediction.HeatingDemandCharacteristic.CharLineHeatDemandHH HeatCharLine constrainedby
+    TransiEnt.Grid.Heat.HeatGridControl.HeatDemandPrediction.HeatingDemandCharacteristic.CharLineHeatDemand                                                                                                                                                          "|Heat demand charline||Choose City's Characteristic Line" annotation (choicesAllMatching);
   parameter Modelica.Units.SI.Heat Q_a_heatCharline=1.41806E+16 "|Heat demand charline||Integrated annual heat demand of heat charline (from weeklyHeatProfile.Q_flow)";
   parameter Real Damping_Weekend=0.95 "|Heat demand charline||Damping ratio for heat load at weekends (between 0 and 1)";
   parameter TransiEnt.Basics.Types.TypeOfWeekday BeginWeekday=2 "|Heat demand charline||Weekday on which simulation begins";

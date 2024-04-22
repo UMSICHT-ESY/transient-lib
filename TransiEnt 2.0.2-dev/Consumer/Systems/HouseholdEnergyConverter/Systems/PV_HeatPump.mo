@@ -147,7 +147,8 @@ model PV_HeatPump "PV + Heatpump with thermal storage"
     k=k,
     T_start=T_start) annotation (Placement(transformation(extent={{66,36},{86,56}})));
 
-  replaceable TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_PVoriented controller constrainedby TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller_PV(P_elHeater=P_el_n, CalculatePHeater=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) annotation (
+  replaceable TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_PVoriented controller constrainedby
+    TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller_PV(                                                                                                                     P_elHeater=P_el_n, CalculatePHeater=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) annotation (
     Dialog(group="System setup"),
     choicesAllMatching=true,
     Placement(transformation(extent={{-30,-24},{-10,-4}})));

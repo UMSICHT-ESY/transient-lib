@@ -1,5 +1,5 @@
 ﻿within TransiEnt.Basics.Tables.ElectricGrid.Electromobility;
-model CarLocationTable
+model GenericSoCTable
 
 //________________________________________________________________________________//
 // Component of the TransiEnt Library, version: 2.0.2                             //
@@ -22,19 +22,13 @@ model CarLocationTable
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
 
-  // _____________________________________________
-  //
-  //          Imports and Class Hierarchy
-  // _____________________________________________
+  extends GenericDataTable;
+  extends TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.SoCTable;
 
-  extends Electromobility.GenericCarLocationTable(
-                                       relativepath="emobility/CarLocation.txt",
-      datasource=DataPrivacy.isPublic);
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
     Documentation(info="<html>
 <p><b><span style=\"color: #008000;\">1. Purpose of model</span></b></p>
-<p>Time series of car location. Data series was created with the LoadProfileGenerator (https://github.com/loadprofilegenerator/LoadProfileGenerator).</p>
-<p>A value of 0 corresponds to the car driving, the other values correspond to the car being parked at the following location: home (1), shopping (2), event location (3), school (4), work (5):</p>
+<p>This model creates a generic data table to be used for car location time series</p>
 <p><b><span style=\"color: #008000;\">2. Level of detail, physical effects considered, and physical insight</span></b></p>
 <p>(none)</p>
 <p><b><span style=\"color: #008000;\">3. Limits of validity </span></b></p>
@@ -53,6 +47,6 @@ model CarLocationTable
 <p><b><span style=\"color: #008000;\">9. References</span></b></p>
 <p>(none)</p>
 <p><b><span style=\"color: #008000;\">10. Version History</span></b></p>
-<p>Model created by Anne Hagemeier (anne.hagemeier@umsicht.fraunhofer.de), June 2022</p>
+<p>Model created by Anne Hagemeier (anne.hagemeier@umsicht.fraunhofer.de), June 202e</p>
 </html>"));
-end CarLocationTable;
+end GenericSoCTable;

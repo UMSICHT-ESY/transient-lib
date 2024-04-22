@@ -1,5 +1,5 @@
 ﻿within TransiEnt.Basics.Tables.ElectricGrid.Electromobility;
-model Table_Vehicle
+model SoCTable
   //________________________________________________________________________________//
   // Component of the Models_CyEntEE Library, version: 1.0.0                        //
   //                                                                                //
@@ -19,6 +19,7 @@ model Table_Vehicle
   // _____________________________________________
 
   extends TransiEnt.Basics.Icons.TableIcon;
+  extends TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.SoCTable;
  // outer TransiEnt.SimCenter simCenter;
 
   // ----------------------------------------------------------------------------------------
@@ -68,14 +69,13 @@ model Table_Vehicle
 
   final parameter String genericFileName = if use_absolute_path then absolute_path else complete_relative_path;
 
-
   // ----------------------------------------------------------------------------------------
   //   Interfaces
   // ----------------------------------------------------------------------------------------
 
   Modelica.Blocks.Interfaces.BooleanOutput isConnected annotation (Placement(transformation(
           extent={{80,30},{100,50}}), iconTransformation(extent={{80,30},{100,50}})));
-  Modelica.Blocks.Interfaces.RealOutput SOC_Consumption
+  Modelica.Blocks.Interfaces.RealOutput SoC_consumption
     annotation (Placement(transformation(extent={{80,-50},{100,-30}})));
 
   Modelica.Blocks.Sources.CombiTimeTable combiTimeTable(
@@ -91,7 +91,6 @@ model Table_Vehicle
     timeEvents=timeEvents)
     annotation (Placement(transformation(extent={{-90,-10},{-70,10}})));
 
-
   Modelica.Blocks.Math.RealToBoolean realToBoolean annotation (Placement(transformation(extent={{-10,30},{10,50}})));
 
   // _____________________________________________
@@ -104,10 +103,10 @@ equation
   connect(combiTimeTable.y[1], realToBoolean.u) annotation (Line(points={{-69,0},{-18,0},{-18,40},{-12,40}}, color={0,0,127}));
   connect(realToBoolean.y, isConnected)
     annotation (Line(points={{11,40},{90,40}}, color={255,0,255}));
-  connect(SOC_Consumption, combiTimeTable.y[2])
+  connect(SoC_consumption, combiTimeTable.y[2])
     annotation (Line(points={{90,-40},{-18,-40},{-18,0},{-69,0}}, color={0,0,127}));
   annotation (experiment(
       StopTime=86400,
       Interval=5184000,
       __Dymola_Algorithm="Dassl"));
-end Table_Vehicle;
+end SoCTable;

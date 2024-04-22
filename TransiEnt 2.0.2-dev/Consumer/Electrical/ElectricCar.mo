@@ -149,14 +149,15 @@ model ElectricCar
   Modelica.Blocks.Sources.BooleanExpression work(y=if ChargeAtWork then (abs(5 - carLoc) < 0.5 and (abs(derLoc) < 0.01)) else false) annotation (Placement(transformation(extent={{-72,30},
             {-40,48}})));
 
-   TransiEnt.Basics.Tables.ElectricGrid.Electromobility.CarDistanceTable carDistance(
+  TransiEnt.Basics.Tables.ElectricGrid.Electromobility.DistanceTable carDistance(
     multiple_outputs=true,
-    columns={column_Distance + 1}, relativepath=relativepath_carDistance) annotation (Placement(transformation(extent={{-96,-40},
-            {-76,-20}})));
+    columns={column_Distance + 1},
+    relativepath=relativepath_carDistance) annotation (Placement(transformation(extent={{-96,-40},{-76,-20}})));
 
-  TransiEnt.Basics.Tables.ElectricGrid.Electromobility.CarLocationTable carLocation(
+  TransiEnt.Basics.Tables.ElectricGrid.Electromobility.LocationTable carLocation(
     multiple_outputs=true,
-    columns={column_Location + 1},  relativepath=relativepath_carLocation) annotation (Placement(transformation(extent={{-96,-80},{-76,-60}})));
+    columns={column_Location + 1},
+    relativepath=relativepath_carLocation) annotation (Placement(transformation(extent={{-96,-80},{-76,-60}})));
 
 
   // _____________________________________________

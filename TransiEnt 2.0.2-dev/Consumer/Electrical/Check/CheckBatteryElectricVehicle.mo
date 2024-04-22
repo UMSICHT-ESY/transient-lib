@@ -49,12 +49,26 @@ model CheckBatteryElectricVehicle
     v_boundary=400)
     annotation (Placement(transformation(extent={{20,14},{48,-14}})));
   BatteryElectricVehicle bEV(
-    inputDataType="carDistance",
-    Bat_Capacity(displayUnit="kWh"),
-    Bat_SOCStart=0.7,
-    P_chargingStation(displayUnit="kW"),
-    SOCLimit=1,                                           useExternalControl=false)
-    annotation (Placement(transformation(extent={{-60,-20},{-20,20}})));
+    inputDataType="SoC",
+    C_Bat(displayUnit="J") = 90e3*3600,
+    SOCStart=0.5,
+    ChargeAtOther=false,
+    SOCLimit=1,
+    useExternalControl=false,
+    vehicleBattery(
+      use_PowerRateLimiter=true,
+      redeclare model StorageModel = TransiEnt.Storage.Base.GenericStorageHyst (
+          use_plantDynamic=true,
+          use_inverterEfficiency=true,
+          stationaryLossOnlyIfInactive=true),
+      StorageModelParams=TransiEnt.Storage.Electrical.Specifications.LithiumIon(
+          E_start=bEV.SOCStart*bEV.C_Bat,
+          E_max=bEV.C_Bat,
+          E_min=10000,
+          P_max_unload=bEV.P_max_BEV_drive,
+          P_max_load=bEV.P_max_BEV_charge,
+          T_plant=5)))
+                  annotation (Placement(transformation(extent={{-58,-20},{-18,20}})));
 equation
 
   // _____________________________________________
@@ -63,7 +77,7 @@ equation
   // _____________________________________________
 
   connect(bEV.epp, ElectricGrid.epp) annotation (Line(
-      points={{-20,0},{-20,-1.77636e-15},{20,-1.77636e-15}},
+      points={{-18,0},{-18,-1.77636e-15},{20,-1.77636e-15}},
       color={0,127,0},
       thickness=0.5));
 

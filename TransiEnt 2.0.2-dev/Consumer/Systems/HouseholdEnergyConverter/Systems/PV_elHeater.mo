@@ -181,7 +181,8 @@ model PV_elHeater "PV, gas boiler and electrical heater"
     redeclare TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower powerBoundary(useInputConnectorQ=false, cosphi_boundary=0.99) "PowerBoundary for ApparentPowerPort") annotation (Placement(transformation(extent={{4,-32},{24,-12}})));
 
   Modelica.Blocks.Math.Add add2 annotation (Placement(transformation(extent={{42,-24},{58,-8}})));
-  replaceable Control_elHeater.ElectricHeater_PV_oriented controller(Threshold=P_el_n, P_elHeater=P_el_n) constrainedby TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems.Control_elHeater.Base.Controller_elHeater annotation (
+  replaceable Control_elHeater.ElectricHeater_PV_oriented controller(Threshold=P_el_n, P_elHeater=P_el_n) constrainedby
+    TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems.Control_elHeater.Base.Controller_elHeater                                                                                                                     annotation (
     Dialog(group="System setup"),
     choicesAllMatching=true,
     Placement(transformation(extent={{-34,-14},{-14,6}})));

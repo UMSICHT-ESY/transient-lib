@@ -1,5 +1,5 @@
 ﻿within TransiEnt.Consumer.Electrical.Check;
-model CheckElectricCarWithControl
+model CheckBatteryElectricVehicleWithControl
 
 //________________________________________________________________________________//
 // Component of the TransiEnt Library, version: 2.0.2                             //
@@ -34,9 +34,7 @@ model CheckElectricCarWithControl
   //           Instances of other Classes
   // _____________________________________________
 
-  inner TransiEnt.SimCenter simCenter(
-    useExternalControl=true,
-    controlType="proportional",       tableInterpolationSmoothness=Modelica.Blocks.Types.Smoothness.ConstantSegments)
+  inner TransiEnt.SimCenter simCenter(tableInterpolationSmoothness=Modelica.Blocks.Types.Smoothness.ConstantSegments)
                                       annotation (Placement(transformation(extent={{-90,80},{-70,100}})));
 
 // _____________________________________________
@@ -44,32 +42,43 @@ model CheckElectricCarWithControl
 //           Functions
 // _____________________________________________
 
-  ElectricCar electricCar(
-    Bat_Capacity(displayUnit="kWh"),
-    useExternalControl=true,
-    ChargeAtWork=true,
-    ChargeAtSchool=true,
-    ChargeAtShopping=true,
-    ChargeAtOther=true)
-    annotation (Placement(transformation(extent={{-36,-12},{-8,16}})));
   TransiEnt.Components.Boundaries.Electrical.ApparentPower.FrequencyVoltage
                                                                ElectricGrid(
     Use_input_connector_f=false,
     Use_input_connector_v=false,
     v_boundary=400)
     annotation (Placement(transformation(extent={{20,14},{48,-14}})));
-  Modelica.Blocks.Sources.RealExpression
-                               GridVoltage(y=0.8)
-               annotation (Placement(transformation(
-        extent={{-10,-10},{10,10}},
-        rotation=0,
-        origin={-84,-14})));
+  BatteryElectricVehicle bEV(
+    inputDataType="SoC",
+    C_Bat(displayUnit="J") = 90e3*3600,
+    SOCStart=0.5,
+    ChargeAtOther=false,
+    SOCLimit=1,
+    useExternalControl=true,
+    vehicleBattery(
+      use_PowerRateLimiter=true,
+      redeclare model StorageModel = TransiEnt.Storage.Base.GenericStorageHyst (
+          use_plantDynamic=true,
+          use_inverterEfficiency=true,
+          stationaryLossOnlyIfInactive=true),
+      StorageModelParams=TransiEnt.Storage.Electrical.Specifications.LithiumIon(
+          E_start=bEV.SOCStart*bEV.C_Bat,
+          E_max=bEV.C_Bat,
+          E_min=1000,
+          P_max_unload=bEV.P_max_BEV_drive,
+          P_max_load=bEV.P_max_BEV_charge,
+          T_plant=5)))
+                  annotation (Placement(transformation(extent={{-58,-20},{-18,20}})));
   Modelica.Blocks.Sources.RealExpression
                                GridVoltage1(y=1000)
                annotation (Placement(transformation(
         extent={{-10,-10},{10,10}},
         rotation=0,
-        origin={-84,10})));
+        origin={-88,16})));
+  Modelica.Blocks.Sources.Sine sine(
+    amplitude=30,
+    f=1/(3600),
+    offset=230) annotation (Placement(transformation(extent={{-46,52},{-26,72}})));
 equation
 
   // _____________________________________________
@@ -77,31 +86,13 @@ equation
   //               Connect Statements
   // _____________________________________________
 
-  connect(ElectricGrid.epp, electricCar.epp) annotation (Line(
-      points={{20,0},{6,0},{6,2},{-8,2}},
+  connect(bEV.epp, ElectricGrid.epp) annotation (Line(
+      points={{-18,0},{-18,-1.77636e-15},{20,-1.77636e-15}},
       color={0,127,0},
       thickness=0.5));
-  connect(GridVoltage.y, electricCar.p_control) annotation (Line(points={{-73,
-          -14},{-42,-14},{-42,-2.48},{-36.84,-2.48}}, color={0,0,127}));
-  connect(GridVoltage1.y, electricCar.P_limit) annotation (Line(points={{-73,10},
-          {-44,10},{-44,6.2},{-37.12,6.2}}, color={0,0,127}));
-  annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false),
-        graphics={Text(
-          extent={{-40,-32},{86,-114}},
-          textColor={28,108,200},
-          fontSize=8,
-          textString="Problem an der Auswahl des Controltyps über das SimCenter: der Konnektor ändert sich nicht, wenn also limit über das SimCenter ausgewählt ist,
-muss erst der Konnektor lokal gewechsel werden, damit er angesclhossen werden kann 
-und dann wieder aus SimCenter umgestellt werden.
 
-
-Das macht auch nur dann Sinn, 
-das über das SimCenter zu regeln,
-wenn beide Anschlüsse connected sind
-und trotzdem funktionieren.
-
-Frage: hat die Angabe von dem ControlFactor im SimCenter irgendeine Auswirkung?
-Nur wenn ein Regelungsmodell das nutzt, oder?")}),
+  connect(GridVoltage1.y, bEV.P_limit) annotation (Line(points={{-77,16},{-70,16},{-70,4.6},{-60.2,4.6}}, color={0,0,127}));
+  annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
   Documentation(info="<html>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">1. Purpose of model</span></b></p>
 <p>Test environment for the electric car model.</p>
@@ -125,7 +116,7 @@ Nur wenn ein Regelungsmodell das nutzt, oder?")}),
 <p><span style=\"font-family: MS Shell Dlg 2;\">Model created by Dorian Hoeffner, TUHH in November 2021</span></p>
 </html>"),
     experiment(
-      StopTime=864000,
-      Interval=3600,
+      StopTime=86400,
+      Interval=60,
       __Dymola_Algorithm="Dassl"));
-end CheckElectricCarWithControl;
+end CheckBatteryElectricVehicleWithControl;

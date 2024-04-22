@@ -115,7 +115,8 @@ model HeatPump "HeatPump with thermal storage"
     k=k,
     T_start=T_start) annotation (Placement(transformation(extent={{72,32},{92,52}})));
 
-  replaceable Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_heatdriven_BVheatLoad Controller constrainedby TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller(P_elHeater=P_el_n, CalculatePHeater=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) "Control mode of the heat pump" annotation (
+  replaceable Producer.Heat.Power2Heat.Heatpump.Controller.ControlHeatpump_heatdriven_BVheatLoad Controller constrainedby
+    TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller(                                                                                                                      P_elHeater=P_el_n, CalculatePHeater=true, Q_flow_n=heatPump.Q_flow_n, Delta_T_db=Delta_T_db) "Control mode of the heat pump" annotation (
     Dialog(group="System setup"),
     choicesAllMatching=true,
     Placement(transformation(extent={{-62,-26},{-40,-4}})));

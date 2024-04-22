@@ -1,7 +1,5 @@
 ﻿within TransiEnt.Basics.Tables.ElectricGrid.Electromobility;
-model GenericCarDistanceTable
-
-
+model DistanceTable
 
 //________________________________________________________________________________//
 // Component of the TransiEnt Library, version: 2.0.2                             //
@@ -24,15 +22,18 @@ model GenericCarDistanceTable
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
 
+  // _____________________________________________
+  //
+  //          Imports and Class Hierarchy
+  // _____________________________________________
 
-
-
-
-  extends GenericDataTable;
+  extends TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.DistanceTable;
+  extends GenericDistanceTable(        relativepath="emobility/CarDistance.txt",
+      datasource=DataPrivacy.isPublic);
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
     Documentation(info="<html>
 <p><b><span style=\"color: #008000;\">1. Purpose of model</span></b></p>
-<p>This model creates a generic data table to be used for car distance time series</p>
+<p>Time series of distance driven per time unit by an electrical car. Data series was created with the LoadProfileGenerator (<a href=\"https://github.com/loadprofilegenerator/LoadProfileGenerator\">https://github.com/loadprofilegenerator/LoadProfileGenerator</a>).</p>
 <p><b><span style=\"color: #008000;\">2. Level of detail, physical effects considered, and physical insight</span></b></p>
 <p>(none)</p>
 <p><b><span style=\"color: #008000;\">3. Limits of validity </span></b></p>
@@ -51,6 +52,6 @@ model GenericCarDistanceTable
 <p><b><span style=\"color: #008000;\">9. References</span></b></p>
 <p>(none)</p>
 <p><b><span style=\"color: #008000;\">10. Version History</span></b></p>
-<p>Model created by Anne Hagemeier (anne.hagemeier@umsicht.fraunhofer.de), June 2022</p>
+<p>Model created by Anne Hagemeier (anne.hagemeier@umsicht.fraunhofer.de), July 2021</p>
 </html>"));
-end GenericCarDistanceTable;
+end DistanceTable;

@@ -8,3 +8,4 @@ CheckExponentialElectricConsumer2
 CheckDynamicExponentialElectricConsumerComplex
 CheckBatteryElectricVehicle
 CheckElectricCarWithControl
+CheckBatteryElectricVehicleWithControl
