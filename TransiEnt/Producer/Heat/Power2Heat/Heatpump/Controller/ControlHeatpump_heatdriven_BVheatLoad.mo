@@ -114,6 +114,8 @@ public
   Modelica.Blocks.Continuous.FirstOrder firstOrder1(T=1) if
                                                            CalculatePHeater
     annotation (Placement(transformation(extent={{78,-76},{92,-62}})));
+  Modelica.Blocks.Continuous.FirstOrder firstOrder2(T=1) if not Modulating
+    annotation (Placement(transformation(extent={{84,26},{98,40}})));
 equation
   // ___________________________________________________________________________
   //
@@ -158,7 +160,6 @@ equation
   connect(PID.y, gain.u2) annotation (Line(points={{-5.3,-19},{-4,-19},{-4,-20},{22,-20},{22,-17.2},{30.6,-17.2}}, color={0,0,127}));
   connect(Q_flow.y, gain.u1) annotation (Line(points={{18.8,-8},{30.6,-8.8}}, color={0,0,127}));
   if not Modulating then
-  connect(switch1.y, Q_flow_set_HP) annotation (Line(points={{78.8,34},{90,34},{90,0},{108,0}}, color={0,0,127}));
   end if;
 
   if not MinTimes or Modulating then
@@ -176,6 +177,10 @@ equation
     annotation (Line(points={{92.7,-69},{109,-69}}, color={0,0,127}));
   connect(switch1.u1, Q_flow.y) annotation (Line(points={{60.4,27.6},{60.4,0},{
           24,0},{24,-8},{18.8,-8}}, color={0,0,127}));
+  connect(switch1.y, firstOrder2.u)
+    annotation (Line(points={{78.8,34},{78.8,33},{82.6,33}}, color={0,0,127}));
+  connect(firstOrder2.y, Q_flow_set_HP) annotation (Line(points={{98.7,33},{104,
+          33},{104,16},{92,16},{92,0},{108,0}}, color={0,0,127}));
   annotation (Diagram(coordinateSystem(extent={{-100,-100},{100,100}})), Icon(
         coordinateSystem(extent={{-100,-100},{100,100}})),
     Documentation(info="<html>

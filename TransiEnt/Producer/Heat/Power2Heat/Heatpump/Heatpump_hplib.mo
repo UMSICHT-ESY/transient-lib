@@ -37,14 +37,14 @@ model Heatpump_hplib "Simple heatpump model that is based on regression models f
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_internal=5 "Temperature difference between refrigerant and source/sink temperature" annotation (Dialog(group="Heat pump parameters"));
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_db=2 "Deadband of hysteresis control" annotation (Dialog(group="Heat pump parameters"));
   parameter Modelica.Units.SI.HeatFlowRate Q_flow_n=3.5e3 "Nominal heat flow of heat pump at nominal conditions according to EN14511" annotation (Dialog(group="Heat pump parameters"));
-  parameter Real COP_n=3.7 "Coefficient of performance at nominal conditions according to EN14511" annotation (Dialog(group="Heat pump parameters"));
-
-  //final parameter Real eta_HP=COP_n/((273.15 + 40)/(40 - 2));
-  final parameter Modelica.Units.SI.Power P_el_n=Q_flow_n/COP_n;
 
   Modelica.Units.SI.Temperature T_source=simCenter.ambientConditions.temperature.value + 273.15 "Temperature of heat source" annotation (Dialog(group="Heat pump parameters", enable=not use_T_source_input_K), choices(choice=simCenter.ambientConditions.temperature.value + 273.15 "Ambient Temperature", choice=IntegraNet.SimCenter.Ground_Temperature + 273.15 "Ground Temperature"));
 
-  replaceable model ProducerCosts = TransiEnt.Components.Statistics.ConfigurationData.PowerProducerCostSpecs.Empty constrainedby TransiEnt.Components.Statistics.ConfigurationData.PowerProducerCostSpecs.PartialPowerPlantCostSpecs annotation (Dialog(group="Statistics"), __Dymola_choicesAllMatching=true);
+  replaceable model ProducerCosts =
+      TransiEnt.Components.Statistics.ConfigurationData.PowerProducerCostSpecs.Empty
+                                                                                                                   constrainedby
+    TransiEnt.Components.Statistics.ConfigurationData.PowerProducerCostSpecs.PartialPowerPlantCostSpecs
+                                                                                                                                                                                                            annotation (Dialog(group="Statistics"), __Dymola_choicesAllMatching=true);
 
   parameter TILMedia.VLEFluidTypes.BaseVLEFluid medium=simCenter.fluid1 "Medium to be used" annotation (choicesAllMatching, Dialog(group="Fundamental Definitions"));
   parameter Boolean useFluidPorts=true "True if fluid ports shall be used" annotation (Dialog(group="Fundamental Definitions"));
@@ -81,7 +81,8 @@ public
   Real P_el_max;
   Real Q_flow_max;
   Real T_supply;
-
+  Real COP_n = p1_COP * (-7) + p2_COP * (52) + p3_COP + p4_COP *(-7); // COP at -7°C / 52°C
+  Modelica.Units.SI.Power P_el_n=Q_flow_n/COP_n;
 
   input Modelica.Units.SI.Temperature T_set=50+273.15 "Heatpump supply temperature" annotation (Dialog(group="Heat pump parameters", enable=not use_T_storage));
 
@@ -130,7 +131,8 @@ public
     m_flow_CDE_is=0) annotation (Placement(transformation(extent={{-60,-100},{-40,-80}})));
 
   replaceable model heatFlowBoundaryModel =
-  TransiEnt.Components.Boundaries.Heat.Heatflow_L1 constrainedby TransiEnt.Components.Boundaries.Heat.Heatflow_L1
+  TransiEnt.Components.Boundaries.Heat.Heatflow_L1 constrainedby
+    TransiEnt.Components.Boundaries.Heat.Heatflow_L1
                                        annotation (choicesAllMatching=true,
     Dialog(group="Replaceable Components"));
 
@@ -154,7 +156,9 @@ public
   ClaRa.Components.Sensors.SensorVLE_L1_m_flow massFlowSensorVLE if useFluidPorts annotation (Placement(transformation(extent={{28,-16},{48,4}})));
   TransiEnt.Components.Sensors.SpecificEnthalpySensorVLE specificEnthalpySensorVLE1 if useFluidPorts annotation (Placement(transformation(extent={{42,-50},{62,-30}})));
 
-  replaceable model PowerBoundaryModel = TransiEnt.Components.Boundaries.Electrical.ActivePower.Power constrainedby TransiEnt.Components.Boundaries.Electrical.Base.PartialModelPowerBoundary  "Choice of power boundary model. The power boundary model must match the power port."     annotation (
+  replaceable model PowerBoundaryModel =
+      TransiEnt.Components.Boundaries.Electrical.ActivePower.Power                                    constrainedby
+    TransiEnt.Components.Boundaries.Electrical.Base.PartialModelPowerBoundary                                                                                                                  "Choice of power boundary model. The power boundary model must match the power port."     annotation (
     choicesAllMatching=true,
     Dialog(group="Replaceable Components"));
 
@@ -194,14 +198,8 @@ equation
    // Apply Regression Model for COP
    COP =  p1_COP * (T_source - 273.15) + p2_COP * (T_supply - 273.15) + p3_COP + p4_COP *(T_source - 273.15); // The temperatures has to be given in °C
 
-   //if COP < 1 then
-   //  COP = 1;
-   //else
-   //  COP = COP;
-   //end if;
-
    //We should somehow account for a maximum possible thermal or electricel power that is given within the regression models
-   P_el_max = P_el_n * ((T_source - 273.15) + p2_P_el_h * (T_supply - 273.15) + p3_P_el_h + p4_P_el_h *(T_source - 273.15)); // The temperatures has to be given in °C
+   P_el_max = P_el_n * (p1_P_el_h * (T_source - 273.15) + p2_P_el_h * (T_supply - 273.15) + p3_P_el_h + p4_P_el_h *(T_source - 273.15)); // The temperatures has to be given in °C
    Q_flow_max = COP*P_el_max;
 
    Q_flow = P_el*COP;
