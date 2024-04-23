@@ -1,5 +1,5 @@
 ﻿within TransiEnt.Basics.Tables.ElectricGrid.Electromobility;
-model DistanceTable
+model DistanceProfiles_family_5min "Stochastic distance profiles for a family home, resolution 5 min"
 
 //________________________________________________________________________________//
 // Component of the TransiEnt Library, version: 2.0.2                             //
@@ -27,8 +27,7 @@ model DistanceTable
   //          Imports and Class Hierarchy
   // _____________________________________________
 
-  extends TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.DistanceTable;
-  extends GenericDistanceTable(        relativepath="emobility/CarDistance.txt",
+  extends TransiEnt.Basics.Tables.ElectricGrid.Electromobility.GenericDistanceTable(r=5*60, relativepath="emobility/DistanceProfiles_family_15min.txt",
       datasource=DataPrivacy.isPublic);
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
     Documentation(info="<html>
@@ -54,4 +53,4 @@ model DistanceTable
 <p><b><span style=\"color: #008000;\">10. Version History</span></b></p>
 <p>Model created by Anne Hagemeier (anne.hagemeier@umsicht.fraunhofer.de), July 2021</p>
 </html>"));
-end DistanceTable;
+end DistanceProfiles_family_5min;

@@ -49,7 +49,7 @@ model CheckBatteryElectricVehicle
     v_boundary=400)
     annotation (Placement(transformation(extent={{20,14},{48,-14}})));
   BatteryElectricVehicle bEV(
-    inputDataType="SoC",
+    inputDataType="Distance",
     C_Bat(displayUnit="J") = 90e3*3600,
     SOCStart=0.5,
     ChargeAtOther=false,
@@ -67,7 +67,9 @@ model CheckBatteryElectricVehicle
           E_min=10000,
           P_max_unload=bEV.P_max_BEV_drive,
           P_max_load=bEV.P_max_BEV_charge,
-          T_plant=5)))
+          T_plant=5)),
+    redeclare model DistanceTable = TransiEnt.Basics.Tables.ElectricGrid.Electromobility.DistanceProfiles_family_5min,
+    redeclare model LocationTable = TransiEnt.Basics.Tables.ElectricGrid.Electromobility.LocationProfiles_family_5min)
                   annotation (Placement(transformation(extent={{-58,-20},{-18,20}})));
 equation
 

@@ -22,6 +22,7 @@ partial model SoCTable
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
 
-    extends TransiEnt.Basics.Icons.BasesPackage;
+
+
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
 end SoCTable;

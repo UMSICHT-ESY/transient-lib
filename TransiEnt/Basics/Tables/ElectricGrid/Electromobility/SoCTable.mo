@@ -18,9 +18,9 @@ model SoCTable
   //          Imports and Class Hierarchy
   // _____________________________________________
 
-  extends TransiEnt.Basics.Icons.TableIcon;
+
   extends TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.SoCTable;
- // outer TransiEnt.SimCenter simCenter;
+
 
   // ----------------------------------------------------------------------------------------
   //   Parameter

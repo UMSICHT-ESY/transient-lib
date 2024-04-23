@@ -56,14 +56,15 @@ model BatteryElectricVehicle
 //   parameter String relativepath_carLocation="emobility/CarLocation.txt"
 //     "Path relative to source directory for car location table"  annotation (Dialog(group="Data",
 //         enable=inputDataType == "Distance"));
-  parameter Real timeStepSize(unit="min") = 1
-    "Time step size of distance travelled"   annotation (Dialog(group="Data",
-        enable=inputDataType == "Distance"));
 
-  parameter Integer column_Location=1 "Table column for vehicle location data" annotation (Dialog(group="Data",
+// parameter Real timeStepSize(unit="min") = 1
+//    "Time step size of distance travelled, must correspond to time step size of chosen table"   annotation (Dialog(group="Data",
+//        enable=inputDataType == "Distance"));
+
+  parameter Integer column=1 "Table column for vehicle and location data" annotation (Dialog(group="Data",
         enable=inputDataType == "Distance"));
-  parameter Integer column_Distance=1 "Table column for vehicle distance data" annotation (Dialog(group="Data",
-        enable=inputDataType == "Distance"));
+//   parameter Integer column_Distance=1 "Table column for vehicle distance data" annotation (Dialog(group="Data",
+//         enable=inputDataType == "Distance"));
 
   parameter Modelica.Units.SI.Power P_chargingStation(displayUnit="kW") = 11000 "Charging power of the charging station" annotation (Dialog(group="Charging station"));
   parameter Boolean ChargeAtWork=true annotation (Dialog(group="Charging - Select if vehicle ist charged at different locations than home. Charging power will not be accounted for but will reduce charging load at home. Locations need to be specified in Input table", joinNext=true,
@@ -137,7 +138,7 @@ model BatteryElectricVehicle
             {-6,-22}})));
   Modelica.Blocks.Logical.Switch P_set_battery  annotation (Placement(transformation(extent={{54,62},{74,42}})));
   Modelica.Blocks.Sources.RealExpression chargingStationPower(y=P_charge_SoC.y) if not useExternalControl annotation (Placement(transformation(extent={{12,18},{38,36}})));
-  Modelica.Blocks.Sources.RealExpression drivingPower(y=-vehicleEfficiency/100 * Distance.y[1] * 60 / timeStepSize) if  inputDataType=="Distance" annotation (Placement(transformation(extent={{42,70},
+  Modelica.Blocks.Sources.RealExpression drivingPower(y=-vehicleEfficiency/100 * Distance.y[1] * 60 / Distance.r) if  inputDataType=="Distance" annotation (Placement(transformation(extent={{42,70},
             {76,90}})));
 
   Modelica.Blocks.MathBoolean.Or charging(nu=5) if inputDataType=="Distance" annotation (Placement(transformation(extent={{6,56},{24,74}})));
@@ -154,13 +155,13 @@ model BatteryElectricVehicle
 
   //Data tables
 
-   replaceable model DistanceTable = TransiEnt.Basics.Tables.ElectricGrid.Electromobility.DistanceTable    constrainedby
-    TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.DistanceTable(   multiple_outputs=true, columns={column_Distance + 1}) "Data table for data time series of distance travelled" annotation (choicesAllMatching=true,Dialog(group="Data",
+   replaceable model DistanceTable = TransiEnt.Basics.Tables.ElectricGrid.Electromobility.DistanceProfiles_family_15min    constrainedby
+    TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.DistanceTable(multiple_outputs=true, columns={column + 1}) "Data table for data time series of distance travelled" annotation (choicesAllMatching=true,Dialog(group="Data",
         enable=inputDataType == "Distance"));
      DistanceTable Distance if  inputDataType=="Distance" annotation (Placement(transformation(extent={{-94,-60},{-80,-46}})));
 
-   replaceable model LocationTable = TransiEnt.Basics.Tables.ElectricGrid.Electromobility.LocationTable    constrainedby
-    TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.LocationTable(   multiple_outputs=true,columns={column_Location + 1}) "Data table for data time series of vehicle location" annotation (choicesAllMatching=true,Dialog(group="Data",
+   replaceable model LocationTable = TransiEnt.Basics.Tables.ElectricGrid.Electromobility.LocationProfiles_family_15min    constrainedby
+    TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.LocationTable(multiple_outputs=true,columns={column + 1}) "Data table for data time series of vehicle location" annotation (choicesAllMatching=true,Dialog(group="Data",
         enable=inputDataType == "Distance"));
      LocationTable Location if  inputDataType=="Distance" annotation (Placement(transformation(extent={{-94,-90},{-80,-76}})));
 

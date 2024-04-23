@@ -1,5 +1,5 @@
 ﻿within TransiEnt.Basics.Tables.ElectricGrid.Electromobility;
-model LocationTable
+model LocationProfiles_family_15min "Stochastic location profiles for a family home, resolution 15 min"
 
 //________________________________________________________________________________//
 // Component of the TransiEnt Library, version: 2.0.2                             //
@@ -27,7 +27,7 @@ model LocationTable
   //          Imports and Class Hierarchy
   // _____________________________________________
 
-  extends GenericLocationTable(        relativepath="emobility/CarLocation.txt",
+  extends GenericLocationTable(        relativepath="emobility/DistanceProfiles_family_15min.txt",
       datasource=DataPrivacy.isPublic);
 
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
@@ -55,4 +55,4 @@ model LocationTable
 <p><b><span style=\"color: #008000;\">10. Version History</span></b></p>
 <p>Model created by Anne Hagemeier (anne.hagemeier@umsicht.fraunhofer.de), June 2022</p>
 </html>"));
-end LocationTable;
+end LocationProfiles_family_15min;

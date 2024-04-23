@@ -22,6 +22,10 @@ partial model DistanceTable
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
 
-  extends TransiEnt.Basics.Icons.BasesPackage;
+
+
+
+  parameter SI.Time r(displayUnit="min") "Data resolution";
+
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
 end DistanceTable;

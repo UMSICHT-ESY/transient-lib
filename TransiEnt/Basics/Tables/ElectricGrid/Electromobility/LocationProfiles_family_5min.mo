@@ -1,5 +1,5 @@
 ﻿within TransiEnt.Basics.Tables.ElectricGrid.Electromobility;
-model GenericDistanceTable
+model LocationProfiles_family_5min "Stochastic location profiles for a family home, resolution 5 min"
 
 //________________________________________________________________________________//
 // Component of the TransiEnt Library, version: 2.0.2                             //
@@ -22,13 +22,19 @@ model GenericDistanceTable
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
 
+  // _____________________________________________
+  //
+  //          Imports and Class Hierarchy
+  // _____________________________________________
 
-    extends GenericDataTable;
-  extends TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.DistanceTable;
+  extends GenericLocationTable(        relativepath="emobility/DistanceProfiles_family_5min.txt",
+      datasource=DataPrivacy.isPublic);
+
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
     Documentation(info="<html>
 <p><b><span style=\"color: #008000;\">1. Purpose of model</span></b></p>
-<p>This model creates a generic data table to be used for car distance time series</p>
+<p>Time series of car location. Data series was created with the LoadProfileGenerator (https://github.com/loadprofilegenerator/LoadProfileGenerator).</p>
+<p>A value of 0 corresponds to the car driving, the other values correspond to the car being parked at the following location: home (1), shopping (2), event location (3), school (4), work (5):</p>
 <p><b><span style=\"color: #008000;\">2. Level of detail, physical effects considered, and physical insight</span></b></p>
 <p>(none)</p>
 <p><b><span style=\"color: #008000;\">3. Limits of validity </span></b></p>
@@ -49,4 +55,4 @@ model GenericDistanceTable
 <p><b><span style=\"color: #008000;\">10. Version History</span></b></p>
 <p>Model created by Anne Hagemeier (anne.hagemeier@umsicht.fraunhofer.de), June 2022</p>
 </html>"));
-end GenericDistanceTable;
+end LocationProfiles_family_5min;
