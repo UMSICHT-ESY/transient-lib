@@ -27,7 +27,7 @@ model DistanceProfiles_family_5min "Stochastic distance profiles for a family ho
   //          Imports and Class Hierarchy
   // _____________________________________________
 
-  extends TransiEnt.Basics.Tables.ElectricGrid.Electromobility.GenericDistanceTable(r=5*60, relativepath="emobility/DistanceProfiles_family_15min.txt",
+  extends TransiEnt.Basics.Tables.ElectricGrid.Electromobility.GenericDistanceTable(r=5*60, relativepath="emobility/DistanceProfiles_family_5min.txt",
       datasource=DataPrivacy.isPublic);
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
     Documentation(info="<html>

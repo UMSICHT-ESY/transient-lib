@@ -27,7 +27,7 @@ model LocationProfiles_family_5min "Stochastic location profiles for a family ho
   //          Imports and Class Hierarchy
   // _____________________________________________
 
-  extends GenericLocationTable(        relativepath="emobility/DistanceProfiles_family_5min.txt",
+  extends GenericLocationTable(        relativepath="emobility/LocationProfiles_family_5min.txt",
       datasource=DataPrivacy.isPublic);
 
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
