@@ -2,6 +2,8 @@ Base
 GenericDistanceTable
 GenericLocationTable
 GenericSoCTable
-DistanceTable
-LocationTable
 SoCTable
+DistanceProfiles_family_15min
+DistanceProfiles_family_5min
+LocationProfiles_family_15min
+LocationProfiles_family_5min
