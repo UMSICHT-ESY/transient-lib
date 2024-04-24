@@ -138,7 +138,7 @@ model BatteryElectricVehicle
             {-6,-22}})));
   Modelica.Blocks.Logical.Switch P_set_battery  annotation (Placement(transformation(extent={{54,62},{74,42}})));
   Modelica.Blocks.Sources.RealExpression chargingStationPower(y=P_charge_SoC.y) if not useExternalControl annotation (Placement(transformation(extent={{12,18},{38,36}})));
-  Modelica.Blocks.Sources.RealExpression drivingPower(y=-vehicleEfficiency/100 * Distance.y[1] * 60 / Distance.r) if  inputDataType=="Distance" annotation (Placement(transformation(extent={{42,70},
+  Modelica.Blocks.Sources.RealExpression drivingPower(y=-vehicleEfficiency/100 * Distance.y[1]/Distance.r * 3600) if  inputDataType=="Distance" annotation (Placement(transformation(extent={{42,70},
             {76,90}})));
 
   Modelica.Blocks.MathBoolean.Or charging(nu=5) if inputDataType=="Distance" annotation (Placement(transformation(extent={{6,56},{24,74}})));
