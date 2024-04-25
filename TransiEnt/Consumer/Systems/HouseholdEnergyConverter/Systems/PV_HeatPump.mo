@@ -326,10 +326,6 @@ equation
       color={0,127,0},
       thickness=0.5));
   connect(Tset.y, controller.T_set) annotation (Line(points={{-69.2,-11},{-46,-11},{-46,-15.4},{-29.2,-15.4}}, color={0,0,127}));
-  connect(controller.Q_flow_set_HP, heatPump.Q_flow_set) annotation (Line(
-      points={{-9.5,-14.1},{16,-14.1},{16,-18.94},{25.34,-18.94}},
-      color={175,0,0},
-      pattern=LinePattern.Dash));
   connect(p_PV.y, controller1.P_PV) annotation (Line(points={{-104,70},{-104,48},{-109.2,48},{-109.2,43.52}}, color={0,0,127}));
   connect(pV_battery.epp, inverter.epp_DC) annotation (Line(
       points={{-104,-3},{-96,-3},{-96,-20},{-89,-20},{-89,-28.18}},
@@ -339,6 +335,10 @@ equation
   connect(excessPV1.y, controller1.P_Consumer) annotation (Line(points={{-124,71.2},{-124,48},{-118.8,48},{-118.8,43.36}}, color={0,0,127}));
   connect(PHeater_to_0.y, electricHeater.P_el_set) annotation (Line(points={{-5.2,
           -63},{8,-63},{8,-68.4},{34.4,-68.4}}, color={0,0,127}));
+  connect(controller.Q_flow_set_HP, heatPump.Q_flow_set) annotation (Line(
+      points={{-9.5,-14.1},{16,-14.1},{16,-18.94},{25.34,-18.94}},
+      color={175,0,0},
+      pattern=LinePattern.Dash));
   annotation (
     HideResult=true,
     Dialog(tab="Tracking and Mounting"),
