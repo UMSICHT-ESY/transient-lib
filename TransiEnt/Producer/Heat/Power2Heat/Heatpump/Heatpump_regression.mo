@@ -1,5 +1,6 @@
 ﻿within TransiEnt.Producer.Heat.Power2Heat.Heatpump;
-model Heatpump_hplib "Simple heatpump model that is based on regression models from the hplib python library."
+model Heatpump_regression
+  "Simple heatpump model that is based on regression models from the hplib python library."
 
 //________________________________________________________________________________//
 // Component of the TransiEnt Library, version: 2.0.2                             //
@@ -68,7 +69,6 @@ protected
   parameter Real p3_P_el_h=HeatPumpData[7];
   parameter Real p4_P_el_h=HeatPumpData[8];
 
-
    //___________________________________________________________________________
    //
    //                      Variables
@@ -102,8 +102,9 @@ public
   TransiEnt.Basics.Interfaces.Thermal.HeatFlowRateOut Heat_output    "Setpoint value, e.g. Storage setpoint temperature"  annotation (Placement(transformation(extent={{96,38},{136,78}}),
         iconTransformation(extent={{96,38},{136,78}})));
 
-  replaceable connector PowerPortModel = TransiEnt.Basics.Interfaces.Electrical.ActivePowerPort constrainedby TransiEnt.Basics.Interfaces.Electrical.ActivePowerPort
-                                                                                                                                                   "Choice of power port" annotation (
+  replaceable connector PowerPortModel =
+      TransiEnt.Basics.Interfaces.Electrical.ActivePowerPort                                    constrainedby
+    TransiEnt.Basics.Interfaces.Electrical.ActivePowerPort                                                                                         "Choice of power port" annotation (
     choicesAllMatching=true,
     Dialog(group="Replaceable Components"));
 
@@ -336,4 +337,4 @@ equation
 <p><b><span style=\"color: #008000;\">10. Version History</span></b></p>
 <p>Model from TransiEnt 1.1.0 modified by Anne Hagemeier (anne.hagemeier@umsicht.fraunhofer.de), Jan 2019</p>
 </html>"));
-end Heatpump_hplib;
+end Heatpump_regression;
