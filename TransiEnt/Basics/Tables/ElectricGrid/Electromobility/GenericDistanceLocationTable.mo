@@ -1,5 +1,5 @@
 ﻿within TransiEnt.Basics.Tables.ElectricGrid.Electromobility;
-model GenericSoCTable
+model GenericDistanceLocationTable
 
 //________________________________________________________________________________//
 // Component of the TransiEnt Library, version: 2.0.2                             //
@@ -22,8 +22,8 @@ model GenericSoCTable
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
 
-  extends TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.SoCTable;
   extends GenericDataTable;
+  extends TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.DistanceLocationTable;
 
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
     Documentation(info="<html>
@@ -49,4 +49,4 @@ model GenericSoCTable
 <p><b><span style=\"color: #008000;\">10. Version History</span></b></p>
 <p>Model created by Anne Hagemeier (anne.hagemeier@umsicht.fraunhofer.de), June 202e</p>
 </html>"));
-end GenericSoCTable;
+end GenericDistanceLocationTable;

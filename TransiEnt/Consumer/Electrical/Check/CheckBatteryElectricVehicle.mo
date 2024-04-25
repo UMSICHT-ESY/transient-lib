@@ -51,26 +51,10 @@ model CheckBatteryElectricVehicle
   BatteryElectricVehicle bEV(
     inputDataType="Distance",
     C_Bat(displayUnit="J") = 90e3*3600,
-    SOCStart=0.5,
-    ChargeAtOther=false,
+    column=2,
     SOCLimit=1,
-    useExternalControl=false,
-    vehicleBattery(
-      use_PowerRateLimiter=true,
-      redeclare model StorageModel = TransiEnt.Storage.Base.GenericStorageHyst (
-          use_plantDynamic=true,
-          use_inverterEfficiency=true,
-          stationaryLossOnlyIfInactive=true),
-      StorageModelParams=TransiEnt.Storage.Electrical.Specifications.LithiumIon(
-          E_start=bEV.SOCStart*bEV.C_Bat,
-          E_max=bEV.C_Bat,
-          E_min=10000,
-          P_max_unload=bEV.P_max_BEV_drive,
-          P_max_load=bEV.P_max_BEV_charge,
-          T_plant=5)),
-    redeclare model DistanceTable = TransiEnt.Basics.Tables.ElectricGrid.Electromobility.DistanceProfiles_family_5min,
-    redeclare model LocationTable = TransiEnt.Basics.Tables.ElectricGrid.Electromobility.LocationProfiles_family_5min)
-                  annotation (Placement(transformation(extent={{-58,-20},{-18,20}})));
+    useExternalControl=false)
+                  annotation (Placement(transformation(extent={{-56,-18},{-16,22}})));
 equation
 
   // _____________________________________________
@@ -79,7 +63,7 @@ equation
   // _____________________________________________
 
   connect(bEV.epp, ElectricGrid.epp) annotation (Line(
-      points={{-18,0},{-18,-1.77636e-15},{20,-1.77636e-15}},
+      points={{-16,2},{-16,-1.77636e-15},{20,-1.77636e-15}},
       color={0,127,0},
       thickness=0.5));
 
@@ -107,7 +91,7 @@ equation
 <p><span style=\"font-family: MS Shell Dlg 2;\">Model created by Dorian Hoeffner, TUHH in November 2021</span></p>
 </html>"),
     experiment(
-      StopTime=86400,
+      StopTime=432000,
       Interval=59.9999616,
       __Dymola_Algorithm="Dassl"));
 end CheckBatteryElectricVehicle;
