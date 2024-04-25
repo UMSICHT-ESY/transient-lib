@@ -313,21 +313,17 @@ equation
           smooth=Smooth.None)}),                                 Diagram(coordinateSystem(preserveAspectRatio=false)),
     Documentation(info="<html>
 <p><b><span style=\"color: #008000;\">1. Purpose of model</span></b></p>
-<p>Simple heat pump with power input specified externally.</p>
+<p>(no remarks)</p>
 <p><b><span style=\"color: #008000;\">2. Level of detail, physical effects considered, and physical insight</span></b></p>
-<p>Efficiency calculation based on Carnot efficiency. </p>
-<p>Relative difference to Carnot efficiency at reference point kept at all operating points </p>
+<p> (no remarks)</p>
 <p><b><span style=\"color: #008000;\">3. Limits of validity </span></b></p>
 <p>(no remarks)</p>
 <p><b><span style=\"color: #008000;\">4. Interfaces</span></b></p>
-<p>&nbsp;&nbsp; TransiEnt.Basics.Interfaces.Thermal.TemperatureIn_K T_set</p>
-<p>&nbsp;&nbsp; TransiEnt.Basics.Interfaces.Electrical.ElectricPowerIn P_set_el</p>
-<p>&nbsp;&nbsp; TransiEnt.Basics.Interfaces.Thermal.HeatFlowRateOut Heat_output</p>
+<p>(no remarks)</p>
 <p><b><span style=\"color: #008000;\">5. Nomenclature</span></b></p>
 <p>(no elements)</p>
 <p><b><span style=\"color: #008000;\">6. Governing Equations</span></b></p>
-<p>COP_Carnot=(T_set+Delta_T_internal)/max(2*Delta_T_internal, T_set + 2*Delta_T_internal - T_source_internal)</p>
-<p>COP=COP_Carnot*eta_HP</p>
+<p>(no remarks)</p>
 <p><b><span style=\"color: #008000;\">7. Remarks for Usage</span></b></p>
 <p>(no remarks)</p>
 <p><b><span style=\"color: #008000;\">8. Validation</span></b></p>
@@ -335,6 +331,6 @@ equation
 <p><b><span style=\"color: #008000;\">9. References</span></b></p>
 <p>(no remarks)</p>
 <p><b><span style=\"color: #008000;\">10. Version History</span></b></p>
-<p>Model from TransiEnt 1.1.0 modified by Anne Hagemeier (anne.hagemeier@umsicht.fraunhofer.de), Jan 2019</p>
+<p>(no remarks)</p>
 </html>"));
 end Heatpump_regression;
