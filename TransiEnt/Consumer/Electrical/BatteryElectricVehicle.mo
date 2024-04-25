@@ -154,9 +154,9 @@ model BatteryElectricVehicle "Electricity consumption of a home wallbox"
   //Data tables
 
    replaceable model DistanceLocationTable = TransiEnt.Basics.Tables.ElectricGrid.Electromobility.DistanceLocationProfiles_family_15min    constrainedby
-    TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.DistanceLocationTable(multiple_outputs=true, columns={column + 1, column+2}) "Data table for data time series of distance travelled" annotation (choicesAllMatching=true,Dialog(group="Data",
+    TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.DistanceLocationTable(multiple_outputs=true, columns={2*(column-1) + 2, 2*(column-1)+3}) "Data table for data time series of distance travelled" annotation (choicesAllMatching=true,Dialog(group="Data",
         enable=inputDataType == "Distance"));
-     DistanceLocationTable DistanceLocationData if  inputDataType=="Distance" annotation (Placement(transformation(extent={{-94,-90},{-80,-76}})));
+     DistanceLocationTable DistanceLocationData if inputDataType=="Distance" "y[1]=Distance, y[2]=Location" annotation (Placement(transformation(extent={{-94,-90},{-80,-76}})));
 
    replaceable model soCTable = TransiEnt.Basics.Tables.ElectricGrid.Electromobility.SoCTable constrainedby TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.SoCTable(
                                                                        multiple_outputs=true) "Data table for data time series of battery SoC" annotation (choicesAllMatching=true,Dialog(group="Data",
@@ -174,7 +174,7 @@ model BatteryElectricVehicle "Electricity consumption of a home wallbox"
   Modelica.Blocks.Interfaces.RealInput p_control if useExternalControl and controlType == "proportional" "Interface for Load Regulation" annotation (Placement(transformation(extent={{-128,-58},
             {-90,-20}}),    iconTransformation(extent={{-128,-58},{-90,-20}})));
   TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort epp annotation (Placement(transformation(extent={{90,-10},{110,10}})));
-  Modelica.Blocks.Interfaces.RealInput SoC_consumption_internal;
+  Modelica.Blocks.Interfaces.RealInput SoC_consumption_internal "Test";
 
 
 equation
@@ -308,8 +308,10 @@ equation
     experiment(StopTime=0, __Dymola_Algorithm="Dassl"),
     Documentation(info="<html>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">1. Purpose of model</span></b></p>
-<p>Simple model of an electric vehicle battery. Table-based profiles of the vehicle location and the kilometers driven determine the state-of-charge of the vehicle. When the vehicle ist home, it will charge from the grid. It can be selected wheather charging will occur only at home or also at other places, thus affecting the state-of-charge. </p>
-<p>The wall box charging power can be externally controlled by reducing the charging power proportionally or by setting a fixed maximum charging power. Load control will only affect the charging power at home, not at any other charging station.</p>
+<p>Simple model of an electric vehicle charging station. Table-based driving profiles determine the discharge of the vehicle battery. When the vehicle is home, it will charge from the grid with the power P_chargingStation that can be chosen by the user. The battery can be parametrized by chosing battery capacity, maximum charging pwer and maximum discharging power (i.e. driving power).</p>
+<p>I can be chosen from two different input types for the driving profiles, depending on the preferred pre-processing. For the input type &quot;SoC&quot;, the input time table needs a column that specifies the location of the vehicle (1=vehicle is present for charging, 0=vehicle not present) and a second column that specifies the state-of-charge reduction at the point of the return of the vehicle to the charging station. Information about driving efficiency and potential charging at other places is therefore contained within the state-of-charge information.</p>
+<p>For the input type &quot;Distance&quot;, the input time table also needs two columns, one for the location and one for the distance driven per time step. The location column can contain information about different external charging stations (0=vehicle not plugged, 1=vehicle plugged at the modelled home charging station, 2=vehicle plugged at a charging station at the workplace, 3=vehicle plugged at a public charging station, 4=vehicle plugged at a fast charging station, 5=vehicle plugged at a superfast charging station). The distance column contains information about the distance travelled in each time step. Also, the parameter r, specifying the time resolution needs to be set in the table model. This input data therefore only contains information about the driving behaviour and not the electricity consumption of the vehicle. With this input data type, the parameters can be set in the model, therefore there are additional parameters for the vehicle efficiency and the charging powers of additional stations. The electricity consumption of these stations is not accounted for in the model, they only serve to adjust the battery state-of-charge while the vehicle is not present at the home charging station.</p>
+<p>The wall box charging power can be externally controlled by reducing the charging power proportionally or by setting a fixed maximum charging power. Load control will only affect the charging power at home, not at any other charging station. Two different control modes can be selected via the parameter controlType. </p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">2. Level of detail, physical effects considered, and physical insight</span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">3. Limits of validity </span></b></p>
@@ -320,10 +322,9 @@ equation
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">5. Nomenclature</span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">6. Governing Equations</span></b></p>
-<p><span style=\"font-family: MS Shell Dlg 2;\">Both can be set: the maximum charging power of the electric vehicle and the maximum charging power of the charging station. Charging power will be the minimum of those two values.</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">7. Remarks for Usage</span></b></p>
-<p>The data table have to be prepared in preprocessing and will usually contain information about charging power, average driving electricity consumption and battery capacity. If parameters in the model are chosen differently, it might come to situations where battery capacity is not sufficient for the driving range and thus less driving power is used than specified in the table.</p>
-<p>Since the battery is rarely completely discharged, cases like this are very rare. </p>
+<p>Both can be set: the maximum charging power of the electric vehicle and the maximum charging power of the charging station. Charging power will be the minimum of those two values.</p>
+<p>The data table have to be prepared in preprocessing and will usually contain information about charging power, average driving electricity consumption and battery capacity. If parameters in the model are chosen differently, it might come to situations where battery capacity is not sufficient for the driving range and thus less driving power is used than specified in the table. Since the battery is rarely completely discharged, cases like this are very rare. </p>
 <p><br><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">8. Validation</span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">9. References</span></b></p>

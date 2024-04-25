@@ -50,7 +50,8 @@ model CheckBatteryElectricVehicle
     annotation (Placement(transformation(extent={{20,14},{48,-14}})));
   BatteryElectricVehicle bEV(
     inputDataType="Distance",
-    C_Bat(displayUnit="J") = 90e3*3600,
+    P_max_BEV_drive(displayUnit="kW"),
+    C_Bat(displayUnit="kWh"),
     column=2,
     SOCLimit=1,
     useExternalControl=false)
