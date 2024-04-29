@@ -37,14 +37,11 @@ model BatteryElectricVehicle "Electricity consumption of a home wallbox"
   parameter Real vehicleEfficiency=18  "[kWh/100km] Average electricity use per kilometer"    annotation (Dialog(group=
           "Electric Vehicle", enable=inputDataType == "Distance"));
 
-  parameter SI.Power P_max_BEV_drive(displayUnit="kW")=200000 "Maximum driving power"  annotation (Dialog(group=
-          "Electric Vehicle"));
+  parameter Modelica.Units.SI.Power P_max_BEV_drive(displayUnit="kW")=200000 "Maximum driving power" annotation (Dialog(group="Electric Vehicle"));
 
-  parameter SI.Power P_max_BEV_charge(displayUnit="kW")=22000 "Maximum charging power" annotation (Dialog(group=
-          "Electric Vehicle"));
+  parameter Modelica.Units.SI.Power P_max_BEV_charge(displayUnit="kW")=22000 "Maximum charging power" annotation (Dialog(group="Electric Vehicle"));
 
-  parameter SI.Energy C_Bat(displayUnit="kWh")=252000000 "Battery capacity"  annotation (Dialog(group=
-          "Electric Vehicle"));
+  parameter Modelica.Units.SI.Energy C_Bat(displayUnit="kWh")=252000000 "Battery capacity" annotation (Dialog(group="Electric Vehicle"));
 
   parameter Real SOCStart=0.7 "Battery state of charge at the start of the simulation" annotation (Dialog(group="Electric Vehicle"));
 
@@ -53,10 +50,9 @@ model BatteryElectricVehicle "Electricity consumption of a home wallbox"
 
   parameter Modelica.Units.SI.Power P_chargingStation(displayUnit="kW") = 11000 "Charging power of the home charging station" annotation (Dialog(group="Charging station"));
 
-  parameter SI.Power P_work(displayUnit="kW") = 0 "Charging power of the charging station at work" annotation (Dialog(group="Charging station", enable=
-          inputDataType == "Distance"));
+  parameter Modelica.Units.SI.Power P_work(displayUnit="kW")=0 "Charging power of the charging station at work" annotation (Dialog(group="Charging station", enable=inputDataType == "Distance"));
 
-  parameter SI.Power P_public(displayUnit="kW") = 0 "Charging power of public charging stations" annotation (Dialog(group="Charging station", enable=inputDataType == "Distance"));
+  parameter Modelica.Units.SI.Power P_public(displayUnit="kW")=0 "Charging power of public charging stations" annotation (Dialog(group="Charging station", enable=inputDataType == "Distance"));
 
   parameter Modelica.Units.SI.Power P_fast(displayUnit="kW")=0 "Charging power of fast charging" annotation (Dialog(group="Charging station", enable=inputDataType == "Distance"));
 
@@ -70,32 +66,21 @@ model BatteryElectricVehicle "Electricity consumption of a home wallbox"
       choices(checkBox=true),
       Dialog(group="Load Management"));
 
-  parameter String controlType = "limit" "Load control method" annotation (
+  parameter String controlType = "limit in Watt" "Load control method" annotation (
        Dialog(enable=useExternalControl, group="Load Management"),
-       choices(choice="limit",
+       choices(choice="limit in Watt",
                choice="proportional"));
-
 
   // _____________________________________________
   //
   //              Variables
   // _____________________________________________
 
-
   Real SoC=vehicleBattery.SOC.y;
   // _____________________________________________
   //
   //              Complex Components
   // _____________________________________________
-
-  TransiEnt.Components.Boundaries.Electrical.ApparentPower.ApparentPower powerToGrid(
-    useInputConnectorQ=false,
-    Q_el_set_const=0,
-    useCosPhi=false)
-    annotation (Placement(transformation(
-        extent={{-10,10},{10,-10}},
-        rotation=180,
-        origin={62,-78})));
 
   TransiEnt.Storage.Electrical.LithiumIonBattery vehicleBattery(
                                 StorageModelParams=TransiEnt.Storage.Electrical.Specifications.LithiumIon(
@@ -106,25 +91,24 @@ model BatteryElectricVehicle "Electricity consumption of a home wallbox"
         P_max_load=P_max_BEV_charge,
         T_plant=5))    annotation (Placement(transformation(extent={{76,-22},{40,14}})));
 
-
   Modelica.Blocks.Sources.RealExpression P_batteryToGrid(y=if noEvent(
         P_set_battery.u2) then -vehiclePowerBoundary.epp.P else 0)
-                                               annotation (Placement(transformation(extent={{2,-66},{54,-42}})));
+                                               annotation (Placement(transformation(extent={{-8,-64},{44,-40}})));
   TransiEnt.Components.Boundaries.Electrical.ActivePower.Frequency vehiclePowerBoundary(
       useInputConnector=false) annotation (Placement(transformation(extent={{26,4},{10,-12}})));
 
-  Modelica.Blocks.Math.Min min1 if useExternalControl and controlType == "limit"  annotation (Placement(transformation(extent={{-64,-22},{-50,-8}})));
+  Modelica.Blocks.Math.Min min1 if useExternalControl and controlType == "limit in Watt"  annotation (Placement(transformation(extent={{-64,-22},{-50,-8}})));
 
   Modelica.Blocks.Math.Product product1 if  useExternalControl and controlType == "proportional" annotation (Placement(transformation(extent={{-66,-48},{-52,-34}})));
 
-  Modelica.Blocks.Logical.Switch P_set_battery  annotation (Placement(transformation(extent={{54,62},{72,44}})));
-
+  Modelica.Blocks.Logical.Switch P_set_battery  annotation (Placement(transformation(extent={{62,68},{80,50}})));
 
   Modelica.Blocks.Sources.RealExpression drivingPower(y=-vehicleEfficiency/100*DistanceLocationData.y[1]/DistanceLocationData.r*3600) if
                                                                                                                       inputDataType=="Distance" annotation (Placement(transformation(extent={{46,70},
             {76,90}})));
 
-  Modelica.Blocks.Sources.BooleanExpression presence(y=vehicleHome.y) if inputDataType=="Distance" annotation (Placement(transformation(extent={{4,44},{24,60}})));
+  Modelica.Blocks.Sources.RealExpression    presence(y=DistanceLocationData.y[2]) if
+                                                                         inputDataType=="Distance" annotation (Placement(transformation(extent={{-10,44},{10,60}})));
 
   Modelica.Blocks.Sources.RealExpression zero(y=0) if inputDataType=="SoC"   annotation (Placement(transformation(extent={{46,84},{76,104}})));
 
@@ -153,8 +137,8 @@ model BatteryElectricVehicle "Electricity consumption of a home wallbox"
 
   //Data tables
 
-   replaceable model DistanceLocationTable = TransiEnt.Basics.Tables.ElectricGrid.Electromobility.DistanceLocationProfiles_family_15min    constrainedby
-    TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.DistanceLocationTable(multiple_outputs=true, columns={2*(column-1) + 2, 2*(column-1)+3}) "Data table for data time series of distance travelled" annotation (choicesAllMatching=true,Dialog(group="Data",
+   replaceable model DistanceLocationTable = TransiEnt.Basics.Tables.ElectricGrid.Electromobility.DistanceLocationProfiles_family_15min    constrainedby TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.DistanceLocationTable(
+                                                                                    multiple_outputs=true, columns={2*(column-1) + 2, 2*(column-1)+3}) "Data table for data time series of distance travelled" annotation (choicesAllMatching=true,Dialog(group="Data",
         enable=inputDataType == "Distance"));
      DistanceLocationTable DistanceLocationData if inputDataType=="Distance" "y[1]=Distance, y[2]=Location" annotation (Placement(transformation(extent={{-94,-90},{-80,-76}})));
 
@@ -163,20 +147,34 @@ model BatteryElectricVehicle "Electricity consumption of a home wallbox"
         enable=inputDataType == "SoC"));
    soCTable soC_data if inputDataType=="SoC" annotation (Placement(transformation(extent={{8,28},{20,40}})));
 
-
   // _____________________________________________
   //
   //              Interfaces
   // _____________________________________________
 
-  Modelica.Blocks.Interfaces.RealInput P_limit if useExternalControl and controlType == "limit"  "Interface for Load Regulation" annotation (Placement(transformation(extent={{-128,-24},{-90,14}}),
+  Modelica.Blocks.Interfaces.RealInput P_limit if useExternalControl and controlType == "limit in Watt"  "Interface for Load Regulation" annotation (Placement(transformation(extent={{-128,-24},{-90,14}}),
                         iconTransformation(extent={{-128,-24},{-90,14}})));
   Modelica.Blocks.Interfaces.RealInput p_control if useExternalControl and controlType == "proportional" "Interface for Load Regulation" annotation (Placement(transformation(extent={{-128,-58},
             {-90,-20}}),    iconTransformation(extent={{-128,-58},{-90,-20}})));
-  TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort epp annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+//  TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort epp annotation (Placement(transformation(extent={{90,-10},{110,10}})));
   Modelica.Blocks.Interfaces.RealInput SoC_consumption_internal "Test";
 
+  replaceable connector PowerPortModel = TransiEnt.Basics.Interfaces.Electrical.ComplexPowerPort  constrainedby TransiEnt.Basics.Interfaces.Electrical.PartialPowerPort  "Choice of power port" annotation (
+    choicesAllMatching=true,
+    Dialog(group="Replaceable Components"));
+  PowerPortModel epp annotation (
+    Placement(transformation(extent={{88,-12},{108,8}})));
 
+public
+  replaceable model PowerBoundaryModel = TransiEnt.Components.Boundaries.Electrical.ComplexPower.PQBoundary constrainedby TransiEnt.Components.Boundaries.Electrical.Base.PartialModelPowerBoundary  "Choice of power boundary model. The power boundary model must match the power port."     annotation (
+    choicesAllMatching=true,
+    Dialog(group="Replaceable Components"));
+
+  PowerBoundaryModel Power(useInputConnectorQ=false) "Choice of power boundary model. The power boundary model must match the power port."     annotation (
+    Placement(transformation(extent={{84,-88},{64,-68}})));
+
+  TransiEnt.Basics.Blocks.FilterPosNeg Filter annotation (Placement(transformation(extent={{54,-62},{74,-42}})));
+  Modelica.Blocks.Math.RealToBoolean realToBoolean if inputDataType == "Distance" annotation (Placement(transformation(extent={{20,48},{28,56}})));
 equation
 
   //equations for input type Soc
@@ -193,34 +191,27 @@ equation
      SoC_consumption_internal=0;
     end if;
 
-
   //connect statements
   connect(vehiclePowerBoundary.epp, vehicleBattery.epp) annotation (Line(
       points={{26,-4},{40,-4}},
       color={0,135,135},
       thickness=0.5));
-  connect(powerToGrid.epp, epp) annotation (Line(
-      points={{72,-78},{86,-78},{86,0},{100,0}},
-      color={0,127,0},
-      thickness=0.5));
-  connect(P_batteryToGrid.y, powerToGrid.P_el_set) annotation (Line(points={{56.6,-54},{68,-54},{68,-66}}, color={0,0,127}));
   connect(p_control, product1.u2) annotation (Line(points={{-109,-39},{-86,-39},{-86,-45.2},{-67.4,-45.2}}, color={0,0,127}));
-  connect(P_set_battery.y, vehicleBattery.P_set) annotation (Line(points={{72.9,53},{80,53},{80,28},{58,28},{58,12.92}},
+  connect(P_set_battery.y, vehicleBattery.P_set) annotation (Line(points={{80.9,59},{80,59},{80,28},{58,28},{58,12.92}},
                                                color={0,0,127}));
-  connect(drivingPower.y, P_set_battery.u3) annotation (Line(points={{77.5,80},{86,80},{86,68},{52.2,68},{52.2,60.2}},
+  connect(drivingPower.y, P_set_battery.u3) annotation (Line(points={{77.5,80},{86,80},{86,68},{60.2,68},{60.2,66.2}},
                                     color={0,0,127}));
-  connect(zero.y, P_set_battery.u3) annotation (Line(points={{77.5,94},{88,94},{88,68},{52.2,68},{52.2,60.2}},
+  connect(zero.y, P_set_battery.u3) annotation (Line(points={{77.5,94},{88,94},{88,68},{60.2,68},{60.2,66.2}},
                                                      color={0,0,127}));
-  connect(soC_data.isConnected, P_set_battery.u2) annotation (Line(points={{19.4,36.4},{32,36.4},{32,52},{42,52},{42,53},{52.2,53}},
+  connect(soC_data.isConnected, P_set_battery.u2) annotation (Line(points={{19.4,36.4},{32,36.4},{32,52},{42,52},{42,59},{60.2,59}},
                                                                color={255,0,255}));
   connect(SoC_consumption_internal,soC_data.SoC_consumption);
-  connect(soC.y, hysteresis.u)    annotation (Line(points={{-57.1,80},{-56,80},{-56,82},{-54,82},{-54,78},{-51.6,78}},
+  connect(soC.y, hysteresis.u)    annotation (Line(points={{-57.1,80},{-56,80},{-56,82},{-54,82},{-54,80},{-51.6,80}},
                                                      color={0,0,127}));
-  connect(hysteresis.y, P_charge_SoC.u2) annotation (Line(points={{-33.2,80},{-26,80},{-26,78},{-1.6,78}},
+  connect(hysteresis.y, P_charge_SoC.u2) annotation (Line(points={{-33.2,80},{-26,80},{-26,80},{-1.6,80}},
                                                                                           color={255,0,255}));
   connect(P_charge_SoC.u1, zero1.y) annotation (Line(points={{-1.6,86.4},{-8,86.4},{-8,87},{-13.3,87}},        color={0,0,127}));
-  connect(presence.y, P_set_battery.u2) annotation (Line(points={{25,52},{52.2,52},{52.2,53}},      color={255,0,255}));
-  connect(P_charge_SoC.y, P_set_battery.u1) annotation (Line(points={{16.8,80},{40,80},{40,46},{52.2,46},{52.2,45.8}},
+  connect(P_charge_SoC.y, P_set_battery.u1) annotation (Line(points={{16.8,80},{40,80},{40,46},{60.2,46},{60.2,51.8}},
                                                                                                        color={0,0,127}));
   connect(P_home.y, product1.u1) annotation (Line(points={{-64.6,22},{-64.6,-32},{-67.4,-32},{-67.4,-36.8}},              color={0,0,127}));
   connect(min1.y, add.u2) annotation (Line(points={{-49.3,-15},{-44,-15},{-44,-27.2},{-31.4,-27.2}},
@@ -237,6 +228,14 @@ equation
                                                                                                   color={0,0,127}));
   connect(P_home.y, min1.u1) annotation (Line(points={{-64.6,22},{-64.6,-10.8},{-65.4,-10.8}},                                        color={0,0,127}));
   connect(P_charge.y, P_charge_SoC.u3) annotation (Line(points={{-64.6,46},{-12,46},{-12,73.6},{-1.6,73.6}}, color={0,0,127}));
+  connect(Power.epp, epp) annotation (Line(
+      points={{84,-78},{88,-78},{88,-16},{84,-16},{84,-2},{98,-2}},
+      color={0,135,135},
+      thickness=0.5));
+  connect(Filter.y, Power.P_el_set) annotation (Line(points={{75,-52},{80,-52},{80,-66}}, color={0,0,127}));
+  connect(P_batteryToGrid.y, Filter.u) annotation (Line(points={{46.6,-52},{52,-52}}, color={0,0,127}));
+  connect(presence.y, realToBoolean.u) annotation (Line(points={{11,52},{19.2,52}}, color={0,0,127}));
+  connect(realToBoolean.y, P_set_battery.u2) annotation (Line(points={{28.4,52},{42,52},{42,59},{60.2,59}}, color={255,0,255}));
   annotation (
       Diagram(graphics={
         Line(

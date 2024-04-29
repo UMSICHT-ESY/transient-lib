@@ -34,7 +34,8 @@ model CheckBatteryElectricVehicle
   //           Instances of other Classes
   // _____________________________________________
 
-  inner TransiEnt.SimCenter simCenter(tableInterpolationSmoothness=Modelica.Blocks.Types.Smoothness.ConstantSegments)
+  inner TransiEnt.SimCenter simCenter(v_n=400,
+                                      tableInterpolationSmoothness=Modelica.Blocks.Types.Smoothness.ConstantSegments)
                                       annotation (Placement(transformation(extent={{-90,80},{-70,100}})));
 
 // _____________________________________________
@@ -42,20 +43,9 @@ model CheckBatteryElectricVehicle
 //           Functions
 // _____________________________________________
 
-  TransiEnt.Components.Boundaries.Electrical.ApparentPower.FrequencyVoltage
-                                                               ElectricGrid(
-    Use_input_connector_f=false,
-    Use_input_connector_v=false,
-    v_boundary=400)
-    annotation (Placement(transformation(extent={{20,14},{48,-14}})));
-  BatteryElectricVehicle bEV(
-    inputDataType="Distance",
-    P_max_BEV_drive(displayUnit="kW"),
-    C_Bat(displayUnit="kWh"),
-    column=2,
-    SOCLimit=1,
-    useExternalControl=false)
-                  annotation (Placement(transformation(extent={{-56,-18},{-16,22}})));
+  BatteryElectricVehicle batteryElectricVehicle(useExternalControl=false, controlType="limit in Watt") annotation (Placement(transformation(extent={{-64,6},{-44,26}})));
+  TransiEnt.Components.Boundaries.Electrical.ComplexPower.SlackBoundary slackBoundary annotation (Placement(transformation(extent={{22,-12},{42,8}})));
+  inner TransiEnt.ModelStatistics modelStatistics annotation (Placement(transformation(extent={{-40,80},{-20,100}})));
 equation
 
   // _____________________________________________
@@ -63,11 +53,10 @@ equation
   //               Connect Statements
   // _____________________________________________
 
-  connect(bEV.epp, ElectricGrid.epp) annotation (Line(
-      points={{-16,2},{-16,-1.77636e-15},{20,-1.77636e-15}},
-      color={0,127,0},
+  connect(batteryElectricVehicle.epp, slackBoundary.epp) annotation (Line(
+      points={{-44.2,15.8},{14,15.8},{14,-2},{22,-2}},
+      color={28,108,200},
       thickness=0.5));
-
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
   Documentation(info="<html>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">1. Purpose of model</span></b></p>

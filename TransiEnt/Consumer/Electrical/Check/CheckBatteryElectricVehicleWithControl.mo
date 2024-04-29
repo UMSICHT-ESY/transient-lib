@@ -42,43 +42,14 @@ model CheckBatteryElectricVehicleWithControl
 //           Functions
 // _____________________________________________
 
-  TransiEnt.Components.Boundaries.Electrical.ApparentPower.FrequencyVoltage
-                                                               ElectricGrid(
-    Use_input_connector_f=false,
-    Use_input_connector_v=false,
-    v_boundary=400)
-    annotation (Placement(transformation(extent={{20,14},{48,-14}})));
-  BatteryElectricVehicle bEV(
-    inputDataType="SoC",
-    C_Bat(displayUnit="J") = 90e3*3600,
-    SOCStart=0.5,
-    ChargeAtOther=false,
-    SOCLimit=1,
-    useExternalControl=true,
-    vehicleBattery(
-      use_PowerRateLimiter=true,
-      redeclare model StorageModel = TransiEnt.Storage.Base.GenericStorageHyst (
-          use_plantDynamic=true,
-          use_inverterEfficiency=true,
-          stationaryLossOnlyIfInactive=true),
-      StorageModelParams=TransiEnt.Storage.Electrical.Specifications.LithiumIon(
-          E_start=bEV.SOCStart*bEV.C_Bat,
-          E_max=bEV.C_Bat,
-          E_min=1000,
-          P_max_unload=bEV.P_max_BEV_drive,
-          P_max_load=bEV.P_max_BEV_charge,
-          T_plant=5)))
-                  annotation (Placement(transformation(extent={{-58,-20},{-18,20}})));
   Modelica.Blocks.Sources.RealExpression
-                               GridVoltage1(y=1000)
+                               GridVoltage1(y=4200)
                annotation (Placement(transformation(
         extent={{-10,-10},{10,10}},
         rotation=0,
         origin={-88,16})));
-  Modelica.Blocks.Sources.Sine sine(
-    amplitude=30,
-    f=1/(3600),
-    offset=230) annotation (Placement(transformation(extent={{-46,52},{-26,72}})));
+  BatteryElectricVehicle batteryElectricVehicle(useExternalControl=true, controlType="limit in Watt") annotation (Placement(transformation(extent={{-44,-8},{-24,12}})));
+  TransiEnt.Components.Boundaries.Electrical.ComplexPower.SlackBoundary slackBoundary annotation (Placement(transformation(extent={{34,-8},{54,12}})));
 equation
 
   // _____________________________________________
@@ -86,12 +57,11 @@ equation
   //               Connect Statements
   // _____________________________________________
 
-  connect(bEV.epp, ElectricGrid.epp) annotation (Line(
-      points={{-18,0},{-18,-1.77636e-15},{20,-1.77636e-15}},
-      color={0,127,0},
+  connect(batteryElectricVehicle.epp, slackBoundary.epp) annotation (Line(
+      points={{-24.2,1.8},{30,1.8},{30,2},{34,2}},
+      color={28,108,200},
       thickness=0.5));
-
-  connect(GridVoltage1.y, bEV.P_limit) annotation (Line(points={{-77,16},{-70,16},{-70,4.6},{-60.2,4.6}}, color={0,0,127}));
+  connect(GridVoltage1.y, batteryElectricVehicle.P_limit) annotation (Line(points={{-77,16},{-50,16},{-50,1.5},{-44.9,1.5}}, color={0,0,127}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
   Documentation(info="<html>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">1. Purpose of model</span></b></p>
