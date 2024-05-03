@@ -170,7 +170,7 @@ public
             {66,88}})));
 
   TransiEnt.Basics.Interfaces.General.TemperatureOut T_source_internal "Temperature of heat source used for calculation";
-
+  TransiEnt.Basics.Interfaces.General.TemperatureOut T_storage_internal "Storage setpoint temperature";
   //Statistics
 public
    TransiEnt.Components.Statistics.Collectors.LocalCollectors.CollectElectricPower collectElectricPower(typeOfResource=TransiEnt.Basics.Types.TypeOfResource.Consumer) annotation (Placement(transformation(extent={{-100,-100},{-80,-80}})));
@@ -189,11 +189,15 @@ equation
      T_source_internal =T_source;
    end if;
 
+    if not use_T_storage then
+     T_storage_internal =T_set;
+   end if;
+
    //Calculate Supply Temperature if heat storage temperature is given else use constant suppy temperature defined by T_set
    if use_T_storage then
-     T_supply = T_storage + 5;
+     T_supply = T_storage_internal + 5;
    else
-     T_supply = T_set;
+     T_supply = T_storage_internal;
    end if;
 
    // Apply Regression Model for COP
@@ -228,6 +232,9 @@ equation
   connect(modelStatistics.powerCollector[collectElectricPower.typeOfResource],collectElectricPower.powerCollector);
   connect(modelStatistics.heatFlowCollector[collectHeatingPower.typeOfResource],collectHeatingPower.heatFlowCollector);
   connect(modelStatistics.costsCollector, heatingPlantCost.costsCollector);
+
+  connect(T_storage_internal, T_storage);
+
 
   connect(T_in_sensor.port,inlet)  annotation (Line(
       points={{80,-50},{80,-58},{104,-58}},
