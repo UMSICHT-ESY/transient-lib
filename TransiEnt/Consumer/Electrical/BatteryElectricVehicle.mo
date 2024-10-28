@@ -128,8 +128,8 @@ model BatteryElectricVehicle "Electricity consumption of a home wallbox"
     annotation (Placement(transformation(extent={{-28,80},{-14,94}})));
   Modelica.Blocks.Sources.RealExpression P_home(y=if vehicleHome.y then P_chargingStation else 0) if inputDataType=="Distance" annotation (Placement(transformation(extent={{-94,12},{-66,32}})));
 
-  Modelica.Blocks.Sources.RealExpression P_other(y=if (abs(2 - DistanceLocationData.y[2]) < 0.5 and (abs(derLoc.y) < 0.01)) then P_work elseif (abs(3 - DistanceLocationData.y[2]) < 0.5 and (abs(derLoc.y) < 0.01))
-         then P_public elseif (abs(4 - DistanceLocationData.y[2]) < 0.5 and (abs(derLoc.y) < 0.01)) then P_fast elseif (abs(5 - DistanceLocationData.y[2]) < 0.5 and (abs(derLoc.y) < 0.01)) then P_superfast else 0) if inputDataType=="Distance"
+  Modelica.Blocks.Sources.RealExpression P_other(y=if (abs(2 - DistanceLocationData.y[2]) < 0.5 and (abs(derLoc.y) < 0.001)) then P_work elseif (abs(3 - DistanceLocationData.y[2]) < 0.5 and (abs(derLoc.y) < 0.001))
+         then P_public elseif (abs(4 - DistanceLocationData.y[2]) < 0.5 and (abs(derLoc.y) < 0.001)) then P_fast elseif (abs(5 - DistanceLocationData.y[2]) < 0.5 and (abs(derLoc.y) < 0.001)) then P_superfast else 0) if inputDataType=="Distance"
     annotation (Placement(transformation(extent={{-94,26},{-66,44}})));
   Modelica.Blocks.Math.Add add if inputDataType=="Distance"  annotation (Placement(transformation(extent={{-30,-30},{-16,-16}})));
 
