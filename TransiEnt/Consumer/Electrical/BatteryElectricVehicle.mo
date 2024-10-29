@@ -115,7 +115,7 @@ model BatteryElectricVehicle "Electricity consumption of a home wallbox"
   Modelica.Blocks.Sources.RealExpression derLoc(y=if DistanceLocationData.smoothness == Modelica.Blocks.Types.Smoothness.ConstantSegments then 0 else der(DistanceLocationData.y[2])) if                                                                           inputDataType=="Distance"
     annotation (Placement(transformation(extent={{-56,-102},{-28,-82}})));
   Modelica.Blocks.Sources.BooleanExpression vehicleHome(y=abs(1 - DistanceLocationData.y[2]) <
-        0.5 and (abs(derLoc.y) < 0.01)) if inputDataType=="Distance"
+        0.5 and (abs(derLoc.y) < 0.001)) if inputDataType=="Distance"
     annotation (Placement(transformation(extent={{-56,-84},{-28,-68}})));
   Modelica.Blocks.Logical.Hysteresis hysteresis(uLow=SOCLimit - 0.005,uHigh=
         SOCLimit)
@@ -137,8 +137,8 @@ model BatteryElectricVehicle "Electricity consumption of a home wallbox"
 
   //Data tables
 
-   replaceable model DistanceLocationTable = TransiEnt.Basics.Tables.ElectricGrid.Electromobility.DistanceLocationProfiles_family_15min    constrainedby
-    TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.DistanceLocationTable(multiple_outputs=true, columns={2*(column-1) + 2, 2*(column-1)+3}) "Data table for data time series of distance travelled" annotation (choicesAllMatching=true,Dialog(group="Data",
+   replaceable model DistanceLocationTable = TransiEnt.Basics.Tables.ElectricGrid.Electromobility.DistanceLocationProfiles_family_15min    constrainedby TransiEnt.Basics.Tables.ElectricGrid.Electromobility.Base.DistanceLocationTable(
+                                                                                    multiple_outputs=true, columns={2*(column-1) + 2, 2*(column-1)+3}) "Data table for data time series of distance travelled" annotation (choicesAllMatching=true,Dialog(group="Data",
         enable=inputDataType == "Distance"));
      DistanceLocationTable DistanceLocationData if inputDataType=="Distance" "y[1]=Distance, y[2]=Location" annotation (Placement(transformation(extent={{-94,-90},{-80,-76}})));
 
@@ -147,8 +147,7 @@ model BatteryElectricVehicle "Electricity consumption of a home wallbox"
         enable=inputDataType == "SoC"));
    soCTable soC_data if inputDataType=="SoC" annotation (Placement(transformation(extent={{8,28},{20,40}})));
 
-  replaceable model PowerBoundaryModel = TransiEnt.Components.Boundaries.Electrical.ComplexPower.PQBoundary constrainedby
-    TransiEnt.Components.Boundaries.Electrical.Base.PartialModelPowerBoundary                                                                                                                        "Choice of power boundary model. The power boundary model must match the power port."     annotation (
+  replaceable model PowerBoundaryModel = TransiEnt.Components.Boundaries.Electrical.ComplexPower.PQBoundary constrainedby TransiEnt.Components.Boundaries.Electrical.Base.PartialModelPowerBoundary  "Choice of power boundary model. The power boundary model must match the power port."     annotation (
     choicesAllMatching=true,
     Dialog(group="Replaceable Components"));
 
