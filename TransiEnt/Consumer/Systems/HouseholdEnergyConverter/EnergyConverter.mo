@@ -20,7 +20,7 @@ model EnergyConverter "Replaceable systems for household technologies based on t
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und WÃ¤rme-Institut Essen						  //
+// Gas- und WÃ¤rme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -53,10 +53,31 @@ model EnergyConverter "Replaceable systems for household technologies based on t
 
   // _____________________________________________
   //
+  //           Instances of other Classes
+  // _____________________________________________
+
+  TransiEnt.Basics.Interfaces.Thermal.FluidPortIn waterPortIn(Medium=simCenter.fluid1) if  DHN annotation (Placement(transformation(extent={{-26,-70},{-6,-50}}), iconTransformation(extent={{-26,-70},{-6,-50}})));
+  TransiEnt.Basics.Interfaces.Thermal.FluidPortOut waterPortOut(Medium=simCenter.fluid1) if  DHN annotation (Placement(transformation(extent={{8,-70},{28,-50}}), iconTransformation(extent={{8,-70},{28,-50}})));
+  replaceable TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems.Boiler systems
+      constrainedby Systems.Base.Systems annotation (choicesAllMatching=true, Dialog(group="Replaceable Components"), Placement(transformation(extent={{-10,20},{10,40}})));
+
+
+  TransiEnt.Components.Statistics.Collectors.LocalCollectors.CollectHeatingPower collectHeatingPower(typeOfResource=TransiEnt.Basics.Types.TypeOfResource.Consumer) annotation (Placement(transformation(extent={{-10,-10},{10,10}},
+        rotation=180,
+        origin={-90,90})));
+  TransiEnt.Components.Statistics.Collectors.LocalCollectors.CollectElectricPower collectElectricPower(typeOfResource=TransiEnt.Basics.Types.TypeOfResource.Consumer) annotation (Placement(transformation(extent={{-62,54},{-42,34}})));
+
+  // _____________________________________________
+  //
   //          Interfaces
   // _____________________________________________
 
-  TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort epp if el_grid annotation (Placement(transformation(extent={{-88,-70},{-68,-50}}), iconTransformation(extent={{-88,-70},{-68,-50}})));
+ replaceable connector PowerPortModel =
+      TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort
+    constrainedby TransiEnt.Basics.Interfaces.Electrical.PartialPowerPort
+    annotation (choicesAllMatching=true, Dialog(group="Replaceable Components"));
+
+  PowerPortModel epp if el_grid annotation (Placement(transformation(extent={{-88,-70},{-68,-50}}), iconTransformation(extent={{-88,-70},{-68,-50}})));
   TransiEnt.Basics.Interfaces.Gas.RealGasPortIn gasPortIn(Medium=simCenter.gasModel1) if gas_grid annotation (Placement(transformation(extent={{68,-70},{88,-50}}), iconTransformation(extent={{70,-68},{88,-50}})));
   TransiEnt.Basics.Interfaces.Combined.HouseholdDemandIn demand annotation (Placement(transformation(
         extent={{-12,-12},{12,12}},
@@ -66,19 +87,7 @@ model EnergyConverter "Replaceable systems for household technologies based on t
         rotation=270,
         origin={1,31})));
 
-  // _____________________________________________
-  //
-  //           Instances of other Classes
-  // _____________________________________________
 
-  TransiEnt.Basics.Interfaces.Thermal.FluidPortIn waterPortIn(Medium=simCenter.fluid1)  if DHN annotation (Placement(transformation(extent={{-26,-70},{-6,-50}}), iconTransformation(extent={{-26,-70},{-6,-50}})));
-  TransiEnt.Basics.Interfaces.Thermal.FluidPortOut waterPortOut(Medium=simCenter.fluid1)  if DHN annotation (Placement(transformation(extent={{8,-70},{28,-50}}), iconTransformation(extent={{8,-70},{28,-50}})));
-  replaceable TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems.Boiler systems constrainedby Systems.Base.Systems annotation (choicesAllMatching=true, Placement(transformation(extent={{-10,20},{10,40}})));
-
-  TransiEnt.Components.Statistics.Collectors.LocalCollectors.CollectHeatingPower collectHeatingPower(typeOfResource=TransiEnt.Basics.Types.TypeOfResource.Consumer) annotation (Placement(transformation(extent={{-10,-10},{10,10}},
-        rotation=180,
-        origin={-90,90})));
-  TransiEnt.Components.Statistics.Collectors.LocalCollectors.CollectElectricPower collectElectricPower(typeOfResource=TransiEnt.Basics.Types.TypeOfResource.Consumer) annotation (Placement(transformation(extent={{-62,54},{-42,34}})));
 
 equation
 
@@ -93,10 +102,6 @@ equation
   connect(modelStatistics.powerCollector[TransiEnt.Basics.Types.TypeOfResource.Consumer],collectElectricPower.powerCollector);
   connect(modelStatistics.heatFlowCollector[TransiEnt.Basics.Types.TypeOfResource.Consumer],collectHeatingPower.heatFlowCollector);
 
-  connect(systems.epp, epp) annotation (Line(
-      points={{-8,20.2},{-46,20.2},{-46,-60},{-78,-60}},
-      color={0,127,0},
-      thickness=0.5));
   connect(systems.waterPortIn, waterPortIn) annotation (Line(
       points={{-2,20.2},{-2,-16.9},{-16,-16.9},{-16,-60}},
       color={175,0,0},
@@ -113,6 +118,10 @@ equation
       points={{0,100},{0,100},{0,40}},
       color={175,0,0},
       pattern=LinePattern.Dash));
+  connect(systems.epp, epp) annotation (Line(
+      points={{-8,20.2},{-8,-14},{-78,-14},{-78,-60}},
+      color={0,127,0},
+      thickness=0.5));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Rectangle(
           extent={{-100,40},{100,-60}},
           lineColor={0,0,0},
