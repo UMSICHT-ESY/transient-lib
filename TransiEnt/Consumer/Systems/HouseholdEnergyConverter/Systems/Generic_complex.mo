@@ -147,7 +147,9 @@ model Generic_complex
     behavior=1,
     P_n=12000,
     P_PV=12000,
-    Threshold=1.0) annotation (Placement(transformation(
+    Threshold=1.0,
+    redeclare Basics.Interfaces.Electrical.ComplexPowerPort epp_AC)
+                   annotation (Placement(transformation(
         extent={{9,-7},{-9,7}},
         rotation=90,
         origin={-111,-59})));
@@ -155,8 +157,8 @@ model Generic_complex
   TransiEnt.Components.Boundaries.Electrical.ComplexPower.PQBoundary     pQBoundary(    useInputConnectorQ=false, useInputConnectorP=true,
     cosphi_boundary=0.9)                                                                                                                   annotation (Placement(transformation(extent={{-70,-40},{-54,-24}})));
 
-  Modelica.Blocks.Sources.RealExpression excessPV(y=pVModule.epp.P + pVModule1.epp.P - pQBoundary.epp.P)
-                                                                                      annotation (Placement(transformation(
+  Modelica.Blocks.Sources.RealExpression excessPV(y=pVModule2.epp.P + pVModule1.epp.P
+         - pQBoundary.epp.P) annotation (Placement(transformation(
         extent={{7,-7},{-7,7}},
         rotation=90,
         origin={-39,17})));
@@ -166,9 +168,13 @@ model Generic_complex
     change_sign=true,
     usePelset=true,
     Q_flow_n=4500*0.95,
-    eta=0.95,
+    eta=0.99,
     useFluidPorts=false,
     usePowerPort=true,
+    redeclare connector PowerPortModel =
+        Basics.Interfaces.Electrical.ComplexPowerPort,
+    redeclare model PowerBoundaryModel =
+        Components.Boundaries.Electrical.ComplexPower.PQBoundary,
     powerBoundary(useInputConnectorQ=false, cosphi_boundary=0.95)) annotation (Placement(transformation(extent={{52,-70},{72,-50}})));
   Modelica.Blocks.Math.Add add3 annotation (Placement(transformation(extent={{64,-46},{78,-32}})));
 
@@ -201,7 +207,7 @@ model Generic_complex
     redeclare model PowerBoundaryModel =
         TransiEnt.Components.Boundaries.Electrical.ComplexPower.PQBoundary,
     Power(cosphi_boundary=0.95))                                                                             annotation (Placement(transformation(extent={{-50,-70},{-30,-50}})));
-  Producer.Electrical.Photovoltaics.Advanced_PV.DNIDHI_Input.PVModule                       pVModule(
+  Producer.Electrical.Photovoltaics.Advanced_PV.DNIDHI_Input.PVModule pVModule2(
     P_inst=6000,
     Pmpp=Pmpp,
     Area=Area,
@@ -215,7 +221,8 @@ model Generic_complex
     latitude=latitude,
     slope=Tilt,
     surfaceAzimuthAngle=Azimuth,
-    reflectance_ground=Albedo) "Suedausrichtung" annotation (Placement(transformation(extent={{-74,46},{-94,66}})));
+    reflectance_ground=Albedo)
+    annotation (Placement(transformation(extent={{-74,46},{-94,66}})));
   Modelica.Blocks.Sources.RealExpression ambientTemperature(y=simCenter.ambientConditions.temperature.value) annotation (Placement(transformation(
         extent={{10,-6},{-10,6}},
         rotation=0,
@@ -246,7 +253,7 @@ model Generic_complex
     latitude=latitude,
     slope=Tilt,
     surfaceAzimuthAngle=Modelica.Units.Conversions.from_deg(180),
-    reflectance_ground=Albedo) "Nordausrichtung" annotation (Placement(transformation(extent={{-74,76},{-94,96}})));
+    reflectance_ground=Albedo)                   annotation (Placement(transformation(extent={{-74,76},{-94,96}})));
   Modelica.Blocks.Sources.RealExpression COP_HP(y=heatPump.COP) annotation (Placement(transformation(extent={{-96,0},{-78,18}})));
   Modelica.Blocks.Interfaces.RealInput P_SVE annotation (Placement(transformation(extent={{-166,-92},{-126,-52}})));
   replaceable Masterarbeit.Thesis_Final.Thesis_POC_Modelle.POC_strombedingtesEngpassmanagement_EMS.ControlHeatpump_PVoriented_invHPEMS controller constrainedby
@@ -275,8 +282,9 @@ model Generic_complex
         extent={{-8,-8},{8,8}},
         rotation=-90,
         origin={-130,40})));
-  Modelica.Blocks.Sources.RealExpression p_PV(y=pVModule.P_dc + pVModule1.P_dc)
-                                                               annotation (Placement(transformation(extent={{10,-9},{-10,9}},
+  Modelica.Blocks.Sources.RealExpression p_PV(y=pVModule2.P_dc + pVModule1.P_dc)
+    annotation (Placement(transformation(
+        extent={{10,-9},{-10,9}},
         rotation=90,
         origin={-120,85})));
   Modelica.Blocks.Sources.RealExpression excessPV1(y=pQBoundary.epp.P + heatPump.epp.P + electricHeater.epp.P) annotation (Placement(transformation(
@@ -365,22 +373,29 @@ equation
       color={28,108,200},
       thickness=0.5));
   connect(add1.y, pQBoundary.P_el_set) annotation (Line(points={{-28.7,43},{-66.8,43},{-66.8,-22.4}}, color={0,0,127}));
-  connect(pVModule.epp, inverter.epp_DC) annotation (Line(
-      points={{-93.3,55.4},{-100,55.4},{-100,-6},{-106,-6},{-106,-44},{-111,-44},{-111,-50.18}},
+  connect(pVModule2.epp, inverter.epp_DC) annotation (Line(
+      points={{-93.3,55.4},{-100,55.4},{-100,-6},{-106,-6},{-106,-44},{-111,-44},
+          {-111,-50.18}},
       color={0,135,135},
       thickness=0.5));
   connect(pVModule1.epp, inverter.epp_DC) annotation (Line(
       points={{-93.3,85.4},{-100,85.4},{-100,-6},{-106,-6},{-106,-44},{-111,-44},{-111,-50.18}},
       color={0,135,135},
       thickness=0.5));
-  connect(wind.y, pVModule.WindSpeed_in) annotation (Line(points={{-45,63},{-46,63},{-46,62},{-48,62},{-48,48},{-72,48}}, color={0,0,127}));
-  connect(pVModule.DHI_in, diffuseSolarRadiation.y) annotation (Line(points={{-72,53.4},{-50,53.4},{-50,72},{-45,72}}, color={0,0,127}));
-  connect(pVModule.DNI_in, directSolarRadiation.y) annotation (Line(points={{-72,58.4},{-54,58.4},{-54,82},{-45,82}}, color={0,0,127}));
-  connect(pVModule.T_in, ambientTemperature.y) annotation (Line(points={{-72,64},{-56,64},{-56,92},{-45,92}}, color={0,0,127}));
+  connect(wind.y, pVModule2.WindSpeed_in) annotation (Line(points={{-45,63},{-46,
+          63},{-46,62},{-48,62},{-48,48},{-72,48}}, color={0,0,127}));
+  connect(pVModule2.DHI_in, diffuseSolarRadiation.y) annotation (Line(points={{
+          -72,53.4},{-50,53.4},{-50,72},{-45,72}}, color={0,0,127}));
+  connect(pVModule2.DNI_in, directSolarRadiation.y) annotation (Line(points={{-72,
+          58.4},{-54,58.4},{-54,82},{-45,82}}, color={0,0,127}));
+  connect(pVModule2.T_in, ambientTemperature.y) annotation (Line(points={{-72,
+          64},{-56,64},{-56,92},{-45,92}}, color={0,0,127}));
   connect(pVModule1.T_in, ambientTemperature.y) annotation (Line(points={{-72,94},{-56,94},{-56,92},{-45,92}}, color={0,0,127}));
   connect(pVModule1.DNI_in, directSolarRadiation.y) annotation (Line(points={{-72,88.4},{-58,88.4},{-58,82},{-45,82}}, color={0,0,127}));
   connect(pVModule1.DHI_in, diffuseSolarRadiation.y) annotation (Line(points={{-72,83.4},{-60,83.4},{-60,72},{-45,72}}, color={0,0,127}));
-  connect(pVModule1.WindSpeed_in, pVModule.WindSpeed_in) annotation (Line(points={{-72,78},{-62,78},{-62,70},{-48,70},{-48,48},{-72,48}}, color={0,0,127}));
+  connect(pVModule1.WindSpeed_in, pVModule2.WindSpeed_in) annotation (Line(
+        points={{-72,78},{-62,78},{-62,70},{-48,70},{-48,48},{-72,48}}, color={
+          0,0,127}));
   connect(controller.P_EV, batteryElectricVehicle.P_limit) annotation (Line(points={{-19.4,-18.3333},{-12,-18.3333},{-12,-74},{-58,-74},{-58,-60.5},{-50.9,-60.5}},
                                                                                                                                                           color={0,0,127}));
   connect(COP_HP.y, controller.COP) annotation (Line(points={{-77.1,9},{-50,9},{-50,-3.83333},{-75,-3.83333}},

@@ -19,7 +19,7 @@ model SinglePhasePVInverter "Simple PV inverter"
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und WÃ¤rme-Institut Essen						  //
+// Gas- und WÃ¤rme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -66,8 +66,9 @@ model SinglePhasePVInverter "Simple PV inverter"
   TransiEnt.Basics.Interfaces.Electrical.ActivePowerPort epp_DC annotation (
       Placement(transformation(extent={{-108,-10},{-88,10}}),
         iconTransformation(extent={{-108,-10},{-88,10}})));
-  TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort epp_AC
-    annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+  replaceable TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort epp_AC constrainedby
+    TransiEnt.Basics.Interfaces.Electrical.PartialPowerPort "Choice of AC power port" annotation (
+    choicesAllMatching=true, Placement(transformation(extent={{90,-10},{110,10}})));
   // _____________________________________________
   //
   //                 Variables

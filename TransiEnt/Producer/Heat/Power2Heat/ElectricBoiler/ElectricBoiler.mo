@@ -20,7 +20,7 @@ model ElectricBoiler "Electric Boiler with constant efficiency, spatial resoluti
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und WÃ¤rme-Institut Essen						  //
+// Gas- und WÃ¤rme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -62,27 +62,32 @@ model ElectricBoiler "Electric Boiler with constant efficiency, spatial resoluti
   parameter Boolean useHeatPort=false annotation(choices(checkBox=true),Dialog(group="Fundamental Definitions", enable=not useFluidPorts));
   replaceable model ProducerCosts =
       TransiEnt.Components.Statistics.ConfigurationData.PowerProducerCostSpecs.P2H
-    constrainedby TransiEnt.Components.Statistics.ConfigurationData.PowerProducerCostSpecs.PartialPowerPlantCostSpecs annotation (Dialog(group="Statistics"), __Dymola_choicesAllMatching=true);
+    constrainedby
+    TransiEnt.Components.Statistics.ConfigurationData.PowerProducerCostSpecs.PartialPowerPlantCostSpecs
+                                                                                                                      annotation (Dialog(group="Statistics"), __Dymola_choicesAllMatching=true);
 
   // _____________________________________________
   //
   //                Interfaces
   // _____________________________________________
 
-  replaceable connector PowerPortModel = Basics.Interfaces.Electrical.ActivePowerPort  constrainedby Basics.Interfaces.Electrical.ActivePowerPort  "Choice of power port" annotation (
+  replaceable connector PowerPortModel =
+      Basics.Interfaces.Electrical.ActivePowerPort                                     constrainedby
+    TransiEnt.Basics.Interfaces.Electrical.PartialPowerPort                                                                                                   "Choice of power port" annotation (
     choicesAllMatching=true,
     Dialog(group="Replaceable Components"));
 
    PowerPortModel epp if usePowerPort annotation (
     Placement(transformation(extent={{-10,88},{10,108}}), iconTransformation(extent={{-10,-112},{10,-92}})));
 
-  TransiEnt.Basics.Interfaces.Thermal.FluidPortIn fluidPortIn(Medium=medium)
-                                                                       if useFluidPorts annotation (Placement(transformation(extent={{90,-50},{110,-30}}), iconTransformation(extent={{-114,-10},{-94,10}})));
-  TransiEnt.Basics.Interfaces.Thermal.FluidPortOut fluidPortOut(Medium=medium)
-                                                                         if useFluidPorts annotation (Placement(transformation(extent={{90,30},{110,50}}), iconTransformation(extent={{92,-10},{112,10}})));
+  TransiEnt.Basics.Interfaces.Thermal.FluidPortIn fluidPortIn(Medium=medium) if
+                                                                          useFluidPorts annotation (Placement(transformation(extent={{90,-50},{110,-30}}), iconTransformation(extent={{-114,-10},{-94,10}})));
+  TransiEnt.Basics.Interfaces.Thermal.FluidPortOut fluidPortOut(Medium=medium) if
+                                                                            useFluidPorts annotation (Placement(transformation(extent={{90,30},{110,50}}), iconTransformation(extent={{92,-10},{112,10}})));
   TransiEnt.Basics.Interfaces.Thermal.HeatFlowRateIn Q_flow_set if not usePelset "Setpoint for thermal heat, should be negative" annotation (Placement(transformation(extent={{-114,0},{-94,20}})));
 
-  Basics.Interfaces.Electrical.ElectricPowerIn P_el_set if usePelset "Setpoint for electric power, should be negative" annotation (Placement(transformation(extent={{-106,-34},{-86,-14}}), iconTransformation(extent={{-106,-34},{-86,-14}})));
+  Basics.Interfaces.Electrical.ElectricPowerIn P_el_set if usePelset
+    "Setpoint for electric power, should be negative"                                                                  annotation (Placement(transformation(extent={{-106,-34},{-86,-14}}), iconTransformation(extent={{-106,-34},{-86,-14}})));
 
   Basics.Interfaces.Thermal.HeatFlowRateOut Q_flow_gen annotation (Placement(transformation(extent={{96,72},{116,92}}), iconTransformation(extent={{96,72},{116,92}})));
 
@@ -92,7 +97,9 @@ model ElectricBoiler "Electric Boiler with constant efficiency, spatial resoluti
   // _____________________________________________
 
 public
-  replaceable model PowerBoundaryModel = TransiEnt.Components.Boundaries.Electrical.ActivePower.Power constrainedby TransiEnt.Components.Boundaries.Electrical.Base.PartialModelPowerBoundary  "Choice of power boundary model. The power boundary model must match the power port."     annotation (
+  replaceable model PowerBoundaryModel =
+      TransiEnt.Components.Boundaries.Electrical.ActivePower.Power                                    constrainedby
+    TransiEnt.Components.Boundaries.Electrical.Base.PartialModelPowerBoundary                                                                                                                  "Choice of power boundary model. The power boundary model must match the power port."     annotation (
     choicesAllMatching=true,
     Dialog(group="Replaceable Components"));
 
@@ -103,7 +110,8 @@ public
         origin={-10,30})));
 
 
-  replaceable TransiEnt.Components.Boundaries.Heat.Heatflow_L1 heatFlowBoundary(change_sign=true) if useFluidPorts constrainedby TransiEnt.Components.Boundaries.Heat.Base.PartialHeatBoundary "Choice of heat boundary model" annotation (Dialog(group="Replaceable Components"),choicesAllMatching=true, Placement(transformation(
+  replaceable TransiEnt.Components.Boundaries.Heat.Heatflow_L1 heatFlowBoundary(change_sign=true) if useFluidPorts constrainedby
+    TransiEnt.Components.Boundaries.Heat.Base.PartialHeatBoundary                                                                                                                              "Choice of heat boundary model" annotation (Dialog(group="Replaceable Components"),choicesAllMatching=true, Placement(transformation(
         extent={{-10,-10},{10,10}},
         rotation=90,
         origin={54,6})));
@@ -121,11 +129,11 @@ public
   Modelica.Thermal.HeatTransfer.Sources.PrescribedHeatFlow prescribedHeatFlow if useHeatPort annotation (Placement(transformation(extent={{52,-80},{72,-60}})));
   Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_b heat if useHeatPort annotation (Placement(transformation(extent={{94,28},{114,48}}),  iconTransformation(extent={{94,28},{114,48}})));
 
-  Modelica.Blocks.Nonlinear.Limiter P_el_set_limit(uMax=P_el_n, uMin=0)
-                                                                      if usePelset annotation (Placement(transformation(extent={{-58,-42},{-38,-22}})));
+  Modelica.Blocks.Nonlinear.Limiter P_el_set_limit(uMax=P_el_n, uMin=0) if
+                                                                         usePelset annotation (Placement(transformation(extent={{-58,-42},{-38,-22}})));
   Modelica.Blocks.Math.Gain signQ(k=if change_sign then 1 else -1) if not usePelset  annotation (Placement(transformation(extent={{-82,1},{-64,19}})));
   Modelica.Blocks.Math.Gain signP(k=if change_sign then 1 else -1) if usePelset  annotation (Placement(transformation(extent={{-84,-41},{-66,-23}})));
-  Modelica.Blocks.Math.Gain efficiency1(k=eta)   if usePelset annotation (Placement(transformation(extent={{-20,-80},{-2,-62}})));
+  Modelica.Blocks.Math.Gain efficiency1(k=eta) if   usePelset annotation (Placement(transformation(extent={{-20,-80},{-2,-62}})));
 
   TransiEnt.Components.Statistics.Collectors.LocalCollectors.HeatingPlantCost collectCosts_HeatProducer(
     redeclare model HeatingPlantCostModel = ProducerCosts,
