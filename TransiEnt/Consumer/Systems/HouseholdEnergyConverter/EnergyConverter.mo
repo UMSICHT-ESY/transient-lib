@@ -45,6 +45,7 @@ model EnergyConverter "Replaceable systems for household technologies based on t
  final parameter Boolean DHN=systems.DHN annotation(HideResult=true);
  final parameter Boolean el_grid=systems.el_grid annotation(HideResult=true);
  final parameter Boolean gas_grid=systems.gas_grid annotation(HideResult=true);
+ final parameter Boolean powerlimitations=systems.powerlimitations annotation(HideResult=true);
 
   // _____________________________________________
   //
@@ -89,6 +90,9 @@ model EnergyConverter "Replaceable systems for household technologies based on t
 
 
 
+  Modelica.Blocks.Interfaces.RealInput P_limit if
+                                                powerlimitations
+    annotation (Placement(transformation(extent={{-124,-20},{-84,20}})));
 equation
 
    collectHeatingPower.heatFlowCollector.Q_flow=demand.hotWaterPowerDemand+demand.heatingPowerDemand;
@@ -122,6 +126,8 @@ equation
       points={{-8,20.2},{-8,-14},{-78,-14},{-78,-60}},
       color={0,127,0},
       thickness=0.5));
+  connect(P_limit, systems.P_limit) annotation (Line(points={{-104,0},{-20,0},{
+          -20,24.6},{-14.4,24.6}}, color={0,0,127}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Rectangle(
           extent={{-100,40},{100,-60}},
           lineColor={0,0,0},

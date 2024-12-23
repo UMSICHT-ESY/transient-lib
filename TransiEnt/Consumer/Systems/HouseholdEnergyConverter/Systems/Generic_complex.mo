@@ -33,6 +33,7 @@ model Generic_complex
     final DHN=false,
     final el_grid=true,
     final gas_grid=false,
+    final powerlimitations=true,
     redeclare TransiEnt.Basics.Interfaces.Electrical.ComplexPowerPort epp);
 
   outer TransiEnt.SimCenter simCenter;
@@ -155,6 +156,7 @@ model Generic_complex
   parameter Modelica.Units.SI.Power P_fast(displayUnit="kW")=0 "Charging power of fast charging" annotation (Dialog(group="Charging station", enable=inputDataType == "Distance"));
   parameter Modelica.Units.SI.Power P_superfast(displayUnit="kW")=0 "Charging power of superfast charging" annotation (Dialog(group="Charging station", enable=inputDataType == "Distance"));
 
+  parameter Modelica.Units.SI.Power MinPower=4200 "Minimal Power per device during grid curtailment" annotation (HideResult=true, Dialog(group="Other"));
 
   // _____________________________________________
   //
@@ -193,11 +195,11 @@ model Generic_complex
                    annotation (Placement(transformation(
         extent={{9,-7},{-9,7}},
         rotation=90,
-        origin={-103,-67})));
+        origin={-103,-31})));
 
   TransiEnt.Components.Boundaries.Electrical.ComplexPower.PQBoundary     pQBoundary(    useInputConnectorQ=false, useInputConnectorP=true,
-    cosphi_boundary=0.9)                                                                                                                   annotation (Placement(transformation(extent={{-78,-68},
-            {-62,-52}})));
+    cosphi_boundary=0.9)                                                                                                                   annotation (Placement(transformation(extent={{-68,-60},
+            {-52,-44}})));
 
   Producer.Heat.Power2Heat.ElectricBoiler.ElectricBoiler                    electricHeater(
     change_sign=true,
@@ -211,13 +213,13 @@ model Generic_complex
     redeclare model PowerBoundaryModel =
         Components.Boundaries.Electrical.ComplexPower.PQBoundary,
     powerBoundary(useInputConnectorQ=false, cosphi_boundary=0.99)) if heating
-     or hotwater                                                   annotation (Placement(transformation(extent={{50,-70},
-            {70,-50}})));
+     or hotwater                                                   annotation (Placement(transformation(extent={{56,-70},
+            {76,-50}})));
   Modelica.Blocks.Math.Add add3 if heating or hotwater
                                 annotation (Placement(transformation(extent={{-7,-7},
             {7,7}},
         rotation=90,
-        origin={49,-23})));
+        origin={63,-27})));
 
   Producer.Heat.Power2Heat.Heatpump.Heatpump                                                                  heatPump(
     usePowerPort=true,
@@ -232,8 +234,8 @@ model Generic_complex
     redeclare model PowerBoundaryModel =
         TransiEnt.Components.Boundaries.Electrical.ComplexPower.PQBoundary,
     Power(useInputConnectorQ=false, cosphi_boundary=0.99)) if heating or
-    hotwater                                               annotation (Placement(transformation(extent={{20,-54},
-            {40,-34}})));
+    hotwater                                               annotation (Placement(transformation(extent={{30,-54},
+            {50,-34}})));
   TransiEnt.Consumer.Electrical.BatteryElectricVehicle       batteryElectricVehicle(
     vehicleEfficiency=vehicleEfficiency,
     P_max_BEV_drive=P_max_BEV_drive,
@@ -252,8 +254,10 @@ model Generic_complex
         TransiEnt.Components.Boundaries.Electrical.ComplexPower.PQBoundary,
     Power(cosphi_boundary=0.95),
     redeclare connector PowerPortModel =
-        Basics.Interfaces.Electrical.ComplexPowerPort) if bev                                                annotation (Placement(transformation(extent={{-50,-70},
-            {-30,-50}})));
+        Basics.Interfaces.Electrical.ComplexPowerPort) if bev                                                annotation (Placement(transformation(extent={{-10,-10},
+            {10,10}},
+        rotation=270,
+        origin={-32,-60})));
   Producer.Electrical.Photovoltaics.Advanced_PV.DNIDHI_Input.PVModule pVModule2(
     P_inst=P_inst_PV1,
     Pmpp=Pmpp_PV1,
@@ -306,7 +310,7 @@ model Generic_complex
      or hotwater annotation (Placement(transformation(
         extent={{-9,-9},{9,9}},
         rotation=180,
-        origin={3,-73})));
+        origin={7,-71})));
   TransiEnt.Consumer.Heat.Profiles.HeatingCurve heatingCurve(
     T_room_set=295.15,
     T_amb_min=265.15,
@@ -327,8 +331,8 @@ model Generic_complex
                     Storage(StorageModelParams=params, redeclare model
       CostModel =
         TransiEnt.Components.Statistics.ConfigurationData.StorageCostSpecs.LithiumIonBattery)
-    if battery       annotation (Placement(transformation(extent={{-131,-59},{-109,
-            -37}})));
+    if battery       annotation (Placement(transformation(extent={{-131,-23},{-109,
+            -1}})));
   TransiEnt.Storage.Heat.HotWaterStorage_constProp_L2.HotWaterStorage_constProp_L2 hotwatertank(
     useFluidPorts=false,
     T_s_max=353.15,
@@ -391,24 +395,24 @@ model Generic_complex
       Placement(transformation(
         extent={{-4.5,-4.5},{4.5,4.5}},
         rotation=0,
-        origin={-51.5,-84.5})));
+        origin={-73.5,-78.5})));
   Basics.Blocks.Sources.PowerExpression
-                               MinimalPower(y=4200)
+                               MinimalPower(y=MinPower)
     "Minimal Power per device during grid curtailment "
                annotation (Placement(transformation(
-        extent={{-9,-7},{9,7}},
+        extent={{-7,-6},{7,6}},
         rotation=0,
-        origin={-159,-23})));
+        origin={-129,-72})));
   Control_Battery.MaxSelfConsumption maxSelfConsumption if battery annotation (
       Placement(transformation(
         extent={{-10,-10},{10,10}},
         rotation=270,
-        origin={-120,2})));
+        origin={-120,26})));
   Modelica.Blocks.Sources.RealExpression BatteryCOP(y=Storage.SOC.y) if battery
     annotation (Placement(transformation(
         extent={{-7,-7},{7,7}},
         rotation=180,
-        origin={-129,-29})));
+        origin={-131,5})));
   TransiEnt.Storage.Heat.HotWaterStorage_constProp_L2.HotWaterStorage_constProp_L2
     flowheatertank(
     useFluidPorts=false,
@@ -473,6 +477,8 @@ model Generic_complex
   Modelica.Blocks.Sources.RealExpression uLow3(y=3) if heating and hotwater
                                                               annotation (Placement(transformation(extent={{-18,-10},
             {-4,2}})));
+  Modelica.Blocks.Math.Max max2 annotation (Placement(transformation(extent={{-114,
+            -62},{-106,-54}})));
 equation
 
   // _____________________________________________
@@ -492,9 +498,8 @@ equation
     connect(max1.y, control_Heat_HotWater.T_set) annotation (Line(points={{-15.6,
             -16},{18,-16},{18,-28},{-22,-28},{-22,-53.4},{-3.2,-53.4}},
                                                                  color={0,0,127}));
-    connect(add3.y, buffer.Q_flow_store) annotation (Line(points={{49,-15.3},{50,
-            -15.3},{50,6},{62,6},{62,30},{64,30},{64,38},{70.6,38}},
-                                                            color={0,0,127}));
+    connect(add3.y, buffer.Q_flow_store) annotation (Line(points={{63,-19.3},{62,
+            -19.3},{62,-6},{64,-6},{64,38},{70.6,38}},      color={0,0,127}));
     connect(buffer.T_stor_out, control_Heat_HotWater.T) annotation (Line(points={{78.2,
             47.6},{6,47.6},{6,20},{-10,20},{-10,-48},{-3.4,-48}},
                  color={0,0,127}));
@@ -504,8 +509,8 @@ equation
     connect(Tset_hotwater.y, control_Heat_HotWater.T_set) annotation (Line(points={{71.1,
             -11},{18,-11},{18,-28},{-22,-28},{-22,-53.4},{-3.2,-53.4}},
         color={0,0,127}));
-    connect(add3.y, hotwatertank.Q_flow_store) annotation (Line(points={{49,-15.3},
-            {50,-15.3},{50,6},{62,6},{62,12},{70.6,12},{70.6,8}},
+    connect(add3.y, hotwatertank.Q_flow_store) annotation (Line(points={{63,-19.3},
+            {62,-19.3},{62,-6},{64,-6},{64,12},{70.6,12},{70.6,8}},
                                                                 color={0,0,127}));
     connect(hotwatertank.T_stor_out, control_Heat_HotWater.T) annotation (Line(
         points={{78.2,17.6},{78,17.6},{78,20},{-10,20},{-10,-48},{-3.4,-48}},
@@ -514,22 +519,22 @@ equation
 
 
       connect(pQBoundary.P_el_set, demand.electricPowerDemand) annotation (Line(
-        points={{-74.8,-50.4},{-74.8,2},{-2,2},{-2,80},{4.68,80},{4.68,100.48}},
+        points={{-64.8,-42.4},{-64.8,2},{-2,2},{-2,80},{4.68,80},{4.68,100.48}},
                                   color={0,127,127}), Text(
       string="%second",
       index=1,
       extent={{-3,6},{-3,6}},
       horizontalAlignment=TextAlignment.Right));
   connect(electricHeater.Q_flow_gen, add3.u2) annotation (Line(
-      points={{70.6,-51.8},{70.6,-38},{53.2,-38},{53.2,-31.4}},
+      points={{76.6,-51.8},{76.6,-40},{67.2,-40},{67.2,-35.4}},
       color={175,0,0},
       pattern=LinePattern.Dash));
   connect(heatPump.Heat_output, add3.u1) annotation (Line(
-      points={{41.6,-38.2},{44.8,-38.2},{44.8,-31.4}},
+      points={{51.6,-38.2},{51.6,-35.4},{58.8,-35.4}},
       color={175,0,0},
       pattern=LinePattern.Dash));
   connect(pVModule2.epp, inverter.epp_DC) annotation (Line(
-      points={{-79.3,51.4},{-84,51.4},{-84,52},{-103,52},{-103,-58.18}},
+      points={{-79.3,51.4},{-103,51.4},{-103,-22.18}},
       color={0,135,135},
       thickness=0.5));
   connect(wind.y, pVModule2.WindSpeed_in) annotation (Line(points={{-31,61},{-32,
@@ -554,7 +559,7 @@ equation
   connect(heatingCurve.T_supply, max1.u1) annotation (Line(points={{-31.72,-10.8},
           {-30,-10.8},{-30,-10},{-28,-10},{-28,-13.6},{-24.8,-13.6}},                        color={0,0,127}));
   connect(Storage.epp, inverter.epp_DC) annotation (Line(
-      points={{-109,-48},{-103,-48},{-103,-58.18}},
+      points={{-109,-12},{-103,-12},{-103,-22.18}},
       color={0,135,135},
       thickness=0.5));
   connect(epp, epp) annotation (Line(
@@ -562,7 +567,7 @@ equation
       color={28,108,200},
       thickness=0.5));
   connect(pVModule1.epp, inverter.epp_DC) annotation (Line(
-      points={{-79.3,83.4},{-103,83.4},{-103,-58.18}},
+      points={{-79.3,83.4},{-96,83.4},{-96,50},{-103,50},{-103,-22.18}},
       color={0,135,135},
       thickness=0.5));
   connect(buffer.Q_flow_demand, demand.heatingPowerDemand) annotation (Line(
@@ -587,7 +592,7 @@ equation
   connect(switch2.y, hotwatertank.Q_flow_store)
     annotation (Line(points={{56.5,13},{70.6,13},{70.6,8}}, color={0,0,127}));
   connect(switch1.u3, add3.y) annotation (Line(points={{45,27},{32,27},{32,-8},{
-          49,-8},{49,-15.3}},  color={0,0,127}));
+          63,-8},{63,-19.3}},  color={0,0,127}));
   connect(zero1.y, switch1.u1)
     annotation (Line(points={{32.7,35},{45,35}}, color={0,0,127}));
   connect(switch2.u3, switch1.u1)
@@ -597,8 +602,9 @@ equation
   connect(buffer.T_stor_out, switch3.u3) annotation (Line(points={{78.2,47.6},{6,
           47.6},{6,20},{3,20},{3,13}},
                                     color={0,0,127}));
-  connect(switch2.u1, add3.y) annotation (Line(points={{45,17},{32,17},{32,-8},{
-          49,-8},{49,-15.3}},  color={0,0,127}));
+  connect(switch2.u1, add3.y) annotation (Line(points={{45,17},{45,22},{64,22},{
+          64,-6},{62,-6},{62,-16},{63,-16},{63,-19.3}},
+                               color={0,0,127}));
   connect(switch2.u2, switch3.u2) annotation (Line(points={{45,13},{7,13}},
                       color={255,0,255}));
   connect(switch1.u2, switch3.u2) annotation (Line(points={{45,31},{34,31},{34,13},
@@ -608,19 +614,19 @@ equation
           {50,4.44089e-16},{51.6,4.44089e-16}},      color={255,0,255}));
   connect(control_Heat_HotWater.Q_flow_set_HP, heatPump.Q_flow_set) annotation (
      Line(
-      points={{16.5,-52.1},{12,-52.1},{12,-50},{19.4,-50},{19.4,-49.4}},
+      points={{16.5,-52.1},{22,-52.1},{22,-50},{29.4,-50},{29.4,-49.4}},
       color={175,0,0},
       pattern=LinePattern.Dash));
   connect(p_PV.y, control_Heat_HotWater.PV_excess) annotation (Line(points={{-116,76},
-          {-116,54},{-128,54},{-128,-12},{-96,-12},{-96,-42},{-3,-42},{-3,-41.6}},
+          {-116,42},{-92,42},{-92,-30},{-8,-30},{-8,-36},{-3,-36},{-3,-41.6}},
         color={0,0,127}));
   connect(control_Heat_HotWater.P_set_electricHeater, electricHeater.Q_flow_set)
     annotation (Line(
-      points={{16.5,-59.7},{20,-59.7},{20,-59},{49.6,-59}},
+      points={{16.5,-59.7},{20,-59.7},{20,-59},{55.6,-59}},
       color={0,135,135},
       pattern=LinePattern.Dash));
-  connect(COP_HP.y, control_Heat_HotWater.COP) annotation (Line(points={{-6.9,-73},
-          {-16,-73},{-16,-57},{-4.2,-57}}, color={0,0,127}));
+  connect(COP_HP.y, control_Heat_HotWater.COP) annotation (Line(points={{-2.9,-71},
+          {-16,-71},{-16,-57},{-4.2,-57}}, color={0,0,127}));
   connect(switch3.u2, switch4.u2)
     annotation (Line(points={{7,13},{26,13},{26,-12},{27,-12},{27,-19}},
                                                      color={255,0,255}));
@@ -631,57 +637,47 @@ equation
   connect(max1.y, switch4.u3) annotation (Line(points={{-15.6,-16},{24,-16},{24,
           -19},{23,-19}},              color={0,0,127}));
   connect(electricPowerComplex.epp_IN, epp) annotation (Line(
-      points={{-55.64,-84.5},{-80,-84.5},{-80,-98}},
+      points={{-77.64,-78.5},{-80,-78.5},{-80,-98}},
       color={28,108,200},
       thickness=0.5));
   connect(inverter.epp_AC, epp) annotation (Line(
-      points={{-103,-76},{-102,-76},{-102,-84},{-80,-84},{-80,-98}},
+      points={{-103,-40},{-103,-82},{-80,-82},{-80,-98}},
       color={28,108,200},
       thickness=0.5));
   connect(electricPowerComplex.epp_OUT, pQBoundary.epp) annotation (Line(
-      points={{-47.27,-84.5},{-42,-84.5},{-42,-74},{-86,-74},{-86,-60},{-78,-60}},
+      points={{-69.27,-78.5},{-68,-78.5},{-68,-52}},
       color={28,108,200},
       thickness=0.5));
 
   connect(batteryElectricVehicle.epp, electricPowerComplex.epp_OUT) annotation (
      Line(
-      points={{-30.2,-60.2},{-20,-60.2},{-20,-84.5},{-47.27,-84.5}},
+      points={{-32.2,-69.8},{-32.2,-82},{-68,-82},{-68,-78.5},{-69.27,-78.5}},
       color={28,108,200},
       thickness=0.5));
   connect(heatPump.epp, electricPowerComplex.epp_OUT) annotation (Line(
-      points={{37.6,-54},{40,-54},{40,-84.5},{-47.27,-84.5}},
+      points={{47.6,-54},{48,-54},{48,-82},{-68,-82},{-68,-78.5},{-69.27,-78.5}},
       color={28,108,200},
       thickness=0.5));
   connect(electricHeater.epp, electricPowerComplex.epp_OUT) annotation (Line(
-      points={{60,-70.2},{60,-84.5},{-47.27,-84.5}},
+      points={{66,-70.2},{66,-82},{-68,-82},{-68,-78.5},{-69.27,-78.5}},
       color={28,108,200},
       thickness=0.5));
-  connect(MinimalPower.y, control_Heat_HotWater.P_SVE) annotation (Line(
-      points={{-149.1,-23},{-60,-23},{-60,-40},{-14,-40},{-14,-44.2},{-4.2,-44.2}},
-      color={0,135,135},
-      pattern=LinePattern.Dash));
-
-  connect(MinimalPower.y, batteryElectricVehicle.P_limit) annotation (Line(
-      points={{-149.1,-23},{-60,-23},{-60,-40},{-56,-40},{-56,-60.5},{-50.9,-60.5}},
-      color={0,135,135},
-      pattern=LinePattern.Dash));
 
   connect(switch3.y, control_Heat_HotWater.T) annotation (Line(points={{7,1.5},{
-          7,-23.25},{-3.4,-23.25},{-3.4,-48}},   color={0,0,127}));
+          7,-22},{-2,-22},{-2,-36},{-3.4,-36},{-3.4,-48}},
+                                                 color={0,0,127}));
   connect(switch4.y, control_Heat_HotWater.T_set) annotation (Line(points={{27,-30.5},
           {18,-30.5},{18,-28},{-22,-28},{-22,-53.4},{-3.2,-53.4}}, color={0,0,127}));
 
-  connect(maxSelfConsumption.P_set_battery, Storage.P_set)
-    annotation (Line(points={{-120,-8},{-120,-37.66}}, color={0,0,127}));
-  connect(maxSelfConsumption.P_PV, p_PV.y) annotation (Line(points={{-114,11.4},
-          {-114,60},{-116,60},{-116,76}}, color={0,0,127}));
+  connect(maxSelfConsumption.P_PV, p_PV.y) annotation (Line(points={{-114,35.4},
+          {-114,42},{-116,42},{-116,76}}, color={0,0,127}));
   connect(maxSelfConsumption.P_Consumer, electricPowerComplex.P) annotation (
-      Line(points={{-126,11.2},{-126,16},{-100,16},{-100,-52},{-88,-52},{-88,-76},
-          {-53.75,-76},{-53.75,-80.63}}, color={0,0,127}));
-  connect(BatteryCOP.y, maxSelfConsumption.SOC) annotation (Line(points={{-136.7,
-          -29},{-140,-29},{-140,2},{-129.4,2}}, color={0,0,127}));
+      Line(points={{-126,35.2},{-126,40},{-94,40},{-94,-72},{-76,-72},{-76,-74.63},
+          {-75.75,-74.63}},              color={0,0,127}));
+  connect(BatteryCOP.y, maxSelfConsumption.SOC) annotation (Line(points={{-138.7,
+          5},{-140,5},{-140,26},{-129.4,26}},   color={0,0,127}));
   connect(control_Heat_HotWater.T_set, heatPump.T_set) annotation (Line(points={{-3.2,
-          -53.4},{-22,-53.4},{-22,-28},{14,-28},{14,-38},{19.4,-38}},
+          -53.4},{-22,-53.4},{-22,-28},{14,-28},{14,-38},{29.4,-38}},
         color={0,0,127}));
   connect(flowheater.Q_flow_gen, flowheatertank.Q_flow_store) annotation (Line(
       points={{-31.64,24.92},{-31.64,23},{-29.58,23}},
@@ -704,11 +700,6 @@ equation
     annotation (Line(points={{-66.8,12.8},{-71.2,11}}, color={0,0,127}));
   connect(firstOrder1.y, flowheater.Q_flow_set) annotation (Line(points={{-45.6,
           16},{-45.6,20.6},{-44.24,20.6}}, color={0,0,127}));
-  connect(flowheater.epp, electricPowerComplex.epp_OUT) annotation (Line(
-      points={{-38,13.88},{-38,0},{-52,0},{-52,-32},{-26,-32},{-26,-40},{-24,-40},
-          {-24,-84.5},{-47.27,-84.5}},
-      color={28,108,200},
-      thickness=0.5));
   connect(flowheatertank.T_stor_out, hysteresis1.u) annotation (Line(points={{-24.26,
           29.72},{-24.26,32},{-43.2,32}}, color={0,0,127}));
   connect(hysteresis1.y, Not1.u)
@@ -732,6 +723,19 @@ equation
         color={0,0,127}));
   connect(hysteresis_heater.y, or1.u2) annotation (Line(points={{24.4,-4},{24.4,
           2},{24,2},{24,6},{38,6},{38,3.2},{36.8,3.2}}, color={255,0,255}));
+  connect(maxSelfConsumption.P_set_battery, Storage.P_set)
+    annotation (Line(points={{-120,16},{-120,-1.66}}, color={0,0,127}));
+  connect(MinimalPower.y, max2.u2) annotation (Line(
+      points={{-121.3,-72},{-120,-72},{-120,-60.4},{-114.8,-60.4}},
+      color={0,135,135},
+      pattern=LinePattern.Dash));
+  connect(max2.y, batteryElectricVehicle.P_limit) annotation (Line(points={{-105.6,
+          -58},{-74,-58},{-74,-49.1},{-32.5,-49.1}},           color={0,0,127}));
+  connect(max2.y, control_Heat_HotWater.P_SVE) annotation (Line(points={{-105.6,
+          -58},{-86,-58},{-86,-40},{-58,-40},{-58,-44.2},{-4.2,-44.2}}, color={0,
+          0,127}));
+  connect(P_limit, max2.u1) annotation (Line(points={{-144,-54},{-144,-55.6},{
+          -114.8,-55.6}}, color={0,0,127}));
   annotation (
     HideResult=true,
     Dialog(tab="Tracking and Mounting"),
