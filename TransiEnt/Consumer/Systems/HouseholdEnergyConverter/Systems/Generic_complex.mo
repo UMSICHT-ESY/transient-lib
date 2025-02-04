@@ -88,6 +88,10 @@ model Generic_complex
   //parameter Modelica.Units.NonSI.Temperature_degC T_amb=15 "Assumed constant ambient temperature" annotation (HideResult=true, Dialog(group="Hot Water Storage"));
   //parameter Modelica.Units.SI.SurfaceCoefficientOfHeatTransfer k=0.08 "Coefficient of heat transfer through tank surface" annotation (HideResult=true, Dialog(group="Hot Water Storage"));
 
+  parameter Real summer_start=136 "Day of the year for the start of summer operation" annotation (Dialog(group="Control parameters"));
+  parameter Real winter_start=245 "Day of the year for the end of summer operation" annotation (Dialog(group="Control parameters"));
+
+
   parameter Modelica.Units.SI.Power P_inst_PV1=5000 "Installed power of system 1" annotation (HideResult=true, Dialog(group="PV System 1"));
   parameter Modelica.Units.SI.Power Pmpp_PV1=200 "Peak power of one module" annotation (HideResult=true, Dialog(group="PV System 1"));
   parameter Modelica.Units.SI.Area Area_PV1=1.18 "Area of one complete module" annotation (HideResult=true, Dialog(group="PV System 1"));
@@ -315,13 +319,13 @@ model Generic_complex
     T_room_set=295.15,
     T_amb_min=265.15,
     T_supply_max=T_set_buffer) if heating
-                         annotation (Placement(transformation(extent={{-34,34},
-            {-28,40}})));
-  Modelica.Blocks.Sources.RealExpression Tset1(y=0)    annotation (Placement(transformation(extent={{-34,24},
-            {-28,32}})));
+                         annotation (Placement(transformation(extent={{-46,22},{
+            -40,28}})));
+  Modelica.Blocks.Sources.RealExpression Tset1(y=0)    annotation (Placement(transformation(extent={{-46,12},
+            {-40,20}})));
   Modelica.Blocks.Math.Max max1 if heating
-                                annotation (Placement(transformation(extent={{-18,28},
-            {-14,32}})));
+                                annotation (Placement(transformation(extent={{-32,16},
+            {-28,20}})));
   Modelica.Blocks.Sources.RealExpression p_PV(y=pVModule2.P_dc + pVModule1.P_dc)
     annotation (Placement(transformation(
         extent={{10,-9},{-10,9}},
@@ -391,7 +395,7 @@ model Generic_complex
     annotation (Placement(transformation(
         extent={{-7,-5},{7,5}},
         rotation=0,
-        origin={-21,17})));
+        origin={-27,3})));
   Components.Sensors.ElectricPowerComplex electricPowerComplex(change_of_sign=true)
                                                                annotation (
       Placement(transformation(
@@ -440,8 +444,19 @@ model Generic_complex
         extent={{-4.5,-4.5},{4.5,4.5}},
         rotation=0,
         origin={-53.5,-82.5})));
-  Modelica.Blocks.Sources.RealExpression zero2(y=0)
-    annotation (Placement(transformation(extent={{-34,-42},{-20,-28}})));
+  Modelica.Blocks.Logical.Switch switch5 if heating
+    annotation (Placement(transformation(extent={{-2,-2},{2,2}},
+        rotation=0,
+        origin={-12,24})));
+  Modelica.Blocks.Sources.RealExpression T_min(y=heatingCurve.T_room_set) if
+    heating                                               annotation (Placement(
+        transformation(
+        extent={{-2,-3},{2,3}},
+        rotation=180,
+        origin={-12,31})));
+  Basics.Blocks.SwitchAtSeason  summerWinterSwitch(summer_start=summer_start,
+      winter_start=winter_start) if heating                                                              annotation (Placement(transformation(extent={{-34,24},
+            {-28,30}})));
 equation
 
   // _____________________________________________
@@ -458,9 +473,9 @@ equation
 
 
   if not hotwater then
-    connect(max1.y, control_Heat_HotWater.T_set) annotation (Line(points={{-13.8,
-            30},{24,30},{24,2},{36,2},{36,-28},{-10,-28},{-10,-53.4},{-3.2,
-            -53.4}},                                             color={0,0,127}));
+    connect(switch5.y, control_Heat_HotWater.T_set) annotation (Line(points={{-9.8,24},
+            {22,24},{22,-2},{18,-2},{18,-28},{-10,-28},{-10,-53.4},{-3.2,-53.4}},
+                                                                 color={0,0,127}));
     connect(add3.y, buffer.Q_flow_store) annotation (Line(points={{66,-27.6},{
             66,72},{70.6,72}},                              color={0,0,127}));
     connect(buffer.T_stor_out, control_Heat_HotWater.T) annotation (Line(points={{78.2,
@@ -469,8 +484,8 @@ equation
   end if;
 
   if not heating then
-    connect(Tset_hotwater.y, control_Heat_HotWater.T_set) annotation (Line(points={{-13.3,
-            17},{-12,17},{-12,-53.4},{-3.2,-53.4}},
+    connect(Tset_hotwater.y, control_Heat_HotWater.T_set) annotation (Line(points={{-19.3,3},
+            {-10,3},{-10,-53.4},{-3.2,-53.4}},
         color={0,0,127}));
     connect(add3.y, hotwatertank.Q_flow_store) annotation (Line(points={{66,
             -27.6},{66,44},{72.6,44}},                          color={0,0,127}));
@@ -518,10 +533,10 @@ equation
   connect(pVModule1.WindSpeed_in, pVModule2.WindSpeed_in) annotation (Line(
         points={{-58,76},{-48,76},{-48,68},{-34,68},{-34,44},{-58,44}}, color={
           0,0,127}));
-  connect(Tset1.y, max1.u2) annotation (Line(points={{-27.7,28},{-18.4,28},{
-          -18.4,28.8}},                                                                              color={0,0,127}));
-  connect(heatingCurve.T_supply, max1.u1) annotation (Line(points={{-27.88,37.6},
-          {-24,37.6},{-24,31.2},{-18.4,31.2}},                                               color={0,0,127}));
+  connect(Tset1.y, max1.u2) annotation (Line(points={{-39.7,16},{-32.4,16},{-32.4,
+          16.8}},                                                                                    color={0,0,127}));
+  connect(heatingCurve.T_supply, max1.u1) annotation (Line(points={{-39.88,25.6},
+          {-36,25.6},{-36,19.2},{-32.4,19.2}},                                               color={0,0,127}));
   connect(Storage.epp, inverter.epp_DC) annotation (Line(
       points={{-109,-12},{-103,-12},{-103,-22.18}},
       color={0,135,135},
@@ -586,11 +601,8 @@ equation
           {-16,-71},{-16,-57},{-4.2,-57}}, color={0,0,127}));
   connect(T_Storage.u2, T_Set.u2) annotation (Line(points={{10,-6.8},{10,0},{26,
           0},{26,-6.8}}, color={255,0,255}));
-  connect(Tset_hotwater.y, T_Set.u1) annotation (Line(points={{-13.3,17},{30,17},
-          {30,-6.8},{30.8,-6.8}}, color={0,0,127}));
-  connect(max1.y, T_Set.u3) annotation (Line(points={{-13.8,30},{24,30},{24,2},
-          {22,2},{22,-2},{21.2,-2},{21.2,-6.8}},
-                              color={0,0,127}));
+  connect(Tset_hotwater.y, T_Set.u1) annotation (Line(points={{-19.3,3},{36,3},{
+          36,-6.8},{30.8,-6.8}},  color={0,0,127}));
   connect(electricPowerComplex.epp_IN, epp) annotation (Line(
       points={{-77.64,-78.5},{-80,-78.5},{-80,-98}},
       color={28,108,200},
@@ -625,8 +637,6 @@ equation
           {10,0},{10,-6.8}}, color={255,0,255}));
   connect(not1.y, or1.u1) annotation (Line(points={{39.6,26},{36.8,26}},
                                                   color={255,0,255}));
-  connect(max1.y, hysteresis_heater.uLow) annotation (Line(points={{-13.8,30},{
-          24,30},{24,33},{25.5,33}},              color={0,0,127}));
   connect(hysteresis_heater.u, buffer.T_stor_out) annotation (Line(points={{25.5,37},
           {24,37},{24,81.6},{78.2,81.6}},     color={0,0,127}));
   connect(add.y, hysteresis_heater.uHigh) annotation (Line(points={{14.4,42},{
@@ -651,8 +661,8 @@ equation
           {48,46},{48,41},{51,41}}, color={255,0,255}));
   connect(or1.y, switch1.u2) annotation (Line(points={{27.6,26},{18,26},{18,46},
           {48,46},{48,71},{51,71}}, color={255,0,255}));
-  connect(add.u2, hysteresis_heater.uLow) annotation (Line(points={{5.2,39.6},{
-          5.2,40},{4,40},{4,30},{24,30},{24,33},{25.5,33}},
+  connect(add.u2, hysteresis_heater.uLow) annotation (Line(points={{5.2,39.6},{5.2,
+          40},{4,40},{4,34},{6,34},{6,33},{25.5,33}},
                                               color={0,0,127}));
   connect(hotwatertank.T_stor_out, hysteresis.u) annotation (Line(points={{80.2,
           53.6},{64,53.6},{64,26},{60.8,26}}, color={0,0,127}));
@@ -690,8 +700,18 @@ equation
   connect(batteryElectricVehicle.P_limit, max2.y) annotation (Line(points={{
           -62.5,-47.1},{-62.5,-42},{-86,-42},{-86,-58},{-105.6,-58}}, color={0,
           127,127}));
-  connect(zero2.y, control_Heat_HotWater.PV_excess) annotation (Line(points={{
-          -19.3,-35},{-4,-35},{-4,-36},{-3,-36},{-3,-41.6}}, color={0,0,127}));
+  connect(summerWinterSwitch.summer_operation,switch5. u2) annotation (Line(
+        points={{-27.82,27},{-18,27},{-18,24},{-14.4,24}},
+                                                   color={255,0,255}));
+  connect(T_min.y,switch5. u1) annotation (Line(points={{-14.2,31},{-16,31},{-16,
+          25.6},{-14.4,25.6}},
+                       color={0,0,127}));
+  connect(switch5.y, hysteresis_heater.uLow) annotation (Line(points={{-9.8,24},
+          {6,24},{6,33},{25.5,33}}, color={0,0,127}));
+  connect(switch5.y, T_Set.u3) annotation (Line(points={{-9.8,24},{22,24},{22,-6.8},
+          {21.2,-6.8}},                                           color={0,0,127}));
+  connect(switch5.u3, max1.y) annotation (Line(points={{-14.4,22.4},{-26,22.4},{
+          -26,18},{-27.8,18}}, color={0,0,127}));
   annotation (
     HideResult=true,
     Dialog(tab="Tracking and Mounting"),
