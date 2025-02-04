@@ -1,5 +1,5 @@
 ﻿within TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems;
-model Generic_complex
+model Generic_complex_maxPV
   "Generic System contains PVs, Battery, Hetapump and/or BEV with ComplexPowerPorts"
 
 //________________________________________________________________________________//
@@ -62,8 +62,6 @@ model Generic_complex
     choices(checkBox=true),
     HideResult=true);
 
-
-
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_internal=5 "Temperature difference between refrigerant and source/sink temperature" annotation (HideResult=true, Dialog(group="Heatpump"));
   parameter Modelica.Units.SI.HeatFlowRate Q_flow_n=10.5e3 "Nominal heat flow of heat pump at nominal conditions according to EN14511" annotation (HideResult=true, Dialog(group="Heatpump"));
   parameter Real COP_n=3.7 "Coefficient of performance at nominal conditions according to EN14511" annotation (HideResult=true, Dialog(group="Heatpump"));
@@ -119,7 +117,6 @@ model Generic_complex
   parameter Modelica.Units.SI.Angle longitude_standard=Modelica.Units.Conversions.from_deg(15) "Needed for calculation of coordinated universal time (utc), 15 for central european time, 30 for central european summer time" annotation (Dialog(group="Radiation Parameters"));
   parameter Modelica.Units.NonSI.Time_day totaldays=365 "Total days of the year, standard=365, leap year=366" annotation (Dialog(group="Radiation Parameters"));
   parameter Modelica.Units.SI.Angle latitude=Modelica.Units.Conversions.from_deg(48.17) "Latitude of the local position, north posiive, 53,55 North for Hamburg" annotation (Dialog(group="Radiation Parameters"));
-
 
   parameter Modelica.Units.SI.ActivePower P_n=5000 "Rated power of the inverter" annotation (Dialog(group="PV Parameters"));
   parameter Modelica.Units.SI.PowerFactor cosphi=1 "Operating power factor of the inverter" annotation (Dialog(group="PV Parameters"));
@@ -377,6 +374,7 @@ model Generic_complex
     Q_flow_n=Q_flow_n,
     Delta_T_db=Delta_T_elHeater,
     P_elHeater=P_el_Heater,
+    THigh_HP=333.15,
     k=1,
     T_i(displayUnit="min") = 1800,
     COP_n=COP_n,
@@ -434,14 +432,47 @@ model Generic_complex
                                                      flowHeater(P_flowheater=
         P_flowheater) if not hotwater
     annotation (Placement(transformation(extent={{82,-72},{92,-62}})));
+  Modelica.Blocks.Math.Min min1 if bev
+                                annotation (Placement(transformation(extent={{-2,-2},
+            {2,2}},
+        rotation=270,
+        origin={-62,-30})));
+  Modelica.Blocks.Logical.Switch switch3 if bev
+    annotation (Placement(transformation(extent={{-58,-4},{-52,2}})));
+  Modelica.Blocks.Sources.RealExpression ChargingStation(y=P_chargingStation) if
+       bev annotation (Placement(transformation(
+        extent={{-7,-4},{7,4}},
+        rotation=0,
+        origin={-75,-4})));
+  Modelica.Blocks.Math.Add add1(k2=-1) if bev
+                                annotation (Placement(transformation(extent={{-3,-3},
+            {3,3}},
+        rotation=0,
+        origin={-65,11})));
   Components.Sensors.ElectricPowerComplex electricPowerComplex1(change_of_sign=
         true)                                                  annotation (
       Placement(transformation(
         extent={{-4.5,-4.5},{4.5,4.5}},
         rotation=0,
         origin={-53.5,-82.5})));
-  Modelica.Blocks.Sources.RealExpression zero2(y=0)
-    annotation (Placement(transformation(extent={{-34,-42},{-20,-28}})));
+  Modelica.Blocks.Sources.RealExpression soC(y=batteryElectricVehicle.soC.y) if
+       bev
+    annotation (Placement(transformation(extent={{-5,-5},{5,5}},
+        rotation=180,
+        origin={-77,-9})));
+  Modelica.Blocks.Logical.Hysteresis hysteresis1(uLow=0.8 - 0.01, uHigh=0.8) if
+       bev
+    annotation (Placement(transformation(extent={{-78,0},{-72,6}})));
+  Basics.Blocks.FilterPosNeg           Filter if bev
+                                              annotation (Placement(transformation(extent={{-2,-2},
+            {2,2}},
+        rotation=270,
+        origin={-62,-36})));
+  Modelica.Blocks.Math.Add add2(k2=-1) if bev
+                                annotation (Placement(transformation(extent={{-3,-3},
+            {3,3}},
+        rotation=0,
+        origin={-19,-35})));
 equation
 
   // _____________________________________________
@@ -455,7 +486,6 @@ equation
   //
   //            Connect statements
   // _____________________________________________
-
 
   if not hotwater then
     connect(max1.y, control_Heat_HotWater.T_set) annotation (Line(points={{-13.8,
@@ -480,10 +510,9 @@ equation
         color={0,0,127}));
   end if;
 
-
       connect(pQBoundary.P_el_set, demand.electricPowerDemand) annotation (Line(
-        points={{-38.8,-50.4},{-38.8,-38},{-48,-38},{-48,42},{-28,42},{-28,56},
-          {4.68,56},{4.68,100.48}},
+        points={{-38.8,-50.4},{-38,-50.4},{-38,-38},{-48,-38},{-48,42},{-28,42},
+          {-28,56},{4.68,56},{4.68,100.48}},
                                   color={0,127,127}), Text(
       string="%second",
       index=1,
@@ -665,6 +694,8 @@ equation
       index=1,
       extent={{-3,6},{-3,6}},
       horizontalAlignment=TextAlignment.Right));
+  connect(p_PV.y, add1.u1) annotation (Line(points={{-116,76},{-116,44},{-94,44},
+          {-94,12.8},{-68.6,12.8}}, color={0,0,127}));
   connect(electricPowerComplex.epp_OUT, electricPowerComplex1.epp_IN)
     annotation (Line(
       points={{-69.27,-78.5},{-62,-78.5},{-62,-82.5},{-57.64,-82.5}},
@@ -682,16 +713,41 @@ equation
       points={{-49.27,-82.5},{58,-82.5},{58,-76},{87,-76},{87,-72.1}},
       color={28,108,200},
       thickness=0.5));
+  connect(electricPowerComplex1.P, add1.u2) annotation (Line(
+      points={{-55.75,-78.63},{-54,-78.63},{-54,-72},{-52,-72},{-52,-22},{-62,
+          -22},{-62,6},{-68.6,6},{-68.6,9.2}},
+      color={0,135,135},
+      pattern=LinePattern.Dash));
+  connect(hysteresis1.y, switch3.u2) annotation (Line(points={{-71.7,3},{-60,3},
+          {-60,-1},{-58.6,-1}},     color={255,0,255}));
+  connect(soC.y, hysteresis1.u) annotation (Line(points={{-82.5,-9},{-94,-9},{
+          -94,4},{-78.6,4},{-78.6,3}},
+                            color={0,0,127}));
+  connect(add1.y, switch3.u1) annotation (Line(points={{-61.7,11},{-58,11},{-58,
+          1.4},{-58.6,1.4}},
+                       color={0,0,127}));
+  connect(ChargingStation.y, switch3.u3) annotation (Line(points={{-67.3,-4},{
+          -58.6,-4},{-58.6,-3.4}},     color={0,0,127}));
+  connect(switch3.y, min1.u1) annotation (Line(points={{-51.7,-1},{-50,-1},{-50,
+          -6},{-60.8,-6},{-60.8,-27.6}},                       color={0,0,127}));
+  connect(max2.y, min1.u2) annotation (Line(points={{-105.6,-58},{-84,-58},{-84,
+          -24},{-63.2,-24},{-63.2,-27.6}},                     color={0,0,127}));
   connect(pQBoundary.epp, electricPowerComplex1.epp_OUT) annotation (Line(
       points={{-42,-60},{-48,-60},{-48,-74},{-44,-74},{-44,-82.5},{-49.27,-82.5}},
       color={28,108,200},
       thickness=0.5));
 
-  connect(batteryElectricVehicle.P_limit, max2.y) annotation (Line(points={{
-          -62.5,-47.1},{-62.5,-42},{-86,-42},{-86,-58},{-105.6,-58}}, color={0,
-          127,127}));
-  connect(zero2.y, control_Heat_HotWater.PV_excess) annotation (Line(points={{
-          -19.3,-35},{-4,-35},{-4,-36},{-3,-36},{-3,-41.6}}, color={0,0,127}));
+  connect(min1.y, Filter.u)
+    annotation (Line(points={{-62,-32.2},{-62,-33.6}}, color={0,0,127}));
+  connect(batteryElectricVehicle.P_limit, Filter.y) annotation (Line(points={{
+          -62.5,-47.1},{-62,-47.1},{-62,-38.2}}, color={0,127,127}));
+  connect(add2.y, control_Heat_HotWater.PV_excess) annotation (Line(points={{
+          -15.7,-35},{-3,-35},{-3,-41.6}}, color={0,0,127}));
+  connect(p_PV.y, add2.u1) annotation (Line(points={{-116,76},{-116,44},{-94,44},
+          {-94,12},{-74,12},{-74,18},{-34,18},{-34,-33.2},{-22.6,-33.2}}, color
+        ={0,0,127}));
+  connect(pQBoundary.P_el_set, add2.u2) annotation (Line(points={{-38.8,-50.4},
+          {-38,-50.4},{-38,-36.8},{-22.6,-36.8}}, color={0,127,127}));
   annotation (
     HideResult=true,
     Dialog(tab="Tracking and Mounting"),
@@ -811,4 +867,4 @@ equation
 <p><span style=\"font-family: MS Shell Dlg 2;\">Model created by Anne Hagemeier, Fraunhofer UMSICHT in 2017</span></p>
 </html>"),
     Diagram(coordinateSystem(extent={{-140,-100},{100,100}})));
-end Generic_complex;
+end Generic_complex_maxPV;

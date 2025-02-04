@@ -106,14 +106,14 @@ model Control_Heat_HotWater
   Modelica.Blocks.Continuous.FirstOrder firstOrder1(T=1) if
                                                            Modulating
     annotation (Placement(transformation(extent={{84,-74},{94,-64}})));
-  Modelica.Blocks.Math.Product product1 annotation (Placement(transformation(extent={{8,62},{
-            28,82}})));
+  Modelica.Blocks.Math.Product product1 annotation (Placement(transformation(extent={{10,62},
+            {30,82}})));
   Modelica.Blocks.Nonlinear.VariableLimiter limiter_HP annotation (Placement(transformation(extent={{24,-16},
             {44,4}})));
   Modelica.Blocks.Math.Feedback difference
     annotation (Placement(transformation(extent={{-30,-118},{-10,-98}})));
-  Modelica.Blocks.Math.Division division annotation (Placement(transformation(extent={{-60,
-            -134},{-40,-114}})));
+  Modelica.Blocks.Math.Division division annotation (Placement(transformation(extent={{-54,
+            -134},{-34,-114}})));
   Modelica.Blocks.Interfaces.RealInput COP annotation (Placement(transformation(extent={{-122,
             -70},{-82,-30}})));
   Modelica.Blocks.Interfaces.RealInput P_SVE annotation (Placement(transformation(extent={{-122,58},
@@ -122,7 +122,7 @@ model Control_Heat_HotWater
             {-74,-46}})));
   Modelica.Blocks.Sources.RealExpression Q_flow1(y=P_el_n)                    annotation (Placement(transformation(extent={{-8,-8},{8,8}},
         rotation=180,
-        origin={-30,6})));
+        origin={-44,6})));
   Modelica.Blocks.Continuous.LimPID Control(
     controllerType=Modelica.Blocks.Types.SimpleController.PI,
     k=k,
@@ -130,15 +130,15 @@ model Control_Heat_HotWater
     yMax=1,
     yMin=0,
     withFeedForward=false)
-    annotation (Placement(transformation(extent={{-56,36},{-36,56}})));
-  Modelica.Blocks.Math.Product product2 annotation (Placement(transformation(extent={{-8,-16},
-            {12,4}})));
+    annotation (Placement(transformation(extent={{-36,40},{-24,52}})));
+  Modelica.Blocks.Math.Product product2 annotation (Placement(transformation(extent={{-22,-16},
+            {-2,4}})));
   Modelica.Blocks.Logical.GreaterEqual greaterEqual
     annotation (Placement(transformation(extent={{6,-118},{18,-104}})));
   Modelica.Blocks.Logical.And and1
     annotation (Placement(transformation(extent={{26,-112},{36,-102}})));
-  Modelica.Blocks.Math.Product product3 annotation (Placement(transformation(extent={{-36,-20},
-            {-20,-4}})));
+  Modelica.Blocks.Math.Product product3 annotation (Placement(transformation(extent={{-50,-20},
+            {-34,-4}})));
   Modelica.Blocks.Math.Add      add(k2=-1)
                                          annotation (Placement(transformation(extent={{-24,-94},
             {-16,-86}})));
@@ -159,6 +159,38 @@ model Control_Heat_HotWater
             {72,4}})));
   Modelica.Blocks.Logical.And and2
     annotation (Placement(transformation(extent={{44,-108},{56,-96}})));
+  Modelica.Blocks.Logical.Switch switch4
+    annotation (Placement(transformation(extent={{-22,80},{-14,88}})));
+  Basics.Blocks.Hysteresis_inputVariable
+                                     hysteresis_inputVariable(pre_y_start=false)
+    annotation (Placement(transformation(extent={{-40,80},{-32,88}})));
+  Modelica.Blocks.Math.Min min2 annotation (Placement(transformation(extent={{-2,-2},
+            {2,2}},
+        rotation=0,
+        origin={6,-4})));
+  Basics.Blocks.FilterPosNeg           Filter1
+                                              annotation (Placement(transformation(extent={{-2,-2},
+            {2,2}},
+        rotation=0,
+        origin={12,-4})));
+  Modelica.Blocks.Math.Add add1
+    annotation (Placement(transformation(extent={{-56,86},{-48,94}})));
+  Modelica.Blocks.Sources.RealExpression uLow1(y=1)           annotation (Placement(transformation(extent={{-68,88},
+            {-60,96}})));
+  Modelica.Blocks.Logical.Switch switch3
+    annotation (Placement(transformation(extent={{-2,-2},{2,2}},
+        rotation=0,
+        origin={-54,48})));
+  Modelica.Blocks.Sources.RealExpression T_max(y=THigh_HP)    annotation (Placement(transformation(extent={{-3,-3},
+            {3,3}},
+        rotation=180,
+        origin={-53,55})));
+  Modelica.Blocks.Logical.Greater      greaterEqual2
+    annotation (Placement(transformation(extent={{-76,80},{-74,84}})));
+  Modelica.Blocks.Sources.RealExpression zero3(y=0) annotation (Placement(transformation(extent={{-2,-2},
+            {2,2}},
+        rotation=0,
+        origin={-80,80})));
 equation
   // ___________________________________________________________________________
   //
@@ -197,36 +229,27 @@ equation
   connect(switch2.y, firstOrder1.u) annotation (Line(points={{78.8,-102},{80,
           -102},{80,-72},{82,-72},{82,-69},{83,-69}},
                               color={0,0,127}));
-  connect(difference.u1, product1.u1) annotation (Line(points={{-28,-108},{-50,
-          -108},{-50,16},{-32,16},{-32,78},{6,78}},
-                                             color={0,0,127}));
-  connect(product1.y,limiter_HP. limit1) annotation (Line(points={{29,72},{34,
-          72},{34,8},{22,8},{22,2}},                                                                            color={0,0,127}));
+  connect(product1.y,limiter_HP. limit1) annotation (Line(points={{31,72},{36,
+          72},{36,8},{22,8},{22,2}},                                                                            color={0,0,127}));
   connect(Filter.y, product1.u2) annotation (Line(points={{-73.6,-50},{-72,-50},
-          {-72,66},{6,66}},                                                     color={0,0,127}));
+          {-72,66},{8,66}},                                                     color={0,0,127}));
   connect(Control.y, product2.u1)
-    annotation (Line(points={{-35,46},{-12,46},{-12,0},{-10,0}},
-                                                       color={0,0,127}));
-  connect(T_set, Control.u_s)
-    annotation (Line(points={{-102,46},{-58,46}}, color={0,0,127}));
+    annotation (Line(points={{-23.4,46},{-20,46},{-20,10},{-28,10},{-28,0},{-24,
+          0}},                                         color={0,0,127}));
   connect(T, Control.u_m)
-    annotation (Line(points={{-102,20},{-46,20},{-46,34}}, color={0,0,127}));
+    annotation (Line(points={{-102,20},{-30,20},{-30,38.8}},
+                                                           color={0,0,127}));
   connect(P_set_electricHeater, P_set_electricHeater) annotation (Line(
       points={{109,-69},{109,-69}},
       color={0,135,135},
       pattern=LinePattern.Dash));
-  connect(product2.y, limiter_HP.u)
-    annotation (Line(points={{13,-6},{22,-6}},
-                                             color={0,0,127}));
-  connect(P_SVE, product1.u1)
-    annotation (Line(points={{-102,78},{6,78}},  color={0,0,127}));
-  connect(division.y, difference.u2) annotation (Line(points={{-39,-124},{-20,
+  connect(division.y, difference.u2) annotation (Line(points={{-33,-124},{-20,
           -124},{-20,-116}},
                        color={0,0,127}));
   connect(Filter.u, COP)
     annotation (Line(points={{-82.8,-50},{-102,-50}}, color={0,0,127}));
   connect(limiter_HP.y, division.u1) annotation (Line(points={{45,-6},{48,-6},{
-          48,-40},{-64,-40},{-64,-112},{-68,-112},{-68,-118},{-62,-118}},
+          48,-40},{-62,-40},{-62,-118},{-56,-118}},
                                                  color={0,0,127}));
   connect(P_Heater.y, switch2.u1) annotation (Line(points={{-15.2,-133},{60.4,-133},
           {60.4,-108.4}}, color={0,0,127}));
@@ -239,35 +262,31 @@ equation
           {18.5,-84},{18.5,-83}}, color={255,0,255}));
   connect(greaterEqual.y, and1.u2) annotation (Line(points={{18.6,-111},{25,
           -111}},                     color={255,0,255}));
-  connect(division.u2, product1.u2) annotation (Line(points={{-62,-130},{-72,
-          -130},{-72,-58},{-68,-58},{-68,-44},{-72,-44},{-72,66},{6,66}},
+  connect(division.u2, product1.u2) annotation (Line(points={{-56,-130},{-72,
+          -130},{-72,-58},{-68,-58},{-68,-44},{-72,-44},{-72,66},{8,66}},
                                                                  color={0,0,127}));
-  connect(product2.u2, product3.y) annotation (Line(points={{-10,-12},{-19.2,
+  connect(product2.u2, product3.y) annotation (Line(points={{-24,-12},{-33.2,
           -12}},          color={0,0,127}));
-  connect(product3.u2, product1.u2) annotation (Line(points={{-37.6,-16.8},{-46,
-          -16.8},{-46,12},{-28,12},{-28,66},{6,66}},
+  connect(product3.u2, product1.u2) annotation (Line(points={{-51.6,-16.8},{-60,
+          -16.8},{-60,12},{-42,12},{-42,66},{8,66}},
                            color={0,0,127}));
-  connect(Q_flow1.y, product3.u1) annotation (Line(points={{-38.8,6},{-42,6},{
-          -42,-7.2},{-37.6,-7.2}},
+  connect(Q_flow1.y, product3.u1) annotation (Line(points={{-52.8,6},{-56,6},{
+          -56,-7.2},{-51.6,-7.2}},
                         color={0,0,127}));
-  connect(hysteresis_heater.uHigh, Control.u_s) annotation (Line(points={{-10.42,
-          -77.4},{-60,-77.4},{-60,46},{-58,46}},        color={0,0,127}));
   connect(hysteresis_heater.uLow, add.y) annotation (Line(points={{-10.7,-88.6},
           {-14,-88.6},{-14,-90},{-15.6,-90}}, color={0,0,127}));
   connect(add.u2, uLow3.y) annotation (Line(points={{-24.8,-92.4},{-32,-92.4},{
           -32,-92},{-29.3,-92}}, color={0,0,127}));
-  connect(add.u1, Control.u_s) annotation (Line(points={{-24.8,-87.6},{-34,
-          -87.6},{-34,-77.4},{-60,-77.4},{-60,46},{-58,46}}, color={0,0,127}));
   connect(limiter_HP.y, switch1.u1)
     annotation (Line(points={{45,-6},{76.4,-6},{76.4,-6.4}}, color={0,0,127}));
   connect(switch1.y, Q_flow_set_HP) annotation (Line(points={{94.8,-4.44089e-16},
           {92,-4.44089e-16},{92,0},{108,0}}, color={0,0,127}));
   connect(zero2.y, switch1.u3) annotation (Line(points={{72.8,16},{76.4,16},{
           76.4,6.4}}, color={0,0,127}));
-  connect(gain.u, product3.y) annotation (Line(points={{9,17},{-18,17},{-18,-12},
-          {-19.2,-12}}, color={0,0,127}));
-  connect(gain.y, greaterEqual1.u2) annotation (Line(points={{20.5,17},{34,17},
-          {34,18},{48,18},{48,-3.2},{51.2,-3.2}},
+  connect(gain.u, product3.y) annotation (Line(points={{9,17},{-32,17},{-32,-12},
+          {-33.2,-12}}, color={0,0,127}));
+  connect(gain.y, greaterEqual1.u2) annotation (Line(points={{20.5,17},{24,17},
+          {24,10},{48,10},{48,-3.2},{51.2,-3.2}},
                                               color={0,0,127}));
   connect(limiter_HP.limit2, gain.y) annotation (Line(points={{22,-14},{16,-14},
           {16,10},{24,10},{24,17},{20.5,17}}, color={0,0,127}));
@@ -283,6 +302,53 @@ equation
     annotation (Line(points={{60.4,-102},{56.6,-102}}, color={255,0,255}));
   connect(and2.u1, switch1.u2) annotation (Line(points={{42.8,-102},{40,-102},{
           40,-56},{74,-56},{74,0},{76.4,0}}, color={255,0,255}));
+  connect(switch4.u2, hysteresis_inputVariable.y)
+    annotation (Line(points={{-22.8,84},{-31.6,84}}, color={255,0,255}));
+  connect(switch4.y,min2. u1) annotation (Line(points={{-13.6,84},{2,84},{2,-2},
+          {3.6,-2},{3.6,-2.8}},      color={0,0,127}));
+  connect(difference.u1, P_SVE) annotation (Line(points={{-28,-108},{-70,-108},
+          {-70,78},{-102,78}}, color={0,0,127}));
+  connect(Q_flow1.y, switch4.u3) annotation (Line(points={{-52.8,6},{-56,6},{
+          -56,14},{-44,14},{-44,68},{-22.8,68},{-22.8,80.8}}, color={0,0,127}));
+  connect(Filter1.u, min2.y)
+    annotation (Line(points={{9.6,-4},{8.2,-4}}, color={0,0,127}));
+  connect(T, hysteresis_inputVariable.u) annotation (Line(points={{-102,20},{
+          -66,20},{-66,84},{-40.4,84}}, color={0,0,127}));
+  connect(T_set, hysteresis_inputVariable.uLow) annotation (Line(points={{-102,
+          46},{-64,46},{-64,80},{-40.4,80},{-40.4,80.8}}, color={0,0,127}));
+  connect(add1.y, hysteresis_inputVariable.uHigh) annotation (Line(points={{
+          -47.6,90},{-44,90},{-44,86},{-40.24,86},{-40.24,87.2}}, color={0,0,
+          127}));
+  connect(add1.u2, T_set) annotation (Line(points={{-56.8,87.6},{-56.8,80},{-64,
+          80},{-64,46},{-102,46}}, color={0,0,127}));
+  connect(add1.u1, uLow1.y) annotation (Line(points={{-56.8,92.4},{-58,92.4},{
+          -58,92},{-59.6,92}}, color={0,0,127}));
+  connect(PV_excess, switch4.u1) annotation (Line(points={{-82,100},{-82,86},{
+          -70,86},{-70,98},{-28,98},{-28,87.2},{-22.8,87.2}}, color={0,127,127}));
+  connect(hysteresis_heater.uHigh, T_set) annotation (Line(points={{-10.42,
+          -77.4},{-64,-77.4},{-64,46},{-102,46}}, color={0,0,127}));
+  connect(add.u1, T_set) annotation (Line(points={{-24.8,-87.6},{-24,-87.6},{
+          -24,-88},{-64,-88},{-64,46},{-102,46}}, color={0,0,127}));
+  connect(Control.u_s, switch3.y) annotation (Line(points={{-37.2,46},{-48,46},
+          {-48,48},{-51.8,48}}, color={0,0,127}));
+  connect(switch3.u3, hysteresis_inputVariable.uLow) annotation (Line(points={{
+          -56.4,46.4},{-64,46.4},{-64,80},{-40.4,80},{-40.4,80.8}}, color={0,0,
+          127}));
+  connect(switch3.u1, T_max.y) annotation (Line(points={{-56.4,49.6},{-60,49.6},
+          {-60,55},{-56.3,55}}, color={0,0,127}));
+  connect(greaterEqual2.u2, zero3.y) annotation (Line(points={{-76.2,80.4},{-78,
+          80.4},{-78,80},{-77.8,80}}, color={0,0,127}));
+  connect(greaterEqual2.u1, switch4.u1) annotation (Line(points={{-76.2,82},{
+          -80,82},{-80,86},{-70,86},{-70,98},{-28,98},{-28,87.2},{-22.8,87.2}},
+        color={0,0,127}));
+  connect(greaterEqual2.y, switch3.u2) annotation (Line(points={{-73.9,82},{-68,
+          82},{-68,48},{-56.4,48}}, color={255,0,255}));
+  connect(product2.y, min2.u2)
+    annotation (Line(points={{-1,-6},{-1,-5.2},{3.6,-5.2}}, color={0,0,127}));
+  connect(Filter1.y, limiter_HP.u) annotation (Line(points={{14.2,-4},{18,-4},{
+          18,-6},{22,-6}}, color={0,0,127}));
+  connect(P_SVE, product1.u1)
+    annotation (Line(points={{-102,78},{8,78}}, color={0,0,127}));
   annotation (Diagram(coordinateSystem(extent={{-100,-140},{100,100}}), graphics={
         Rectangle(
           extent={{-46,-66},{22,-98}},
