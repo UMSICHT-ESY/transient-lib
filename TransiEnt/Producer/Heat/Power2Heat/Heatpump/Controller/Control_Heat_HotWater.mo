@@ -143,6 +143,10 @@ model Control_Heat_HotWater
             {2,2}},
         rotation=0,
         origin={12,-4})));
+  Basics.Blocks.Sources.PowerExpression powerExpression(y=P_elHeater + P_el_max)
+    annotation (Placement(transformation(extent={{-64,76},{-44,96}})));
+  Modelica.Blocks.Math.Product product4 annotation (Placement(transformation(extent={{-22,70},
+            {-6,86}})));
 equation
   // ___________________________________________________________________________
   //
@@ -245,20 +249,26 @@ equation
     annotation (Line(points={{60.4,-102},{56.6,-102}}, color={255,0,255}));
   connect(and2.u1, switch1.u2) annotation (Line(points={{42.8,-102},{40,-102},{
           40,-56},{74,-56},{74,0},{76.4,0}}, color={255,0,255}));
-  connect(difference.u1, P_SVE) annotation (Line(points={{-28,-108},{-70,-108},
-          {-70,78},{-102,78}}, color={0,0,127}));
   connect(hysteresis_heater.uHigh, T_set) annotation (Line(points={{-10.42,
           -77.4},{-64,-77.4},{-64,46},{-102,46}}, color={0,0,127}));
   connect(add.u1, T_set) annotation (Line(points={{-24.8,-87.6},{-24,-87.6},{
           -24,-88},{-64,-88},{-64,46},{-102,46}}, color={0,0,127}));
   connect(Filter1.y, limiter_HP.u) annotation (Line(points={{14.2,-4},{18,-4},{
           18,-6},{22,-6}}, color={0,0,127}));
-  connect(P_SVE, product1.u1)
-    annotation (Line(points={{-102,78},{8,78}}, color={0,0,127}));
   connect(T_set, Control.u_s)
     annotation (Line(points={{-102,46},{-38,46}}, color={0,0,127}));
   connect(product2.y, Filter1.u) annotation (Line(points={{-1,-6},{4,-6},{4,-4},
           {9.6,-4}}, color={0,0,127}));
+  connect(product4.y, product1.u1)
+    annotation (Line(points={{-5.2,78},{8,78}}, color={0,0,127}));
+  connect(powerExpression.y, product4.u1) annotation (Line(
+      points={{-43,86},{-28,86},{-28,82.8},{-23.6,82.8}},
+      color={0,135,135},
+      pattern=LinePattern.Dash));
+  connect(P_SVE, product4.u2) annotation (Line(points={{-102,78},{-68,78},{-68,
+          73.2},{-23.6,73.2}}, color={0,0,127}));
+  connect(product4.y, difference.u1) annotation (Line(points={{-5.2,78},{2,78},
+          {2,-56},{-52,-56},{-52,-108},{-28,-108}}, color={0,0,127}));
   annotation (Diagram(coordinateSystem(extent={{-100,-140},{100,100}}), graphics={
         Rectangle(
           extent={{-46,-66},{22,-98}},

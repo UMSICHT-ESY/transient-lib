@@ -109,14 +109,6 @@ public
   Modelica.Blocks.Math.Min COP
     annotation (Placement(transformation(extent={{-68,20},{-48,40}})));
 
-  TransiEnt.Components.Statistics.Collectors.LocalCollectors.HeatingPlantCost heatingPlantCost(
-    calculateCost=true,
-    consumes_H_flow=false,
-    Q_flow_n=Q_flow_n,
-    Q_flow_is=-P_el.y,
-    produces_m_flow_CDE=false,
-    m_flow_CDE_is=0) annotation (Placement(transformation(extent={{-60,-100},{-40,-80}})));
-
   replaceable model heatFlowBoundaryModel =
   TransiEnt.Components.Boundaries.Heat.Heatflow_L1 constrainedby
     TransiEnt.Components.Boundaries.Heat.Heatflow_L1
@@ -158,10 +150,6 @@ public
   TransiEnt.Basics.Interfaces.General.TemperatureOut T_source_internal "Temperature of heat source used for calculation";
 
   //Statistics
-public
-   TransiEnt.Components.Statistics.Collectors.LocalCollectors.CollectElectricPower collectElectricPower(typeOfResource=TransiEnt.Basics.Types.TypeOfResource.Consumer) annotation (Placement(transformation(extent={{-100,-100},{-80,-80}})));
-   TransiEnt.Components.Statistics.Collectors.LocalCollectors.CollectHeatingPower collectHeatingPower(typeOfResource=TransiEnt.Basics.Types.TypeOfResource.Conventional)
-                                                                                                                                                                    annotation (Placement(transformation(extent={{-80,-100},{-60,-80}})));
 
   Modelica.Blocks.Continuous.FirstOrder firstOrder2(T=60) annotation (Placement(transformation(extent={{40,48},
             {60,68}})));
@@ -180,14 +168,8 @@ equation
     T_source_internal =T_source;
   end if;
 
- collectElectricPower.powerCollector.P=Q_flow_set;
- collectHeatingPower.heatFlowCollector.Q_flow=-P_el.y;
 
   connect(T_source_internal, T_source_input_K);
-
-  connect(modelStatistics.powerCollector[collectElectricPower.typeOfResource],collectElectricPower.powerCollector);
-  connect(modelStatistics.heatFlowCollector[collectHeatingPower.typeOfResource],collectHeatingPower.heatFlowCollector);
-  connect(modelStatistics.costsCollector, heatingPlantCost.costsCollector);
 
   connect(T_in_sensor.port,inlet)  annotation (Line(
       points={{80,-50},{80,-58},{104,-58}},
@@ -225,8 +207,8 @@ equation
       color={0,135,135},
       thickness=0.5));
   connect(Q_flow_set, P_el.u1) annotation (Line(points={{-106,-54},{-36,-54},{-36,16},{28,16},{28,72},{-74,72},{-74,46},{-28,46}}, color={0,127,127}));
-  connect(P_el.y, Power.P_el_set) annotation (Line(points={{-5,40},{0,40},{0,-60},{-10,-60},{-10,-68}}, color={0,0,127}));
-  connect(Q_flow_set, heatFlowBoundary.Q_flow_prescribed) annotation (Line(points={{-106,-54},{2,-54},{2,-50},{10,-50}}, color={0,127,127}));
+  connect(P_el.y, Power.P_el_set) annotation (Line(points={{-5,40},{-2,40},{-2,
+          -60},{-10,-60},{-10,-68}},                                                                    color={0,0,127}));
   connect(Q_flow_set, prescribedHeatFlow.Q_flow) annotation (Line(points={{-106,-54},{-36,-54},{-36,16},{28,16},{28,78},{46,78}}, color={0,127,127}));
   connect(firstOrder2.y, Heat_output)
     annotation (Line(points={{61,58},{116,58}}, color={0,0,127}));
@@ -238,6 +220,9 @@ equation
           34}}, color={0,0,127}));
   connect(COPmax.y, COP.u2) annotation (Line(points={{-77,6},{-74,6},{-74,18},{-76,
           18},{-76,24},{-70,24}}, color={0,0,127}));
+  connect(firstOrder2.y, heatFlowBoundary.Q_flow_prescribed) annotation (Line(
+        points={{61,58},{64,58},{64,10},{0,10},{0,-50},{10,-50}}, color={0,0,
+          127}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
                                    Ellipse(
           lineColor={0,125,125},

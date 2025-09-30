@@ -35,7 +35,6 @@ model EnergyConverter "Replaceable systems for household technologies based on t
   // _____________________________________________
 
   outer TransiEnt.SimCenter simCenter;
-  outer TransiEnt.ModelStatistics modelStatistics;
 
   // _____________________________________________
   //
@@ -62,11 +61,6 @@ model EnergyConverter "Replaceable systems for household technologies based on t
   replaceable TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems.Boiler systems
       constrainedby Systems.Base.Systems annotation (choicesAllMatching=true, Dialog(group="Replaceable Components"), Placement(transformation(extent={{-10,20},{10,40}})));
 
-
-  TransiEnt.Components.Statistics.Collectors.LocalCollectors.CollectHeatingPower collectHeatingPower(typeOfResource=TransiEnt.Basics.Types.TypeOfResource.Consumer) annotation (Placement(transformation(extent={{-10,-10},{10,10}},
-        rotation=180,
-        origin={-90,90})));
-  TransiEnt.Components.Statistics.Collectors.LocalCollectors.CollectElectricPower collectElectricPower(typeOfResource=TransiEnt.Basics.Types.TypeOfResource.Consumer) annotation (Placement(transformation(extent={{-62,54},{-42,34}})));
 
   // _____________________________________________
   //
@@ -95,16 +89,12 @@ model EnergyConverter "Replaceable systems for household technologies based on t
     annotation (Placement(transformation(extent={{-124,-20},{-84,20}})));
 equation
 
-   collectHeatingPower.heatFlowCollector.Q_flow=demand.hotWaterPowerDemand+demand.heatingPowerDemand;
-   collectElectricPower.powerCollector.P=demand.electricPowerDemand;
+
 
   // _____________________________________________
   //
   //               Connect Statements
   // _____________________________________________
-
-  connect(modelStatistics.powerCollector[TransiEnt.Basics.Types.TypeOfResource.Consumer],collectElectricPower.powerCollector);
-  connect(modelStatistics.heatFlowCollector[TransiEnt.Basics.Types.TypeOfResource.Consumer],collectHeatingPower.heatFlowCollector);
 
   connect(systems.waterPortIn, waterPortIn) annotation (Line(
       points={{-2,20.2},{-2,-16.9},{-16,-16.9},{-16,-60}},

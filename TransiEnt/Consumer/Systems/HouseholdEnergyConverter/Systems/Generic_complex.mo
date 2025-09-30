@@ -37,8 +37,6 @@ model Generic_complex
     redeclare TransiEnt.Basics.Interfaces.Electrical.ComplexPowerPort epp);
 
   outer TransiEnt.SimCenter simCenter;
-  outer TransiEnt.ModelStatistics modelStatistics;
-
   // _____________________________________________
   //
   //          Parameters
@@ -161,6 +159,7 @@ model Generic_complex
   parameter Modelica.Units.SI.Power P_superfast(displayUnit="kW")=0 "Charging power of superfast charging" annotation (Dialog(group="Charging station", enable=inputDataType == "Distance"));
 
   parameter Modelica.Units.SI.Power MinPower=4200 "Minimal Power per device during grid curtailment" annotation (HideResult=true, Dialog(group="Other"));
+  parameter Real MinPower_rel=0.4 "Minimal relative Power per device during grid curtailment" annotation (HideResult=true, Dialog(group="Other"));
 
   // _____________________________________________
   //
@@ -202,8 +201,8 @@ model Generic_complex
         origin={-103,-31})));
 
   TransiEnt.Components.Boundaries.Electrical.ComplexPower.PQBoundary     pQBoundary(    useInputConnectorQ=false, useInputConnectorP=true,
-    cosphi_boundary=0.9)                                                                                                                   annotation (Placement(transformation(extent={{-42,-68},
-            {-26,-52}})));
+    cosphi_boundary=0.9)                                                                                                                   annotation (Placement(transformation(extent={{-42,-76},
+            {-26,-60}})));
 
   Producer.Heat.Power2Heat.ElectricBoiler.ElectricBoiler                    electricHeater(
     change_sign=true,
@@ -250,7 +249,7 @@ model Generic_complex
     P_fast=P_fast,
     P_superfast=P_superfast,
     useExternalControl=true,
-    controlType="Power limit",
+    controlType="Proportional",
     redeclare model DistanceLocationTable =
         Basics.Tables.ElectricGrid.Electromobility.DistanceLocationProfiles_family_15min
         (relativepath=relativepath),
@@ -261,7 +260,7 @@ model Generic_complex
         Basics.Interfaces.Electrical.ComplexPowerPort) if bev                                                annotation (Placement(transformation(extent={{-10,-10},
             {10,10}},
         rotation=270,
-        origin={-62,-58})));
+        origin={-62,-62})));
   Producer.Electrical.Photovoltaics.Advanced_PV.DNIDHI_Input.PVModule pVModule2(
     P_inst=P_inst_PV1,
     Pmpp=Pmpp_PV1,
@@ -402,13 +401,13 @@ model Generic_complex
         extent={{-4.5,-4.5},{4.5,4.5}},
         rotation=0,
         origin={-73.5,-78.5})));
-  Basics.Blocks.Sources.PowerExpression
-                               MinimalPower(y=MinPower)
+  Modelica.Blocks.Sources.RealExpression
+                               MinimalPower(y=MinPower_rel)
     "Minimal Power per device during grid curtailment "
                annotation (Placement(transformation(
         extent={{-7,-6},{7,6}},
         rotation=0,
-        origin={-129,-72})));
+        origin={-37,-32})));
   Control_Battery.MaxSelfConsumption maxSelfConsumption if battery annotation (
       Placement(transformation(
         extent={{-10,-10},{10,10}},
@@ -432,8 +431,8 @@ model Generic_complex
   Modelica.Blocks.Sources.RealExpression uLow3(y=3) if heating and hotwater
                                                               annotation (Placement(transformation(extent={{-6,40},
             {2,48}})));
-  Modelica.Blocks.Math.Max max2 annotation (Placement(transformation(extent={{-114,
-            -62},{-106,-54}})));
+  Modelica.Blocks.Math.Max max2 annotation (Placement(transformation(extent={{-34,-48},
+            {-26,-40}})));
   Producer.Heat.Power2Heat.ElectricBoiler.ElectricBoilerSystem
                                                      flowHeater(P_flowheater=
         P_flowheater) if not hotwater
@@ -457,6 +456,50 @@ model Generic_complex
   Basics.Blocks.SwitchAtSeason  summerWinterSwitch(summer_start=summer_start,
       winter_start=winter_start) if heating                                                              annotation (Placement(transformation(extent={{-34,24},
             {-28,30}})));
+Modelica.Blocks.Math.Product product2 annotation (Placement(transformation(extent={{-68,-12},
+            {-64,-8}})));
+Modelica.Blocks.Math.Gain gain1(k=0.00001)
+                                          annotation (Placement(transformation(extent={{-74,-14},
+            {-70,-10}})));
+Modelica.Blocks.Continuous.Derivative derivative1(
+    T=0.00001,
+    initType=Modelica.Blocks.Types.Init.InitialState,
+    x_start=400)                                                                                                          annotation (Placement(transformation(extent={{-74,-8},
+            {-70,-4}})));
+Basics.Blocks.SwitchAtSeason           summerWinterSwitch2(summer_start=0.25,
+      winter_start=365)                                                                         annotation (Placement(transformation(extent={{-72,-18},
+            {-68,-14}})));
+Modelica.Blocks.Logical.Switch switch3 annotation (Placement(transformation(extent={{2,-2},{-2,2}}, rotation=180, origin={-60,-16})));
+Modelica.Blocks.Sources.RealExpression zero3(y=0) annotation (Placement(transformation(extent={{-68,-24},
+            {-64,-16}})));
+Components.Sensors.ElectricVoltageComplex           electricVoltageComplex1 annotation (Placement(transformation(extent={{-82,-14},
+            {-76,-8}})));
+  Modelica.Blocks.Math.Add add1 annotation (Placement(transformation(extent={{-4,-4},
+            {4,4}},
+        rotation=270,
+        origin={-54,-34})));
+  Modelica.Blocks.Sources.RealExpression
+                               MinimalPower1(y=MinPower/P_chargingStation)
+    "Minimal Power per device during grid curtailment "
+               annotation (Placement(transformation(
+        extent={{-7,-6},{7,6}},
+        rotation=0,
+        origin={-75,-28})));
+  Modelica.Blocks.Math.Max max3 annotation (Placement(transformation(extent={{-4,-4},
+            {4,4}},
+        rotation=270,
+        origin={-66,-38})));
+  Modelica.Blocks.Sources.RealExpression
+                               MinimalPower2(y=MinPower/(P_el_Heater + P_el_max))
+    "Minimal Power per device during grid curtailment "
+               annotation (Placement(transformation(
+        extent={{-7,-6},{7,6}},
+        rotation=0,
+        origin={-37,-22})));
+  Modelica.Blocks.Math.Max max4 annotation (Placement(transformation(extent={{-4,-4},
+            {4,4}},
+        rotation=0,
+        origin={-16,-44})));
 equation
 
   // _____________________________________________
@@ -496,14 +539,6 @@ equation
   end if;
 
 
-      connect(pQBoundary.P_el_set, demand.electricPowerDemand) annotation (Line(
-        points={{-38.8,-50.4},{-38.8,-38},{-48,-38},{-48,42},{-28,42},{-28,56},
-          {4.68,56},{4.68,100.48}},
-                                  color={0,127,127}), Text(
-      string="%second",
-      index=1,
-      extent={{-3,6},{-3,6}},
-      horizontalAlignment=TextAlignment.Right));
   connect(electricHeater.Q_flow_gen, add3.u2) annotation (Line(
       points={{66.42,-57.26},{66.42,-58},{68.4,-58},{68.4,-36.8}},
       color={175,0,0},
@@ -614,7 +649,7 @@ equation
 
   connect(batteryElectricVehicle.epp, electricPowerComplex.epp_OUT) annotation (
      Line(
-      points={{-62.2,-67.8},{-62.2,-74},{-69.27,-74},{-69.27,-78.5}},
+      points={{-62.2,-71.8},{-62.2,-74},{-69.27,-74},{-69.27,-78.5}},
       color={28,108,200},
       thickness=0.5));
 
@@ -648,15 +683,6 @@ equation
           29.2}},                                       color={255,0,255}));
   connect(maxSelfConsumption.P_set_battery, Storage.P_set)
     annotation (Line(points={{-120,16},{-120,-1.66}}, color={0,0,127}));
-  connect(MinimalPower.y, max2.u2) annotation (Line(
-      points={{-121.3,-72},{-120,-72},{-120,-60.4},{-114.8,-60.4}},
-      color={0,135,135},
-      pattern=LinePattern.Dash));
-  connect(max2.y, control_Heat_HotWater.P_SVE) annotation (Line(points={{-105.6,
-          -58},{-86,-58},{-86,-42},{-16,-42},{-16,-44.2},{-4.2,-44.2}}, color={0,
-          0,127}));
-  connect(P_limit, max2.u1) annotation (Line(points={{-144,-54},{-144,-55.6},{
-          -114.8,-55.6}}, color={0,0,127}));
   connect(or1.y, switch2.u2) annotation (Line(points={{27.6,26},{18,26},{18,46},
           {48,46},{48,41},{51,41}}, color={255,0,255}));
   connect(or1.y, switch1.u2) annotation (Line(points={{27.6,26},{18,26},{18,46},
@@ -693,13 +719,10 @@ equation
       color={28,108,200},
       thickness=0.5));
   connect(pQBoundary.epp, electricPowerComplex1.epp_OUT) annotation (Line(
-      points={{-42,-60},{-48,-60},{-48,-74},{-44,-74},{-44,-82.5},{-49.27,-82.5}},
+      points={{-42,-68},{-46,-68},{-46,-82.5},{-49.27,-82.5}},
       color={28,108,200},
       thickness=0.5));
 
-  connect(batteryElectricVehicle.P_limit, max2.y) annotation (Line(points={{
-          -62.5,-47.1},{-62.5,-42},{-86,-42},{-86,-58},{-105.6,-58}}, color={0,
-          127,127}));
   connect(summerWinterSwitch.summer_operation,switch5. u2) annotation (Line(
         points={{-27.82,27},{-18,27},{-18,24},{-14.4,24}},
                                                    color={255,0,255}));
@@ -712,6 +735,52 @@ equation
           {21.2,-6.8}},                                           color={0,0,127}));
   connect(switch5.u3, max1.y) annotation (Line(points={{-14.4,22.4},{-26,22.4},{
           -26,18},{-27.8,18}}, color={0,0,127}));
+connect(electricVoltageComplex1.v,gain1. u) annotation (Line(points={{-76,-9.2},
+          {-76,-12},{-74.4,-12}},                                                                 color={0,135,135},pattern=LinePattern.Dash));
+connect(gain1.y,product2. u2) annotation (Line(points={{-69.8,-12},{-70,-12},{
+          -70,-11.2},{-68.4,-11.2}},                                                             color={0,0,127}));
+connect(derivative1.u,electricVoltageComplex1. v) annotation (Line(points={{-74.4,
+          -6},{-76,-6},{-76,-9.2}},                                                                         color={0,0,127}));
+connect(derivative1.y,product2. u1) annotation (Line(points={{-69.8,-6},{-68.4,
+          -6},{-68.4,-8.8}},                                                                     color={0,0,127}));
+connect(summerWinterSwitch2.summer_operation,switch3. u2) annotation (Line(points={{-67.88,
+          -16},{-62.4,-16}},                                                                              color={255,0,255}));
+connect(zero3.y,switch3. u1) annotation (Line(points={{-63.8,-20},{-62,-20},{
+          -62,-17.6},{-62.4,-17.6}},                                                                color={0,0,127}));
+connect(product2.y,switch3. u3) annotation (Line(points={{-63.8,-10},{-64,-10},
+          {-64,-14.4},{-62.4,-14.4}},                                                              color={0,0,127}));
+  connect(electricVoltageComplex1.epp, epp) annotation (Line(
+      points={{-82,-10.94},{-84,-10.94},{-84,-60},{-80,-60},{-80,-98}},
+      color={28,108,200},
+      thickness=0.5));
+  connect(add1.u2, switch3.y) annotation (Line(points={{-56.4,-29.2},{-56,-29.2},
+          {-56,-16},{-57.8,-16}}, color={0,0,127}));
+  connect(add1.y, pQBoundary.P_el_set) annotation (Line(points={{-54,-38.4},{
+          -54,-44},{-38.8,-44},{-38.8,-58.4}}, color={0,0,127}));
+  connect(add1.u1, demand.electricPowerDemand) annotation (Line(points={{-51.6,
+          -29.2},{-51.6,4},{-52,4},{-52,34},{-24,34},{-24,56},{4.68,56},{4.68,
+          100.48}}, color={0,0,127}), Text(
+      string="%second",
+      index=1,
+      extent={{-3,6},{-3,6}},
+      horizontalAlignment=TextAlignment.Right));
+  connect(max3.y, batteryElectricVehicle.p_control) annotation (Line(points={{
+          -66,-42.4},{-66,-51.1},{-65.9,-51.1}}, color={0,0,127}));
+  connect(max3.u1, MinimalPower1.y) annotation (Line(points={{-63.6,-33.2},{
+          -63.6,-28},{-67.3,-28}}, color={0,0,127}));
+  connect(control_Heat_HotWater.P_SVE, max4.y) annotation (Line(points={{-4.2,
+          -44.2},{-8,-44.2},{-8,-44},{-11.6,-44}}, color={0,0,127}));
+  connect(MinimalPower2.y, max4.u1) annotation (Line(points={{-29.3,-22},{-20.8,
+          -22},{-20.8,-41.6}}, color={0,0,127}));
+  connect(max4.u2, max2.y) annotation (Line(points={{-20.8,-46.4},{-24,-46.4},{
+          -24,-44},{-25.6,-44}}, color={0,0,127}));
+  connect(MinimalPower.y, max2.u1) annotation (Line(points={{-29.3,-32},{-28,
+          -32},{-28,-36},{-30,-36},{-30,-38},{-34.8,-38},{-34.8,-41.6}}, color=
+          {0,0,127}));
+  connect(max2.u2, P_limit) annotation (Line(points={{-34.8,-46.4},{-46,-46.4},
+          {-46,-46},{-118,-46},{-118,-54},{-144,-54}}, color={0,0,127}));
+  connect(max3.u2, P_limit) annotation (Line(points={{-68.4,-33.2},{-86,-33.2},
+          {-86,-46},{-118,-46},{-118,-54},{-144,-54}}, color={0,0,127}));
   annotation (
     HideResult=true,
     Dialog(tab="Tracking and Mounting"),
