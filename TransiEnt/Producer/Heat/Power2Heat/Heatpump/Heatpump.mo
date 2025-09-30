@@ -1,4 +1,4 @@
-within TransiEnt.Producer.Heat.Power2Heat.Heatpump;
+﻿within TransiEnt.Producer.Heat.Power2Heat.Heatpump;
 model Heatpump "Simple heatpump model that calculates the heat output from the externally specified electric power"
 
 
@@ -43,13 +43,19 @@ model Heatpump "Simple heatpump model that calculates the heat output from the e
     "True if supply temperature is taken from input, false if heat or fluid port is used"
     annotation (Dialog(group="Heat pump parameters"));
 
-  parameter Boolean use_T_source_input_K=false "False, use outer ambient conditions" annotation (Dialog(group="Heat pump parameters"));
   parameter Boolean usePowerPort=true "True if power port shall be used" annotation (Dialog(group="Fundamental Definitions"), choices(checkBox=true));
+  parameter Boolean useHeatPort=true "True if heat port shall be used"
+    annotation (Dialog(group="Fundamental Definitions", enable=not
+          useFluidPorts));
+
+  parameter Boolean useFluidPorts=false "True if fluid ports shall be used"
+    annotation (Dialog(group="Fundamental Definitions"));
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_internal=5 "Temperature difference between refrigerant and source/sink temperature" annotation (Dialog(group="Heat pump parameters"));
-  parameter Modelica.Units.SI.TemperatureDifference Delta_T_db=2 "Deadband of hysteresis control" annotation (Dialog(group="Heat pump parameters"));
   parameter Modelica.Units.SI.HeatFlowRate Q_flow_n=3.5e3 "Nominal heat flow of heat pump at nominal conditions according to EN14511 (7/35)" annotation (Dialog(group="Heat pump parameters"));
-  parameter Real COP_n=3.7 "Coefficient of performance at nominal conditions according to EN14511 (7/35)" annotation (Dialog(group="Heat pump parameters"));
   parameter Real COP_max=6.5 "Maximal coefficient of performance at high source temperatures" annotation (Dialog(group="Heat pump parameters"));
+    parameter Real COP_n=3.7
+    "Coefficient of performance at nominal conditions according to EN14511 (7/35)"
+    annotation (Dialog(group="Heat pump parameters", enable=not useEta));
 
   final parameter Real eta_HP=COP_n/((273.15 + 35 +Delta_T_internal)/(35 + 2*Delta_T_internal - 7));
   Modelica.Units.SI.Temperature T_source=simCenter.ambientConditions.temperature.value + 273.15 "Temperature of heat source" annotation (Dialog(group="Heat pump parameters", enable=not use_T_source_input_K), choices(choice=simCenter.ambientConditions.temperature.value + 273.15 "Ambient Temperature", choice=IntegraNet.SimCenter.Ground_Temperature + 273.15 "Ground Temperature"));
@@ -64,22 +70,18 @@ model Heatpump "Simple heatpump model that calculates the heat output from the e
     "Deadband of hysteresis control"
     annotation (Dialog(group="Heat pump parameters"));
 
-  parameter Modelica.Units.SI.HeatFlowRate Q_flow_n=3.5e3
-    "Nominal heat flow of heat pump at nominal conditions according to EN14511"
-    annotation (Dialog(group="Heat pump parameters"));
 
   parameter Boolean useEta=false
     annotation (Dialog(group="Heat pump parameters"));
 
-  parameter Real COP_n=3.7
-    "Coefficient of performance at nominal conditions according to EN14511"
-    annotation (Dialog(group="Heat pump parameters", enable=not useEta));
+
 
   //input SI.Temperature T_set=50+273.15 "Heatpump supply temperature" annotation (Dialog(group="Heat pump parameters"));
 
   parameter Modelica.Units.SI.Temperature T_source_n(displayUnit="degC")=273.15 - 5
     "Nominal ambient temperature (DIN EN 12831)";
 
+  Real COP_Carnot=(T_set + Delta_T_internal)/max(2*Delta_T_internal, T_set + 2*Delta_T_internal - T_source_internal);
   TransiEnt.Basics.Interfaces.General.TemperatureIn T_set "Setpoint value, e.g. Storage setpoint temperature" annotation (Placement(transformation(extent={{-126,40},{-86,80}})));
   TransiEnt.Basics.Interfaces.General.TemperatureIn T_source_input_K if use_T_source_input_K "Temperature of source" annotation (Placement(transformation(extent={{-20,-20},{20,20}},
         rotation=-90,
@@ -106,15 +108,15 @@ model Heatpump "Simple heatpump model that calculates the heat output from the e
   PowerPortModel epp if usePowerPort
     annotation (Placement(transformation(extent={{66,-110},{86,-90}})));
 
-  TransiEnt.Basics.Interfaces.Thermal.FluidPortIn inlet(Medium=medium)
-    if useFluidPorts annotation (Placement(transformation(extent={{94,-68},{114,
+  TransiEnt.Basics.Interfaces.Thermal.FluidPortIn inlet(Medium=medium) if
+       useFluidPorts annotation (Placement(transformation(extent={{94,-68},{114,
             -48}}), iconTransformation(extent={{90,-48},{110,-28}})));
-  TransiEnt.Basics.Interfaces.Thermal.FluidPortOut outlet(Medium=medium)
-    if useFluidPorts annotation (Placement(transformation(extent={{92,20},{112,40}}),
+  TransiEnt.Basics.Interfaces.Thermal.FluidPortOut outlet(Medium=medium) if
+       useFluidPorts annotation (Placement(transformation(extent={{92,20},{112,40}}),
         iconTransformation(extent={{92,20},{112,40}})));
 
-  Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_b heatPort
-    if useHeatPort and not useFluidPorts
+  Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_b heatPort if
+       useHeatPort and not useFluidPorts
     annotation (Placement(transformation(extent={{90,68},{110,88}})));
 
   TransiEnt.Basics.Interfaces.Thermal.HeatFlowRateOut Q_min
@@ -176,14 +178,13 @@ public
         rotation=180,
         origin={78,44})));
 
-  replaceable model PowerBoundaryModel =
-      TransiEnt.Components.Boundaries.Electrical.ActivePower.Power                                    constrainedby
-    TransiEnt.Components.Boundaries.Electrical.Base.PartialModelPowerBoundary                                                                                                                  "Choice of power boundary model. The power boundary model must match the power port."     annotation (
-    choicesAllMatching=true,
-    Dialog(group="Replaceable Components"));
+  TransiEnt.Components.Sensors.SpecificEnthalpySensorVLE
+    specificEnthalpySensorVLE if useFluidPorts
+    annotation (Placement(transformation(extent={{52,-16},{72,4}})));
 
-  ClaRa.Components.Sensors.SensorVLE_L1_m_flow massFlowSensorVLE
-    if useFluidPorts
+
+  ClaRa.Components.Sensors.SensorVLE_L1_m_flow massFlowSensorVLE if
+       useFluidPorts
     annotation (Placement(transformation(extent={{28,-16},{48,4}})));
 
   TransiEnt.Components.Sensors.SpecificEnthalpySensorVLE
@@ -197,13 +198,13 @@ public
     "Choice of power boundary model. The power boundary model must match the power port."
     annotation (choicesAllMatching=true, Dialog(group="Replaceable Components"));
 
-  PowerBoundaryModel Power(         useInputConnectorP=true)
-                           if usePowerPort
+  PowerBoundaryModel Power(         useInputConnectorP=true) if
+                              usePowerPort
     "Choice of power boundary model. The power boundary model must match the power port."
     annotation (Placement(transformation(extent={{-6,-90},{-26,-70}})));
 
-  Modelica.Thermal.HeatTransfer.Sources.PrescribedHeatFlow prescribedHeatFlow
-    if not useFluidPorts and useHeatPort
+  Modelica.Thermal.HeatTransfer.Sources.PrescribedHeatFlow prescribedHeatFlow if
+       not useFluidPorts and useHeatPort
     annotation (Placement(transformation(extent={{46,68},{66,88}})));
 
   //Statistics
@@ -221,7 +222,7 @@ equation
   //           Characteristic Equations
   // _____________________________________________
 
-  if not use_T_source_input_K then
+      if not use_T_source_input_K then
     T_source_internal = T_source;
   end if;
 

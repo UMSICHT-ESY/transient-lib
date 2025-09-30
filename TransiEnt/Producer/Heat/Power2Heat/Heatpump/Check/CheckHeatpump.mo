@@ -1,4 +1,4 @@
-within TransiEnt.Producer.Heat.Power2Heat.Heatpump.Check;
+﻿within TransiEnt.Producer.Heat.Power2Heat.Heatpump.Check;
 model CheckHeatpump
   import TransiEnt;
 
@@ -28,9 +28,6 @@ model CheckHeatpump
   TransiEnt.Producer.Heat.Power2Heat.Heatpump.Heatpump                 heatpump(
     use_T_supply_input=false,
     usePowerPort=true,
-    useFluidPorts=true,
-    p_drop=0,
-    useHeatPort=false,
     T_set=323.15)                                                                             annotation (Placement(transformation(extent={{-14,-10},{6,10}})));
   ClaRa.Components.BoundaryConditions.BoundaryVLE_Txim_flow source1(
     variable_m_flow=false,
