@@ -5,7 +5,7 @@ model ControlHeatpump_heatdriven_BVheatLoad "Heat-driven operation, if bivalent 
 
 
 //________________________________________________________________________________//
-// Component of the TransiEnt Library, version: 2.0.3                             //
+// Component of the TransiEnt Library, version: 3.0.0                             //
 //                                                                                //
 // Licensed by Hamburg University of Technology under the 3-BSD-clause.           //
 // Copyright 2021, Hamburg University of Technology.                              //
@@ -28,9 +28,7 @@ model ControlHeatpump_heatdriven_BVheatLoad "Heat-driven operation, if bivalent 
 
 
 
-
-  extends
-    TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller;
+  extends TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller.Base.Controller;
   extends TransiEnt.Basics.Icons.Controller;
 
    //___________________________________________________________________________

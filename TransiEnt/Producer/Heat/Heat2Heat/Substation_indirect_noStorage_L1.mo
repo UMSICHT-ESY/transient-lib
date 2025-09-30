@@ -1,11 +1,11 @@
-﻿within TransiEnt.Producer.Heat.Heat2Heat;
+within TransiEnt.Producer.Heat.Heat2Heat;
 model Substation_indirect_noStorage_L1 "Simple model of a substation with indirect connection."
 
 
 
 
 //________________________________________________________________________________//
-// Component of the TransiEnt Library, version: 2.0.3                             //
+// Component of the TransiEnt Library, version: 3.0.0                             //
 //                                                                                //
 // Licensed by Hamburg University of Technology under the 3-BSD-clause.           //
 // Copyright 2021, Hamburg University of Technology.                              //
@@ -24,7 +24,6 @@ model Substation_indirect_noStorage_L1 "Simple model of a substation with indire
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
-
 
 
 
@@ -230,23 +229,26 @@ for given dT
 ")}),
     Documentation(info="<html>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">1. Purpose of model</span></b></p>
-<p>District heating Substation model without a storage based on mass flow calculation for constant dT. </p>
+<p><span style=\"font-family: MS Shell Dlg 2;\">District heating Substation model without a storage based on mass flow calculation for constant dT. </span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">2. Level of detail, physical effects considered, and physical insight</span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">Ideal temperature difference assumed.</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">3. Limits of validity </span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">4. Interfaces</span></b></p>
-<p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
+<p><span style=\"font-family: MS Shell Dlg 2;\">inlet: a fluid port for the inflowing heat transfer medium</span></p>
+<p><span style=\"font-family: MS Shell Dlg 2;\">outlet: a fluid port for the outflowing heat transfer medium</span></p>
+<p><span style=\"font-family: MS Shell Dlg 2;\">real input: heating demand of the consumer</span></p>
+<p><span style=\"font-family: MS Shell Dlg 2;\">real input: hot water demand of the consumer</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">5. Nomenclature</span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">6. Governing Equations</span></b></p>
-<p>Based upon the calculation of necessary mass flow for a given temperature difference at heat demand.</p>
+<p><span style=\"font-family: MS Shell Dlg 2;\">Based upon the calculation of necessary mass flow for a given temperature difference at heat demand and the Richmann&apos;s Rule of mixture.</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">7. Remarks for Usage</span></b> </p>
-<p>Due to the simple nature of the model, it is important to have a realistic supply temperature to avoid the return temperature to fall below possible values. </p>
+<p><span style=\"font-family: MS Shell Dlg 2;\">Due to the simple nature of the model, it is important to have a realistic supply temperature to avoid the return temperature to fall below possible values. </span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">8. Validation</span></b></p>
-<p>(no remarks)</p>
+<p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">9. References</span></b></p>
-<p>(no remarks)</p>
+<p><span style=\"font-family: MS Shell Dlg 2;\">(no remarks)</span></p>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">10. Version History</span></b></p>
 <p><span style=\"font-family: MS Shell Dlg 2;\">Model created by Philipp Huismann (huismann@gwi-essen.de), Oct 2018</span></p>
 </html>"));

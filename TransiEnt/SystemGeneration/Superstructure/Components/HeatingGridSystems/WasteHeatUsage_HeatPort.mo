@@ -1,10 +1,8 @@
 ﻿within TransiEnt.SystemGeneration.Superstructure.Components.HeatingGridSystems;
 model WasteHeatUsage_HeatPort
 
-
-
 //________________________________________________________________________________//
-// Component of the TransiEnt Library, version: 2.0.3                             //
+// Component of the TransiEnt Library, version: 3.0.0                             //
 //                                                                                //
 // Licensed by Hamburg University of Technology under the 3-BSD-clause.           //
 // Copyright 2021, Hamburg University of Technology.                              //
@@ -23,18 +21,13 @@ model WasteHeatUsage_HeatPort
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
-
-
-
-
-
   // _____________________________________________
   //
   //          Imports and Class Hierarchy
   // _____________________________________________
 
   extends TransiEnt.Basics.Icons.HeatFlowModel;
-  extends TransiEnt.SystemGeneration.Superstructure.Components.HeatingGridSystems.PartialWasteHeatUsage(hotWaterStorage1(
+  extends .TransiEnt.SystemGeneration.Superstructure.Components.HeatingGridSystems.PartialWasteHeatUsage(hotWaterStorage1(
       V=V_storage,
       h=(100/(Modelica.Constants.pi)*V_storage)^(1/3),
       T_start={378.15,378.15,378.15,378.15,378.15,378.15}));

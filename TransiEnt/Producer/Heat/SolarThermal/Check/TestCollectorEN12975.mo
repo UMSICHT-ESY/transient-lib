@@ -1,11 +1,11 @@
-within TransiEnt.Producer.Heat.SolarThermal.Check;
+﻿within TransiEnt.Producer.Heat.SolarThermal.Check;
 model TestCollectorEN12975 "Tester for a solar collector using the ambient tables and fluid sinks and sources"
   //import TransiEnt;
 
 
 
 //________________________________________________________________________________//
-// Component of the TransiEnt Library, version: 2.0.3                             //
+// Component of the TransiEnt Library, version: 3.0.0                             //
 //                                                                                //
 // Licensed by Hamburg University of Technology under the 3-BSD-clause.           //
 // Copyright 2021, Hamburg University of Technology.                              //
@@ -24,7 +24,6 @@ model TestCollectorEN12975 "Tester for a solar collector using the ambient table
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
-
 
 
 

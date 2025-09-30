@@ -8,3 +8,5 @@ BivalentHeatPumpWithControl
 HeatPumpSystem
 HeatpumpSystemProperties
 Heatpump_regression
+Heatpump_DHN
+HeatPump_LowTemperatureDHN

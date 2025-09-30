@@ -1,11 +1,11 @@
-﻿within TransiEnt.Components.Heat.VolumesValvesFittings.Pipes;
+within TransiEnt.Components.Heat.VolumesValvesFittings.Pipes;
 model DoublePipePair_L2 "Model of two parallel district heating pipes at same length and depth"
 
 
 
 
 //________________________________________________________________________________//
-// Component of the TransiEnt Library, version: 2.0.3                             //
+// Component of the TransiEnt Library, version: 3.0.0                             //
 //                                                                                //
 // Licensed by Hamburg University of Technology under the 3-BSD-clause.           //
 // Copyright 2021, Hamburg University of Technology.                              //
@@ -24,7 +24,6 @@ model DoublePipePair_L2 "Model of two parallel district heating pipes at same le
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
-
 
 
 
@@ -51,6 +50,8 @@ model DoublePipePair_L2 "Model of two parallel district heating pipes at same le
 
   // Geometric data
   parameter Modelica.Units.SI.Length length=10 "Length of the pipes" annotation (Dialog(group="Geometry"));
+  parameter SI.Height z_in = 1 "Inlet Height of the pipe" annotation (Dialog(group="Geometry"));
+  parameter SI.Height z_out = 1 "Outlet Height of the pipe" annotation (Dialog(group="Geometry"));
 
   parameter Integer DN = 20 "Nominal Diameter of the Pipes" annotation (Dialog(group="Geometry"));
 
@@ -115,6 +116,8 @@ model DoublePipePair_L2 "Model of two parallel district heating pipes at same le
     v_nom=v_nom,
     calc_initial_dstrb=calc_initial_dstrb,
     activate_volumes=activate_volumes,
+    z_in=z_in,
+    z_out=z_out,
     pipe_wall_capacity=pipe_wall_capacity,
     pipe_wall_d=pipe_wall_d,
     redeclare model HeatTransfer = HeatTransfer,
@@ -131,6 +134,8 @@ model DoublePipePair_L2 "Model of two parallel district heating pipes at same le
     v_nom=v_nom,
     calc_initial_dstrb=calc_initial_dstrb,
     activate_volumes=activate_volumes,
+    z_in=z_in,
+    z_out=z_out,
     pipe_wall_capacity=pipe_wall_capacity,
     pipe_wall_d=pipe_wall_d,
     redeclare model HeatTransfer = HeatTransfer,

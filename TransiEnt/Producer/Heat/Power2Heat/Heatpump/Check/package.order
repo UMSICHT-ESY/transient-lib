@@ -1,8 +1,9 @@
 HeatPumpElectricCharlineTest
-TestHeatpump
+CheckHeatpump
 TestHeatpumpWithControl_OnOff
 TestHeatpumpWithControl_HeatingSystem
 TestHeatpumpWithControl_bivalent_fluidports_sine
 TestHeatpumpWithControl_bivalent_fluidports_ramp
 TestHeatpumpSystem
 TestHeatpump_regression
+TestHeatPump_DHN

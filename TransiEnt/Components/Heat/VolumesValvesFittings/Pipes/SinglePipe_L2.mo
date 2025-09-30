@@ -1,11 +1,11 @@
-﻿within TransiEnt.Components.Heat.VolumesValvesFittings.Pipes;
+within TransiEnt.Components.Heat.VolumesValvesFittings.Pipes;
 model SinglePipe_L2 "Model of a pipe for use in district heating networks"
 
 
 
 
 //________________________________________________________________________________//
-// Component of the TransiEnt Library, version: 2.0.3                             //
+// Component of the TransiEnt Library, version: 3.0.0                             //
 //                                                                                //
 // Licensed by Hamburg University of Technology under the 3-BSD-clause.           //
 // Copyright 2021, Hamburg University of Technology.                              //
@@ -24,7 +24,6 @@ model SinglePipe_L2 "Model of a pipe for use in district heating networks"
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
-
 
 
 
@@ -64,8 +63,8 @@ model SinglePipe_L2 "Model of a pipe for use in district heating networks"
                                                                       annotation(Dialog(group="Geometry"));
   parameter SI.Length diameter_o = 0.09 "Outer Diameter of the pipe"
                                                                     annotation(Dialog(group="Geometry"));
-  parameter SI.Height z_in = 1 "Inlet Height of the pipe";
-  parameter SI.Height z_out = 1 "Outlet Height of the pipe";
+  parameter SI.Height z_in = 1 "Inlet Height of the pipe" annotation (Dialog(group="Geometry"));
+  parameter SI.Height z_out = 1 "Outlet Height of the pipe" annotation (Dialog(group="Geometry"));
   parameter SI.Length pipe_wall_thickness = 0.0026 "Pipe Wall Thickness"
                                                                         annotation(Dialog(group="Geometry"));
   parameter SI.Length K = simCenter.K "average height of surface asperities"
