@@ -5,7 +5,7 @@ model ControlHeatpump_PVoriented "Operation preferably when excess PV energy ava
 
 
 //________________________________________________________________________________//
-// Component of the TransiEnt Library, version: 2.0.3                             //
+// Component of the TransiEnt Library, version: 3.0.0                             //
 //                                                                                //
 // Licensed by Hamburg University of Technology under the 3-BSD-clause.           //
 // Copyright 2021, Hamburg University of Technology.                              //
@@ -24,7 +24,6 @@ model ControlHeatpump_PVoriented "Operation preferably when excess PV energy ava
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
-
 
 
 
@@ -134,8 +133,8 @@ model ControlHeatpump_PVoriented "Operation preferably when excess PV energy ava
     controllerType=Modelica.Blocks.Types.SimpleController.P,
     yMin=0,
     k=5,
-    yMax=Q_flow_n) if
-                    Modulating  annotation (Placement(transformation(extent={{54,-44},{64,-34}})));
+    yMax=Q_flow_n)
+                 if Modulating  annotation (Placement(transformation(extent={{54,-44},{64,-34}})));
 
 
 equation

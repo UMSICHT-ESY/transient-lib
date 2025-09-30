@@ -2,7 +2,7 @@ within TransiEnt.Basics.Units;
 type MassOfCDEperEnergy =          Real (final quantity="CO2Equivalents", final unit="kg/J", displayUnit="kg/J") "Metric mass of Carbon Dioxide equivalents per unit of energy ";
 
 //________________________________________________________________________________//
-// Component of the TransiEnt Library, version: 2.0.3                             //
+// Component of the TransiEnt Library, version: 3.0.0                             //
 //                                                                                //
 // Licensed by Hamburg University of Technology under the 3-BSD-clause.           //
 // Copyright 2021, Hamburg University of Technology.                              //

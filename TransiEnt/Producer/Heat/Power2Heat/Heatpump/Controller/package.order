@@ -6,3 +6,5 @@ ControlHeatpump_PVoriented
 ControlHeatpump_14aEnWG_Direktansteuerung
 ControlHeatpump_14aEnWG_EMS
 Control_Heat_HotWater
+LimitController
+ActivePowerController

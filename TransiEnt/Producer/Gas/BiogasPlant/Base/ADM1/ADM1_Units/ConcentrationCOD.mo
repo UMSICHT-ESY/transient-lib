@@ -2,7 +2,7 @@ within TransiEnt.Producer.Gas.BiogasPlant.Base.ADM1.ADM1_Units;
 type ConcentrationCOD = Real(final quantity="Concentration COD", final unit="kg/m3", displayUnit="kgCOD/m3", min=0);
 
 //________________________________________________________________________________//
-// Component of the TransiEnt Library, version: 2.0.3                             //
+// Component of the TransiEnt Library, version: 3.0.0                             //
 //                                                                                //
 // Licensed by Hamburg University of Technology under the 3-BSD-clause.           //
 // Copyright 2021, Hamburg University of Technology.                              //

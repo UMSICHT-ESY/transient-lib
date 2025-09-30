@@ -5,7 +5,7 @@ model ThermalInsulation_dynamic_3ways_2layer "Thermal Insulation - dynamic - 3 w
 
 
 //________________________________________________________________________________//
-// Component of the TransiEnt Library, version: 2.0.3                             //
+// Component of the TransiEnt Library, version: 3.0.0                             //
 //                                                                                //
 // Licensed by Hamburg University of Technology under the 3-BSD-clause.           //
 // Copyright 2021, Hamburg University of Technology.                              //
@@ -24,7 +24,6 @@ model ThermalInsulation_dynamic_3ways_2layer "Thermal Insulation - dynamic - 3 w
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
-
 
 
 
@@ -310,33 +309,27 @@ equation
       thickness=0.5));
   connect(realExpression1.y, environment1.T) annotation (Line(points={{-35.2,-44},{-25.2,-44}}, color={0,0,127}));
   annotation (Documentation(info="<html>
-<h4><span style=\"color: #008000\">1. Purpose of model</span></h4>
+<h4><span style=\"color: #008000\">Purpose of model</span></h4>
 <p>Model for thermal insulation to the environment with dynamic heat transfer, 3 heat flow path(top, sides and bottom) and 2 material layer are considered. </p>
-<h4><span style=\"color: #008000\">2. Level of detail, physical effects considered, and physical insight</span></h4>
+<h4><span style=\"color: #008000\">Level of detail, physical effects considered, and physical insight</span></h4>
 <ul>
 <li>L4 discretization in axial direction</li>
 <li>lateral dynamic heat transfer</li>
 <li>axial heat conduction inside thermal insulation</li>
 </ul>
-<h4><span style=\"color: #008000\">3. Limits of validity </span></h4>
+<h4><span style=\"color: #008000\">Limits of validity </span></h4>
 <ul>
 <li>constant thickness in axial direction</li>
 <li>constant insulation surface in lateral direction</li>
 <li>constant temperature at start in axial direction, but can depend on lateral position</li>
 </ul>
-<h4><span style=\"color: #008000\">4. Interfaces</span></h4>
-<p>(none)</p>
-<h4><span style=\"color: #008000\">5. Nomenclature</span></h4>
-<p>(no elements)</p>
-<h4><span style=\"color: #008000\">6. Governing Equations</span></h4>
-<p>(no equations)</p>
-<h4><span style=\"color: #008000\">7. Remarks for Usage</span></h4>
-<p>(none)</p>
-<h4><span style=\"color: #008000\">8. Validation</span></h4>
-<p>(no validation or testing necessary)</p>
-<h4><span style=\"color: #008000\">9. References</span></h4>
-<p>(none)</p>
-<h4><span style=\"color: #008000\">10. Version History</span></h4>
+<h4><span style=\"color: #008000\">Interfaces</span></h4>
+<p>Heat port</p>
+<h4><span style=\"color: #008000\">References</span></h4>
+<p>The model was tested in this test model:</p>
+<p>TransiEnt.Components.Heat.ThermalInsulation.Check.TestThermalInsulation</p>
+<p>It was created for the Research Projekt &quot;Future Energy Solution&quot;</p>
+<h4><span style=\"color: #008000\">Version History</span></h4>
 <p>Model created by Michael von der Heyde (heyde@tuhh.de) for the Research Project &quot;Future Energy Solution&quot; (FES), 2020</p>
 </html>"));
 end ThermalInsulation_dynamic_3ways_2layer;
