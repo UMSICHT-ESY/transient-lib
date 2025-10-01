@@ -43,7 +43,6 @@ extends Basics.Icons.Model;
   parameter Boolean el_grid annotation(HideResult=true);
   parameter Boolean gas_grid annotation(HideResult=true);
   parameter Boolean DHN annotation(HideResult=true);
-  parameter Boolean powerlimitations = false annotation(HideResult=true);
 protected
   parameter TILMedia.VLEFluidTypes.BaseVLEFluid   medium= simCenter.fluid1 if DHN "Heat carrier medium for district heat, if applicable"
                          annotation(choicesAllMatching, Dialog(group="Fluid Definition"));
@@ -66,10 +65,6 @@ public
   replaceable TransiEnt.Basics.Interfaces.Electrical.ApparentPowerPort epp if el_grid constrainedby
     TransiEnt.Basics.Interfaces.Electrical.PartialPowerPort annotation (Placement(transformation(extent={{-90,-108},{-70,-88}})));
   TransiEnt.Basics.Interfaces.Gas.RealGasPortIn gasPortIn(Medium=medium1) if  gas_grid annotation (Placement(transformation(extent={{70,-106},{90,-86}})));
-
-  Modelica.Blocks.Interfaces.RealInput P_limit if
-                                                 powerlimitations
-    annotation (Placement(transformation(extent={{-164,-74},{-124,-34}})));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
     Documentation(info="<html>
 <p><b><span style=\"font-family: MS Shell Dlg 2; color: #008000;\">1. Purpose of model</span></b></p>
