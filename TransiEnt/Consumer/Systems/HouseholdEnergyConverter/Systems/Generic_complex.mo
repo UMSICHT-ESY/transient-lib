@@ -200,7 +200,8 @@ model Generic_complex
         origin={-103,-31})));
 
   TransiEnt.Components.Boundaries.Electrical.ComplexPower.PQBoundary     pQBoundary(    useInputConnectorQ=false, useInputConnectorP=true,
-    cosphi_boundary=0.9)                                                                                                                   annotation (Placement(transformation(extent={{-42,-76},
+    cosphi_boundary=0.9,
+    v_n=400)                                                                                                                               annotation (Placement(transformation(extent={{-42,-76},
             {-26,-60}})));
 
   Producer.Heat.Power2Heat.ElectricBoiler.ElectricBoiler                    electricHeater(
@@ -232,11 +233,13 @@ model Generic_complex
     Delta_T_internal=Delta_T_internal,
     Q_flow_n=Q_flow_n,
     COP_n=COP_n,
+    T_source=ambientTemperature.y,
     redeclare connector PowerPortModel =
         TransiEnt.Basics.Interfaces.Electrical.ComplexPowerPort,
     redeclare model PowerBoundaryModel =
         TransiEnt.Components.Boundaries.Electrical.ComplexPower.PQBoundary,
-    Power(useInputConnectorQ=false, cosphi_boundary=0.99)) if heating or
+    Power(useInputConnectorQ=false, cosphi_boundary=0.99,
+      v_n=400)) if                                            heating or
     hotwater                                               annotation (Placement(transformation(extent={{30,-54},
             {48,-36}})));
   TransiEnt.Consumer.Electrical.BatteryElectricVehicle       batteryElectricVehicle(
@@ -277,22 +280,22 @@ model Generic_complex
     surfaceAzimuthAngle=Azimuth_PV1,
     reflectance_ground=Albedo)
     annotation (Placement(transformation(extent={{-60,42},{-80,62}})));
-  Modelica.Blocks.Sources.RealExpression ambientTemperature(y=simCenter.ambientConditions.temperature.value) annotation (Placement(transformation(
-        extent={{10,-6},{-10,6}},
+  Modelica.Blocks.Routing.RealPassThrough ambientTemperature                                                 annotation (Placement(transformation(
+        extent={{4,-4},{-4,4}},
         rotation=0,
-        origin={-20,90})));
-  Modelica.Blocks.Sources.RealExpression directSolarRadiation(y=simCenter.ambientConditions.directSolarRadiation.value) annotation (Placement(transformation(
-        extent={{10,-6},{-10,6}},
+        origin={-26,92})));
+  Modelica.Blocks.Routing.RealPassThrough directSolarRadiation                                                          annotation (Placement(transformation(
+        extent={{4,-4},{-4,4}},
         rotation=0,
-        origin={-20,80})));
-  Modelica.Blocks.Sources.RealExpression diffuseSolarRadiation(y=simCenter.ambientConditions.diffuseSolarRadiation.value) annotation (Placement(transformation(
-        extent={{10,-6},{-10,6}},
+        origin={-26,82})));
+  Modelica.Blocks.Routing.RealPassThrough diffuseSolarRadiation                                                           annotation (Placement(transformation(
+        extent={{4,-4},{-4,4}},
         rotation=0,
-        origin={-20,70})));
-  Modelica.Blocks.Sources.RealExpression wind(y=simCenter.ambientConditions.wind.value) annotation (Placement(transformation(
-        extent={{10,-7},{-10,7}},
+        origin={-26,72})));
+  Modelica.Blocks.Routing.RealPassThrough wind                                          annotation (Placement(transformation(
+        extent={{4,-4},{-4,4}},
         rotation=0,
-        origin={-20,61})));
+        origin={-26,62})));
   Producer.Electrical.Photovoltaics.Advanced_PV.DNIDHI_Input.PVModule                        pVModule1(
     P_inst=P_inst_PV2,
     Pmpp=Pmpp_PV2,
@@ -318,9 +321,11 @@ model Generic_complex
     heatingCurveType=3,
     T_room_set=295.15,
     T_amb_min=265.15,
-    T_supply_max=T_set_buffer) if heating
-                         annotation (Placement(transformation(extent={{-46,22},{
-            -40,28}})));
+    T_supply_max=T_set_buffer,
+    T_amb=ambientTemperature.y) if
+                                  heating
+                         annotation (Placement(transformation(extent={{-46,24},
+            {-40,30}})));
   Modelica.Blocks.Sources.RealExpression Tset1(y=0)    annotation (Placement(transformation(extent={{-46,12},
             {-40,20}})));
   Modelica.Blocks.Math.Max max1 if heating
@@ -573,27 +578,28 @@ equation
       points={{-79.3,51.4},{-103,51.4},{-103,-22.18}},
       color={0,135,135},
       thickness=0.5));
-  connect(wind.y, pVModule2.WindSpeed_in) annotation (Line(points={{-31,61},{-32,
-          61},{-32,60},{-34,60},{-34,44},{-58,44}}, color={0,0,127}));
+  connect(wind.y, pVModule2.WindSpeed_in) annotation (Line(points={{-30.4,62},{-34,
+          62},{-34,44},{-58,44}},                   color={0,0,127}));
   connect(pVModule2.DHI_in, diffuseSolarRadiation.y) annotation (Line(points={{-58,
-          49.4},{-36,49.4},{-36,70},{-31,70}},     color={0,0,127}));
+          49.4},{-36,49.4},{-36,72},{-30.4,72}},   color={0,0,127}));
   connect(pVModule2.DNI_in, directSolarRadiation.y) annotation (Line(points={{-58,
-          54.4},{-40,54.4},{-40,80},{-31,80}}, color={0,0,127}));
+          54.4},{-40,54.4},{-40,82},{-30.4,82}},
+                                               color={0,0,127}));
   connect(pVModule2.T_in, ambientTemperature.y) annotation (Line(points={{-58,60},
-          {-42,60},{-42,90},{-31,90}},     color={0,0,127}));
+          {-44,60},{-44,92},{-30.4,92}},   color={0,0,127}));
   connect(pVModule1.T_in, ambientTemperature.y) annotation (Line(points={{-58,92},
-          {-42,92},{-42,90},{-31,90}},                                                                         color={0,0,127}));
+          {-30.4,92}},                                                                                         color={0,0,127}));
   connect(pVModule1.DNI_in, directSolarRadiation.y) annotation (Line(points={{-58,
-          86.4},{-44,86.4},{-44,80},{-31,80}},                                                                         color={0,0,127}));
+          86.4},{-40,86.4},{-40,82},{-30.4,82}},                                                                       color={0,0,127}));
   connect(pVModule1.DHI_in, diffuseSolarRadiation.y) annotation (Line(points={{-58,
-          81.4},{-46,81.4},{-46,70},{-31,70}},                                                                          color={0,0,127}));
+          81.4},{-36,81.4},{-36,72},{-30.4,72}},                                                                        color={0,0,127}));
   connect(pVModule1.WindSpeed_in, pVModule2.WindSpeed_in) annotation (Line(
-        points={{-58,76},{-48,76},{-48,68},{-34,68},{-34,44},{-58,44}}, color={
+        points={{-58,76},{-34,76},{-34,44},{-58,44}},                   color={
           0,0,127}));
   connect(Tset1.y, max1.u2) annotation (Line(points={{-39.7,16},{-32.4,16},{-32.4,
           16.8}},                                                                                    color={0,0,127}));
-  connect(heatingCurve.T_supply, max1.u1) annotation (Line(points={{-39.88,25.6},
-          {-36,25.6},{-36,19.2},{-32.4,19.2}},                                               color={0,0,127}));
+  connect(heatingCurve.T_supply, max1.u1) annotation (Line(points={{-39.88,27.6},
+          {-36,27.6},{-36,19.2},{-32.4,19.2}},                                               color={0,0,127}));
   connect(Storage.epp, inverter.epp_DC) annotation (Line(
       points={{-109,-12},{-103,-12},{-103,-22.18}},
       color={0,135,135},
@@ -787,8 +793,8 @@ connect(product2.y,switch3. u3) annotation (Line(points={{-63.8,-10},{-64,-10},
           {0,0,127}));
   connect(max2.u2, controlBus.P_limit) annotation (Line(points={{-34.8,-46.4},{
           -88.4,-46.4},{-88.4,-46},{-140,-46}},        color={0,0,127}));
-  connect(max3.u2, controlBus.P_limit) annotation (Line(points={{-68.4,-33.2},{
-          -68.4,-46},{-140,-46}},                      color={0,0,127}));
+  connect(max3.u2, controlBus.P_limit) annotation (Line(points={{-68.4,-33.2},{-68.4,
+          -46},{-140,-46}},                            color={0,0,127}));
   connect(heatPump.epp, smartMeter_heatpump.epp_a) annotation (Line(
       points={{45.84,-54},{40,-54},{40,-66.32}},
       color={28,108,200},
@@ -819,6 +825,10 @@ connect(product2.y,switch3. u3) annotation (Line(points={{-63.8,-10},{-64,-10},
   connect(buffer.T_stor_out, controlBus.buffer.T);
   connect(electricHeater.Q_flow_gen, controlBus.electricHeater.Q_th);
   connect(heatPump.Heat_output, controlBus.heatpump.Q_th);
+  connect(ambientTemperature.u, controlBus.ambientConditions.ambientTemperature);
+  connect(directSolarRadiation.u, controlBus.ambientConditions.directSolarRadiation);
+  connect(diffuseSolarRadiation.u, controlBus.ambientConditions.diffuseSolarRadiation);
+  connect(wind.u, controlBus.ambientConditions.wind);
   annotation (
     HideResult=true,
     Dialog(tab="Tracking and Mounting"),

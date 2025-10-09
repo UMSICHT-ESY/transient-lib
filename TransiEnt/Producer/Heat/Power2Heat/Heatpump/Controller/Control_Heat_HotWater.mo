@@ -87,8 +87,8 @@ model Control_Heat_HotWater
     annotation (Placement(transformation(extent={{84,-74},{94,-64}})));
   Modelica.Blocks.Math.Product product1 annotation (Placement(transformation(extent={{10,62},
             {30,82}})));
-  Modelica.Blocks.Nonlinear.VariableLimiter limiter_HP annotation (Placement(transformation(extent={{24,-16},
-            {44,4}})));
+  Modelica.Blocks.Nonlinear.VariableLimiter limiter_HP annotation (Placement(transformation(extent={{46,-16},
+            {54,-8}})));
   Modelica.Blocks.Math.Feedback difference
     annotation (Placement(transformation(extent={{-30,-118},{-10,-98}})));
   Modelica.Blocks.Math.Division division annotation (Placement(transformation(extent={{-54,
@@ -147,6 +147,9 @@ model Control_Heat_HotWater
     annotation (Placement(transformation(extent={{-64,76},{-44,96}})));
   Modelica.Blocks.Math.Product product4 annotation (Placement(transformation(extent={{-22,70},
             {-6,86}})));
+  Modelica.Blocks.Nonlinear.VariableLimiter limiter_HP1
+                                                       annotation (Placement(transformation(extent={{30,-16},
+            {38,-8}})));
 equation
   // ___________________________________________________________________________
   //
@@ -177,8 +180,8 @@ equation
   connect(switch2.y, firstOrder1.u) annotation (Line(points={{78.8,-102},{80,
           -102},{80,-72},{82,-72},{82,-69},{83,-69}},
                               color={0,0,127}));
-  connect(product1.y,limiter_HP. limit1) annotation (Line(points={{31,72},{36,
-          72},{36,8},{22,8},{22,2}},                                                                            color={0,0,127}));
+  connect(product1.y,limiter_HP. limit1) annotation (Line(points={{31,72},{38,
+          72},{38,-4},{45.2,-4},{45.2,-8.8}},                                                                   color={0,0,127}));
   connect(Filter.y, product1.u2) annotation (Line(points={{-73.6,-50},{-72,-50},
           {-72,66},{8,66}},                                                     color={0,0,127}));
   connect(Control.y, product2.u1)
@@ -195,8 +198,8 @@ equation
                        color={0,0,127}));
   connect(Filter.u, COP)
     annotation (Line(points={{-82.8,-50},{-102,-50}}, color={0,0,127}));
-  connect(limiter_HP.y, division.u1) annotation (Line(points={{45,-6},{48,-6},{
-          48,-40},{-62,-40},{-62,-118},{-56,-118}},
+  connect(limiter_HP.y, division.u1) annotation (Line(points={{54.4,-12},{66,
+          -12},{66,-52},{-60,-52},{-60,-118},{-56,-118}},
                                                  color={0,0,127}));
   connect(P_Heater.y, switch2.u1) annotation (Line(points={{-15.2,-133},{60.4,-133},
           {60.4,-108.4}}, color={0,0,127}));
@@ -225,7 +228,8 @@ equation
   connect(add.u2, uLow3.y) annotation (Line(points={{-24.8,-92.4},{-32,-92.4},{
           -32,-92},{-29.3,-92}}, color={0,0,127}));
   connect(limiter_HP.y, switch1.u1)
-    annotation (Line(points={{45,-6},{76.4,-6},{76.4,-6.4}}, color={0,0,127}));
+    annotation (Line(points={{54.4,-12},{76.4,-12},{76.4,-6.4}},
+                                                             color={0,0,127}));
   connect(switch1.y, Q_flow_set_HP) annotation (Line(points={{94.8,-4.44089e-16},
           {92,-4.44089e-16},{92,0},{108,0}}, color={0,0,127}));
   connect(zero2.y, switch1.u3) annotation (Line(points={{72.8,16},{76.4,16},{
@@ -235,10 +239,6 @@ equation
   connect(gain.y, greaterEqual1.u2) annotation (Line(points={{20.5,17},{24,17},
           {24,10},{48,10},{48,-3.2},{51.2,-3.2}},
                                               color={0,0,127}));
-  connect(limiter_HP.limit2, gain.y) annotation (Line(points={{22,-14},{16,-14},
-          {16,10},{24,10},{24,17},{20.5,17}}, color={0,0,127}));
-  connect(greaterEqual1.u1, limiter_HP.u) annotation (Line(points={{51.2,0},{46,
-          0},{46,6},{18,6},{18,-6},{22,-6}}, color={0,0,127}));
   connect(greaterEqual1.y, onOffRelais.u)
     annotation (Line(points={{60.4,0},{63.84,0}}, color={255,0,255}));
   connect(switch1.u2, onOffRelais.y) annotation (Line(points={{76.4,1.9984e-15},
@@ -253,8 +253,6 @@ equation
           -77.4},{-64,-77.4},{-64,46},{-102,46}}, color={0,0,127}));
   connect(add.u1, T_set) annotation (Line(points={{-24.8,-87.6},{-24,-87.6},{
           -24,-88},{-64,-88},{-64,46},{-102,46}}, color={0,0,127}));
-  connect(Filter1.y, limiter_HP.u) annotation (Line(points={{14.2,-4},{18,-4},{
-          18,-6},{22,-6}}, color={0,0,127}));
   connect(T_set, Control.u_s)
     annotation (Line(points={{-102,46},{-38,46}}, color={0,0,127}));
   connect(product2.y, Filter1.u) annotation (Line(points={{-1,-6},{4,-6},{4,-4},
@@ -269,6 +267,18 @@ equation
           73.2},{-23.6,73.2}}, color={0,0,127}));
   connect(product4.y, difference.u1) annotation (Line(points={{-5.2,78},{2,78},
           {2,-56},{-52,-56},{-52,-108},{-28,-108}}, color={0,0,127}));
+  connect(greaterEqual1.u1, Filter1.y) annotation (Line(points={{51.2,0},{20,0},
+          {20,-4},{14.2,-4}}, color={0,0,127}));
+  connect(limiter_HP.u, limiter_HP1.y)
+    annotation (Line(points={{45.2,-12},{38.4,-12}}, color={0,0,127}));
+  connect(gain.y, limiter_HP1.limit2) annotation (Line(points={{20.5,17},{24,17},
+          {24,-16},{29.2,-16},{29.2,-15.2}}, color={0,0,127}));
+  connect(Filter1.y, limiter_HP1.u) annotation (Line(points={{14.2,-4},{22,-4},
+          {22,-12},{29.2,-12}}, color={0,0,127}));
+  connect(zero2.y, limiter_HP.limit2) annotation (Line(points={{72.8,16},{76,16},
+          {76,28},{42,28},{42,-15.2},{45.2,-15.2}}, color={0,0,127}));
+  connect(gain.u, limiter_HP1.limit1) annotation (Line(points={{9,17},{9,4.5},{
+          29.2,4.5},{29.2,-8.8}}, color={0,0,127}));
   annotation (Diagram(coordinateSystem(extent={{-100,-140},{100,100}}), graphics={
         Rectangle(
           extent={{-46,-66},{22,-98}},
