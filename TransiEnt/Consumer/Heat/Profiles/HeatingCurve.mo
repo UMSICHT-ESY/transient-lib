@@ -1,4 +1,4 @@
-﻿within TransiEnt.Consumer.Heat.Profiles;
+within TransiEnt.Consumer.Heat.Profiles;
 model HeatingCurve
 
   // _____________________________________________
@@ -42,7 +42,7 @@ model HeatingCurve
   parameter SI.Temperature T_room_set=293.15 "Room temperature" annotation (Dialog(enable=heatingCurveType == 3, group="Exponential formula"));
   parameter SI.Temperature T_amb_min(displayUnit="degC")=263.15 "Heating design temperature" annotation (Dialog(enable=heatingCurveType == 3, group="Exponential formula"));
   parameter SI.Temperature T_supply_max(displayUnit="degC")=323.15 "Supply temperature at ambient design temperature" annotation (Dialog(enable=heatingCurveType == 3, group="Exponential formula"));
-  parameter SI.Temperature T_return_max(displayUnit="degC")=303.15 "Supply temperature at ambient design temperature" annotation (Dialog(enable=heatingCurveType == 3, group="Exponential formula"));
+  parameter SI.Temperature T_return_max(displayUnit="degC")=303.15 "Return temperature at ambient design temperature" annotation (Dialog(enable=heatingCurveType == 3, group="Exponential formula"));
 
   SI.Temperature T_amb = simCenter.T_amb_var annotation (Dialog(enable=heatingCurveType == 3, group="Exponential formula"));
 
@@ -57,9 +57,9 @@ model HeatingCurve
   Modelica.Blocks.Sources.RealExpression T_supply_const(y=T_supply_constant) if heatingCurveType==1 annotation (Placement(transformation(extent={{-16,12},{2,32}})));
   Modelica.Blocks.Sources.RealExpression T_return_const(y=T_return_constant) if heatingCurveType==1 annotation (Placement(transformation(extent={{-16,-34},{0,-16}})));
 
-  Modelica.Blocks.Sources.RealExpression T_supply_formula(y=if noEvent(T_room_set > T_amb+273.15) then offset_supply+T_room_set+slope_supply*(T_room_set-T_amb-273.15)^(1/n) else offset_supply+T_room_set) if heatingCurveType==3 annotation (Placement(transformation(extent={{-16,34},
+  Modelica.Blocks.Sources.RealExpression T_supply_formula(y=if noEvent(T_room_set > T_amb) then offset_supply+T_room_set+slope_supply*(T_room_set-T_amb)^(1/n) else offset_supply+T_room_set) if heatingCurveType==3 annotation (Placement(transformation(extent={{-16,34},
             {0,52}})));
-  Modelica.Blocks.Sources.RealExpression T_return_formula(y=if noEvent(T_room_set > T_amb+273.15) then offset_return+T_room_set+slope_return*(T_room_set-T_amb-273.15)^(1/n) else offset_return+T_room_set) if heatingCurveType==3 annotation (Placement(transformation(extent={{-16,-54},
+  Modelica.Blocks.Sources.RealExpression T_return_formula(y=if noEvent(T_room_set > T_amb) then offset_return+T_room_set+slope_return*(T_room_set-T_amb)^(1/n) else offset_return+T_room_set) if heatingCurveType==3 annotation (Placement(transformation(extent={{-16,-54},
             {2,-34}})));
 
   Real test=T_room_set-T_amb;

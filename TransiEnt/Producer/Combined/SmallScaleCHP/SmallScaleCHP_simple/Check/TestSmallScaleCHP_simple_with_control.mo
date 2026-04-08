@@ -1,4 +1,4 @@
-﻿within TransiEnt.Producer.Combined.SmallScaleCHP.SmallScaleCHP_simple.Check;
+within TransiEnt.Producer.Combined.SmallScaleCHP.SmallScaleCHP_simple.Check;
 model TestSmallScaleCHP_simple_with_control
 
 
@@ -19,7 +19,7 @@ model TestSmallScaleCHP_simple_with_control
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und WÃ¤rme-Institut Essen						  //
+// Gas- und WÃ¤rme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -47,7 +47,7 @@ model TestSmallScaleCHP_simple_with_control
     change_sign=true,
     integrateHeatFlow=false) annotation (Placement(transformation(extent={{-56,-36},{-36,-16}})));
   Basics.Tables.Combined.HouseholdConsumption consumer(redeclare Basics.Tables.Combined.CombinedTables.Demand_3Tables demand_combined(
-      relativepath_el="electricity/Household/ElectricityDemand_20Households_measured_5-6MWh_3600s.csv",
+      relativepath_el="electricity/Household/ElectricityDemand_20Households_measured_5-6MWh_3600s.txt",
       relativepath_heating="heat/Household/Heating_SLP_TMY-Hamburg_HMF_35MWh_3600s.txt",
       relativepath_dhw="heat/Household/HotWater_20Households_VEDIS_3MWh_60s.txt")) annotation (Placement(transformation(extent={{62,74},{82,94}})));
   Modelica.Blocks.Sources.RealExpression Q_Demand1(y=consumer.demand.heatingPowerDemand) annotation (Placement(transformation(extent={{100,26},{82,44}})));

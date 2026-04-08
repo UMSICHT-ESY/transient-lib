@@ -1,4 +1,4 @@
-﻿within TransiEnt.Basics.Tables.Combined.CombinedTables;
+within TransiEnt.Basics.Tables.Combined.CombinedTables;
 model Demand_3Tables "Three seperate tables for load profile data: electricity demand, heat demand for heating, heat demand for hot water"
 
 
@@ -20,7 +20,7 @@ model Demand_3Tables "Three seperate tables for load profile data: electricity d
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und WÃ¤rme-Institut Essen						  //
+// Gas- und WÃ¤rme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -73,17 +73,17 @@ model Demand_3Tables "Three seperate tables for load profile data: electricity d
   final parameter String environment_variable_name_heating=if datasource_dhw ==DataPrivacy.isPublic then Types.PUBLIC_DATA else Types.PRIVATE_DATA  annotation(Evaluate=true, HideResult=true, Dialog(enable=not use_absolute_path, group="Data location"));
   final parameter String environment_variable_name_dhw=if datasource_heating ==DataPrivacy.isPublic then Types.PUBLIC_DATA else Types.PRIVATE_DATA  annotation(Evaluate=true, HideResult=true, Dialog(enable=not use_absolute_path, group="Data location"));
 
-  parameter String relativepath_el="electricity/Household/ElectricityDemand_20Households_measured_3-4MWh_3600s.csv"
+  parameter String relativepath_el="electricity/Household/ElectricityDemand_20Households_measured_3-4MWh_3600s.txt"
                                     annotation(Evaluate=true, HideResult=true, Dialog(enable=not use_absolute_path_el,
-                                                                                                                    group="Data location"),choices(choice="electricity/Household/ElectricityDemand_20Households_measured_3-4MWh_3600s.csv"
+                                                                                                                    group="Data location"),choices(choice="electricity/Household/ElectricityDemand_20Households_measured_3-4MWh_3600s.txt"
                                                                                                                                                                                            "Measured electric load profiles from HTW Berlin with 3-4MWh/a",
-                                                       choice="electricity/Household/ElectricityDemand_20Households_measured_4-5MWh_3600s.csv"                                             "Measured electric load profiles from HTW Berlin with 4-5MWh/a",
-                                                       choice="electricity/Household/ElectricityDemand_20Households_measured_5-6MWh_3600s.csv" "Measured electric load profiles from HTW Berlin with 4-6 MWh/a"));
+                                                       choice="electricity/Household/ElectricityDemand_20Households_measured_4-5MWh_3600s.txt"                                             "Measured electric load profiles from HTW Berlin with 4-5MWh/a",
+                                                       choice="electricity/Household/ElectricityDemand_20Households_measured_5-6MWh_3600s.txt" "Measured electric load profiles from HTW Berlin with 4-6 MWh/a"));
 
-  parameter String relativepath_heating="heat/Household/Heating_20Households_simulated_6MWh_3600s.csv" annotation(Evaluate=true, HideResult=true, Dialog(enable=not use_absolute_path_heating, group="Data location"),choices(
+  parameter String relativepath_heating="heat/Household/Heating_20Households_simulated_6MWh_3600s.txt" annotation(Evaluate=true, HideResult=true, Dialog(enable=not use_absolute_path_heating, group="Data location"),choices(
                                                choice="heat/Household/Heating_SLP_TMY-Hamburg_HEF_10MWh_3600s.txt" "SLP with TMY Hamburg weather data and 10 MWh yearly heating demand",
                                                choice="heat/Household/Heating_SLP_TMY-Hamburg_HMF_35MWh_3600s.txt" "SLP with TMY Hamburg weather data and 35 MWh yearly heating demand",
-                                               choice="heat/Household/Heating_20Households_simulated_6MWh_3600s.csv" "Simulated heating demand with 6MWh yearly demand"));
+                                               choice="heat/Household/Heating_20Households_simulated_6MWh_3600s.txt" "Simulated heating demand with 6MWh yearly demand"));
 
   parameter String relativepath_dhw="heat/Household/HotWater_VDI4655_60s.txt" annotation(Evaluate=true, HideResult=true, Dialog(enable=not use_absolute_path_dhw, group="Data location"),choices(
                                                choice="heat/Household/HotWater_VDI4655_60s.txt" "Hot water profile from VDI 4655",

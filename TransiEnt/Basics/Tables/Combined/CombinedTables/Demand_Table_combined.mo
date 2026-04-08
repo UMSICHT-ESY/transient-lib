@@ -1,4 +1,4 @@
-﻿within TransiEnt.Basics.Tables.Combined.CombinedTables;
+within TransiEnt.Basics.Tables.Combined.CombinedTables;
 model Demand_Table_combined "Table with combined load profile data for consumer: y[1]=electricity demand, y[2]=heat demand for heating, y[3] = heat demand for hot water"
 
 
@@ -20,7 +20,7 @@ model Demand_Table_combined "Table with combined load profile data for consumer:
 // Institute of Electrical Power and Energy Technology                            //
 // (Hamburg University of Technology)                                             //
 // Fraunhofer Institute for Environmental, Safety, and Energy Technology UMSICHT, //
-// Gas- und WÃ¤rme-Institut Essen						  //
+// Gas- und WÃ¤rme-Institut Essen                                                  //
 // and                                                                            //
 // XRG Simulation GmbH (Hamburg, Germany).                                        //
 //________________________________________________________________________________//
@@ -63,9 +63,9 @@ model Demand_Table_combined "Table with combined load profile data for consumer:
 
   final parameter String environment_variable_name=if datasource ==DataPrivacy.isPublic then Types.PUBLIC_DATA else Types.PRIVATE_DATA  annotation(Evaluate=true, HideResult=true, Dialog(enable=not use_absolute_path, group="Data location"));
 
-  parameter String relativepath="combined/DemandCombined_3Consumers_60s.csv"
+  parameter String relativepath="combined/DemandCombined_3Consumers_60s.txt"
                                     annotation(Evaluate=true, HideResult=true, Dialog(enable=not use_absolute_path_el,
-                                                                                                                    group="Data location"),choices(choice="combined/DemandCombined_3Consumers_60s.csv"
+                                                                                                                    group="Data location"),choices(choice="combined/DemandCombined_3Consumers_60s.txt"
                                                                                                                                                                                            "Combined Table for 3 Households"));
 
 

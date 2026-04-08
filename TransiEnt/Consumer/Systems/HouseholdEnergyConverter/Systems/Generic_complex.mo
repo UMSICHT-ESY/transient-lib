@@ -1,4 +1,4 @@
-﻿within TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems;
+within TransiEnt.Consumer.Systems.HouseholdEnergyConverter.Systems;
 model Generic_complex
   "Generic System contains PVs, Battery, Hetapump and/or BEV with ComplexPowerPorts"
 
@@ -166,7 +166,7 @@ model Generic_complex
   // _____________________________________________
 
   Modelica.Units.SI.Power P "Consumed or produced electric power";
-  Modelica.Units.SI.Temperature T_source=simCenter.ambientConditions.temperature.value + 273.15 "Temperature of heat source" annotation (Dialog(group="Heatpump"));
+  //Modelica.Units.SI.Temperature T_source=simCenter.ambientConditions.temperature.value + 273.15 "Temperature of heat source" annotation (Dialog(group="Heatpump"));
 
   // _____________________________________________
   //
