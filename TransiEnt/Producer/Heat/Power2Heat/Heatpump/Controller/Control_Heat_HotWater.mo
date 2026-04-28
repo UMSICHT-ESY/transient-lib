@@ -1,4 +1,4 @@
-﻿within TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller;
+within TransiEnt.Producer.Heat.Power2Heat.Heatpump.Controller;
 model Control_Heat_HotWater
   "Operation preferably when excess PV energy available, if bivalent mode selected, heater will switch on additionally to heatpump"
 
@@ -48,12 +48,23 @@ model Control_Heat_HotWater
 
   parameter Real k=0.1 "PI controller gain" annotation (Dialog(group="PI Controller"));
   parameter Modelica.Units.SI.Time T_i=180 "PI controller time constant" annotation (Dialog(group="PI Controller"));
-  parameter Modelica.Units.SI.HeatFlowRate Q_flow_n=10.5e3 "Nominal heat flow of heat pump at nominal conditions according to EN14511 (7/35)" annotation (Dialog(group="Heat pump parameters"));
+  parameter Modelica.Units.SI.HeatFlowRate Q_flow_n=10.5e3 "Nominal heat flow of heat pump at nominal conditions according to EN14511 (7/35)" annotation (Dialog(group="Heatpump"));
   parameter SI.Power COP_n=3.5 "Coefficient of performance at nominal conditions according to EN14511 (7/35)" annotation (Dialog(group="Heatpump"));
   parameter Modelica.Units.SI.HeatFlowRate P_el_max=5.0e3 "Maximal electric Power of heat pump at 7°C/55°C" annotation (Dialog(group="Heatpump"));
+  parameter Modelica.Units.SI.TemperatureDifference Delta_T_internal=5 "Temperature difference between refrigerant and source/sink temperature" annotation (Dialog(group="Heatpump"));
+  parameter Modelica.Units.SI.Temperature T_amb_min=-8 + 273.25 "Heating design temperature" annotation (Dialog(group="Heatpump"));
+  final parameter Real eta_HP = COP_n * (28 + 2*Delta_T_internal)
+    / (308.15 + Delta_T_internal);
+  Modelica.Units.SI.Temperature T_source=simCenter.ambientConditions.temperature.value + 273.15 "Temperature of heat source" annotation (Dialog(group="Heatpump"), choices(choice=simCenter.ambientConditions.temperature.value + 273.15 "Ambient Temperature", choice=IntegraNet.SimCenter.Ground_Temperature + 273.15 "Ground Temperature"));
+
 
 
   Modelica.Units.SI.Power P_el_n=P_el_max - max(0,( 273.15 + 55 - T_set) / (55 - 35) * (P_el_max - Q_flow_n/COP_n));
+  Modelica.Units.SI.HeatFlowRate Q_HP_max = P_el_n
+           * eta_HP
+           * (T_set + Delta_T_internal)
+           / max(2 * Delta_T_internal,
+                 T_set + 2 * Delta_T_internal - T_source);
   //parameter Modelica.Units.SI.Power P_el_n=Q_flow_n/COP_n "Nominal electrical power of the heatpump";
    //___________________________________________________________________________
    //
@@ -104,14 +115,12 @@ model Control_Heat_HotWater
         origin={-44,6})));
   Modelica.Blocks.Continuous.LimPID Control(
     controllerType=Modelica.Blocks.Types.SimpleController.PI,
-    k=k,
+    k=Q_flow_n*k,
     Ti=T_i,
-    yMax=1,
+    yMax=Q_flow_n,
     yMin=0,
     withFeedForward=false)
     annotation (Placement(transformation(extent={{-36,36},{-16,56}})));
-  Modelica.Blocks.Math.Product product2 annotation (Placement(transformation(extent={{-22,-16},
-            {-2,4}})));
   Modelica.Blocks.Logical.GreaterEqual greaterEqual
     annotation (Placement(transformation(extent={{6,-118},{18,-104}})));
   Modelica.Blocks.Logical.And and1
@@ -150,6 +159,12 @@ model Control_Heat_HotWater
   Modelica.Blocks.Nonlinear.VariableLimiter limiter_HP1
                                                        annotation (Placement(transformation(extent={{30,-16},
             {38,-8}})));
+  Modelica.Blocks.Logical.LessThreshold lessThreshold(threshold=T_amb_min)
+    annotation (Placement(transformation(extent={{10,-70},{18,-62}})));
+  Modelica.Blocks.Logical.Or or1
+    annotation (Placement(transformation(extent={{24,-84},{34,-74}})));
+  Basics.Interfaces.General.ControlBus controlBus                  annotation (Placement(transformation(extent={{-120,
+            -120},{-80,-80}}),                                                                                                         iconTransformation(extent={{-120,-20},{-80,20}})));
 equation
   // ___________________________________________________________________________
   //
@@ -161,6 +176,8 @@ equation
   //
   //               Connect Statements
   // _____________________________________________
+
+
 
   if not Modulating then
     connect(switch2.y, P_set_electricHeater);
@@ -184,9 +201,6 @@ equation
           72},{38,-4},{45.2,-4},{45.2,-8.8}},                                                                   color={0,0,127}));
   connect(Filter.y, product1.u2) annotation (Line(points={{-73.6,-50},{-72,-50},
           {-72,66},{8,66}},                                                     color={0,0,127}));
-  connect(Control.y, product2.u1)
-    annotation (Line(points={{-15,46},{-10,46},{-10,8},{-30,8},{-30,0},{-24,0}},
-                                                       color={0,0,127}));
   connect(T, Control.u_m)
     annotation (Line(points={{-102,20},{-26,20},{-26,34}}, color={0,0,127}));
   connect(P_set_electricHeater, P_set_electricHeater) annotation (Line(
@@ -201,22 +215,16 @@ equation
   connect(limiter_HP.y, division.u1) annotation (Line(points={{54.4,-12},{66,
           -12},{66,-52},{-60,-52},{-60,-118},{-56,-118}},
                                                  color={0,0,127}));
-  connect(P_Heater.y, switch2.u1) annotation (Line(points={{-15.2,-133},{60.4,-133},
-          {60.4,-108.4}}, color={0,0,127}));
   connect(difference.y, greaterEqual.u1) annotation (Line(points={{-11,-108},{
           4.8,-111}},                  color={0,0,127}));
   connect(greaterEqual.u2, P_Heater.y) annotation (Line(points={{4.8,-116.6},{
           4.8,-133},{-15.2,-133}},
                                color={0,0,127}));
-  connect(and1.u1, Not1.y) annotation (Line(points={{25,-107},{24,-107},{24,-84},
-          {18.5,-84},{18.5,-83}}, color={255,0,255}));
   connect(greaterEqual.y, and1.u2) annotation (Line(points={{18.6,-111},{25,
           -111}},                     color={255,0,255}));
   connect(division.u2, product1.u2) annotation (Line(points={{-56,-130},{-72,
           -130},{-72,-58},{-68,-58},{-68,-44},{-72,-44},{-72,66},{8,66}},
                                                                  color={0,0,127}));
-  connect(product2.u2, product3.y) annotation (Line(points={{-24,-12},{-33.2,
-          -12}},          color={0,0,127}));
   connect(product3.u2, product1.u2) annotation (Line(points={{-51.6,-16.8},{-60,
           -16.8},{-60,12},{-42,12},{-42,66},{8,66}},
                            color={0,0,127}));
@@ -247,16 +255,12 @@ equation
     annotation (Line(points={{36.5,-107},{42.8,-106.8}}, color={255,0,255}));
   connect(switch2.u2, and2.y)
     annotation (Line(points={{60.4,-102},{56.6,-102}}, color={255,0,255}));
-  connect(and2.u1, switch1.u2) annotation (Line(points={{42.8,-102},{40,-102},{
-          40,-56},{74,-56},{74,0},{76.4,0}}, color={255,0,255}));
   connect(hysteresis_heater.uHigh, T_set) annotation (Line(points={{-10.42,
           -77.4},{-64,-77.4},{-64,46},{-102,46}}, color={0,0,127}));
   connect(add.u1, T_set) annotation (Line(points={{-24.8,-87.6},{-24,-87.6},{
           -24,-88},{-64,-88},{-64,46},{-102,46}}, color={0,0,127}));
   connect(T_set, Control.u_s)
     annotation (Line(points={{-102,46},{-38,46}}, color={0,0,127}));
-  connect(product2.y, Filter1.u) annotation (Line(points={{-1,-6},{4,-6},{4,-4},
-          {9.6,-4}}, color={0,0,127}));
   connect(product4.y, product1.u1)
     annotation (Line(points={{-5.2,78},{8,78}}, color={0,0,127}));
   connect(powerExpression.y, product4.u1) annotation (Line(
@@ -265,8 +269,8 @@ equation
       pattern=LinePattern.Dash));
   connect(P_SVE, product4.u2) annotation (Line(points={{-102,78},{-68,78},{-68,
           73.2},{-23.6,73.2}}, color={0,0,127}));
-  connect(product4.y, difference.u1) annotation (Line(points={{-5.2,78},{2,78},
-          {2,-56},{-52,-56},{-52,-108},{-28,-108}}, color={0,0,127}));
+  connect(product4.y, difference.u1) annotation (Line(points={{-5.2,78},{2,78},{
+          2,-50},{-52,-50},{-52,-108},{-28,-108}},  color={0,0,127}));
   connect(greaterEqual1.u1, Filter1.y) annotation (Line(points={{51.2,0},{20,0},
           {20,-4},{14.2,-4}}, color={0,0,127}));
   connect(limiter_HP.u, limiter_HP1.y)
@@ -279,13 +283,26 @@ equation
           {76,28},{42,28},{42,-15.2},{45.2,-15.2}}, color={0,0,127}));
   connect(gain.u, limiter_HP1.limit1) annotation (Line(points={{9,17},{9,4.5},{
           29.2,4.5},{29.2,-8.8}}, color={0,0,127}));
+  connect(lessThreshold.y, or1.u1) annotation (Line(points={{18.4,-66},{20,-66},
+          {20,-79},{23,-79}}, color={255,0,255}));
+  connect(or1.y, and2.u1) annotation (Line(points={{34.5,-79},{38,-79},{38,-102},
+          {42.8,-102}}, color={255,0,255}));
+  connect(onOffRelais.y, and1.u1) annotation (Line(points={{72.4,0},{72.4,-70},{
+          40,-70},{40,-98},{22,-98},{22,-107},{25,-107}}, color={255,0,255}));
+  connect(Not1.y, or1.u2)
+    annotation (Line(points={{18.5,-83},{23,-83}}, color={255,0,255}));
+  connect(switch2.u1, P_Heater.y) annotation (Line(points={{60.4,-108.4},{60.4,-133},
+    {-15.2,-133}}, color={0,0,127}));
+  connect(controlBus.ambientConditions.ambientTemperature,lessThreshold.u);
+  connect(Filter1.u, Control.y) annotation (Line(points={{9.6,-4},{-2,-4},{-2,46},
+          {-15,46}}, color={0,0,127}));
   annotation (Diagram(coordinateSystem(extent={{-100,-140},{100,100}}), graphics={
         Rectangle(
-          extent={{-46,-66},{22,-98}},
+          extent={{-48,-54},{36,-96}},
           lineColor={0,0,0},
           pattern=LinePattern.Dash),
         Text(
-          extent={{-48,-62},{22,-64}},
+          extent={{-48,-54},{22,-56}},
           lineColor={0,0,0},
           pattern=LinePattern.Dash,
           fontSize=8,
