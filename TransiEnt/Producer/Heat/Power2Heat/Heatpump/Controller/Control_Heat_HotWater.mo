@@ -46,6 +46,7 @@ model Control_Heat_HotWater
 
   parameter Integer n_HeaterStages(min=1)=1 "Discrete power stages of the electric heater (1 = on/off, 3 = thirds). Stage selected demand-based (storage temperature deficit) and capped by the available electric headroom." annotation (Dialog(group="Control parameters"));
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_stage=2 "Storage temperature deficit (T_set - T) that engages one additional heater stage (only used if n_HeaterStages > 1)" annotation (Dialog(group="Control parameters", enable=n_HeaterStages > 1));
+  parameter Modelica.Units.SI.TemperatureDifference Delta_T_hyst=1 "Switch-off deadband per heater stage; prevents event chattering at stage boundaries (only if n_HeaterStages > 1)" annotation (Dialog(group="Control parameters", enable=n_HeaterStages > 1));
 
 
 
@@ -70,13 +71,16 @@ model Control_Heat_HotWater
                  T_set + 2 * Delta_T_internal - T_source);
   //parameter Modelica.Units.SI.Power P_el_n=Q_flow_n/COP_n "Nominal electrical power of the heatpump";
 
-  // Demand-based staged electric heater command. The number of active stages
-  // follows the storage temperature deficit (T_set - T) in steps of
-  // Delta_T_stage, and is additionally capped by the number of stages the
-  // available electric headroom (difference.y = P_SVE*(P_elHeater+P_el_max)
-  // - P_HP_el) allows. n_HeaterStages=1 keeps the original on/off behaviour
-  // (constant P_elHeater, gated downstream by or1/onOffRelais/greaterEqual).
+  // Demand-based staged electric heater command. Each stage has its own
+  // hysteresis (per-stage on/off state stage_on[]), so the discrete stages do
+  // not chatter. Stage i engages when the storage temperature deficit
+  // (T_set - T) exceeds i*Delta_T_stage AND the available electric headroom
+  // (difference.y = P_SVE*(P_elHeater+P_el_max) - P_HP_el) covers i stages;
+  // it stays on within a deadband (Delta_T_hyst / a small headroom margin).
+  // n_HeaterStages=1 keeps the original on/off behaviour (constant P_elHeater,
+  // gated downstream by or1/onOffRelais/greaterEqual).
   Modelica.Units.SI.Power P_heater_stage "Staged electric heater power setpoint";
+  Boolean stage_on[n_HeaterStages](each start=false) "Per-stage on/off state of the electric heater (hysteresis)";
    //___________________________________________________________________________
    //
    //                      Variables
@@ -182,23 +186,30 @@ equation
   //            Characteristic equations
   // ___________________________________________________________________________
 
-  // Demand-based staged electric heater power. The active stage count is the
-  // smaller of (a) the stages called for by the storage temperature deficit
-  // (T_set - T) in steps of Delta_T_stage, and (b) the stages the available
-  // electric headroom (difference.y) can supply. This makes the heater step up
-  // on demand in normal operation and step down under curtailment.
-  // n_HeaterStages<=1 (or no heater) reproduces the original constant P_elHeater.
+  // Demand-based staged electric heater with per-stage hysteresis (event-stable,
+  // no floor()). Stage i turns ON when the storage deficit (T_set - T) exceeds
+  // i*Delta_T_stage AND the electric headroom (difference.y) covers i stages; it
+  // stays ON while the deficit is within a deadband (Delta_T_hyst) and the
+  // headroom still covers i stages. The deficit deadband stops the chattering at
+  // the demand side (the storage temperature is actively controlled near a stage
+  // threshold); the headroom uses the same threshold for on and stay so that the
+  // downstream greaterEqual power gate stays consistent (difference.y is stable
+  // anyway while the heat pump is saturated). hysteresis_heater.u carries the
+  // controlled storage temperature (= T, or SoC in SoC mode); using it instead of
+  // the conditional connector T keeps this valid in both control modes.
+  for i in 1:n_HeaterStages loop
+    stage_on[i] = if n_HeaterStages <= 1 then false
+      else ((T_set - hysteresis_heater.u) > i*Delta_T_stage
+                and difference.y > i*(P_elHeater/n_HeaterStages))
+           or (pre(stage_on[i])
+                and (T_set - hysteresis_heater.u) > i*Delta_T_stage - Delta_T_hyst
+                and difference.y > i*(P_elHeater/n_HeaterStages));
+  end for;
   if n_HeaterStages <= 1 or P_elHeater <= 0 then
     P_heater_stage = P_elHeater;
   else
-    // hysteresis_heater.u carries the controlled storage temperature (= T for
-    // temperature control, = SoC for SoC control); using it instead of the
-    // conditional connector T keeps this equation valid in both modes.
-    P_heater_stage = min(
-      P_elHeater,
-      (P_elHeater/n_HeaterStages) * min(
-        floor(max(0, T_set - hysteresis_heater.u) / Delta_T_stage),
-        floor(max(0, difference.y) / (P_elHeater/n_HeaterStages) + 1e-9)));
+    P_heater_stage = sum(if stage_on[i] then P_elHeater/n_HeaterStages else 0
+                         for i in 1:n_HeaterStages);
   end if;
 
 
