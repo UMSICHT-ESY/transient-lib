@@ -44,6 +44,9 @@ model Control_Heat_HotWater
 
   parameter Real Threshold=P_el_max*0.2 "Excess PV power to start heat pump operation" annotation (Dialog(group="Control parameters"));
 
+  parameter Integer n_HeaterStages(min=1)=1 "Discrete power stages of the electric heater (1 = on/off, 3 = thirds). Stage selected demand-based (storage temperature deficit) and capped by the available electric headroom." annotation (Dialog(group="Control parameters"));
+  parameter Modelica.Units.SI.TemperatureDifference Delta_T_stage=2 "Storage temperature deficit (T_set - T) that engages one additional heater stage (only used if n_HeaterStages > 1)" annotation (Dialog(group="Control parameters", enable=n_HeaterStages > 1));
+
 
 
   parameter Real k=0.1 "PI controller gain" annotation (Dialog(group="PI Controller"));
@@ -66,6 +69,14 @@ model Control_Heat_HotWater
            / max(2 * Delta_T_internal,
                  T_set + 2 * Delta_T_internal - T_source);
   //parameter Modelica.Units.SI.Power P_el_n=Q_flow_n/COP_n "Nominal electrical power of the heatpump";
+
+  // Demand-based staged electric heater command. The number of active stages
+  // follows the storage temperature deficit (T_set - T) in steps of
+  // Delta_T_stage, and is additionally capped by the number of stages the
+  // available electric headroom (difference.y = P_SVE*(P_elHeater+P_el_max)
+  // - P_HP_el) allows. n_HeaterStages=1 keeps the original on/off behaviour
+  // (constant P_elHeater, gated downstream by or1/onOffRelais/greaterEqual).
+  Modelica.Units.SI.Power P_heater_stage "Staged electric heater power setpoint";
    //___________________________________________________________________________
    //
    //                      Variables
@@ -85,7 +96,7 @@ model Control_Heat_HotWater
             {18,-78}})));
   Modelica.Blocks.Sources.RealExpression zero1(y=0) annotation (Placement(transformation(extent={{42,-90},
             {58,-74}})));
-  Modelica.Blocks.Sources.RealExpression P_Heater(y=P_elHeater) annotation (Placement(transformation(extent={{-8,-9},{8,9}},
+  Modelica.Blocks.Sources.RealExpression P_Heater(y=P_heater_stage) annotation (Placement(transformation(extent={{-8,-9},{8,9}},
         rotation=0,
         origin={-24,-133})));
   Modelica.Blocks.Logical.Switch switch2 annotation (Placement(transformation(
@@ -170,6 +181,25 @@ equation
   //
   //            Characteristic equations
   // ___________________________________________________________________________
+
+  // Demand-based staged electric heater power. The active stage count is the
+  // smaller of (a) the stages called for by the storage temperature deficit
+  // (T_set - T) in steps of Delta_T_stage, and (b) the stages the available
+  // electric headroom (difference.y) can supply. This makes the heater step up
+  // on demand in normal operation and step down under curtailment.
+  // n_HeaterStages<=1 (or no heater) reproduces the original constant P_elHeater.
+  if n_HeaterStages <= 1 or P_elHeater <= 0 then
+    P_heater_stage = P_elHeater;
+  else
+    // hysteresis_heater.u carries the controlled storage temperature (= T for
+    // temperature control, = SoC for SoC control); using it instead of the
+    // conditional connector T keeps this equation valid in both modes.
+    P_heater_stage = min(
+      P_elHeater,
+      (P_elHeater/n_HeaterStages) * min(
+        floor(max(0, T_set - hysteresis_heater.u) / Delta_T_stage),
+        floor(max(0, difference.y) / (P_elHeater/n_HeaterStages) + 1e-9)));
+  end if;
 
 
   // _____________________________________________
