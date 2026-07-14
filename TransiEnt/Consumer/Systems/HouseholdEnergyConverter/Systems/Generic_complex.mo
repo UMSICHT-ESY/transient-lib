@@ -67,7 +67,9 @@ model Generic_complex
   parameter Modelica.Units.SI.HeatFlowRate P_el_max=5.0e3 "Maximal electric Power of heat pump at 7°C/55°C" annotation (Dialog(group="Heatpump"));
   parameter Real COP_max=6.5 "Maximal coefficient of performance at high source temperatures" annotation (Dialog(group="Heatpump"));
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_elHeater=2 "Lack of storage temperature to switch on electric heater" annotation (HideResult=true, Dialog(group="Heatpump"));
-  parameter Modelica.Units.SI.Power P_el_Heater=4.5e3 "Nominal electric power of the backup heater" annotation (Dialog(group="Heatpump"));
+  parameter Modelica.Units.SI.Power P_el_Heater=4.5e3 "Nominal electric power of the backup heater" annotation (
+    Evaluate=false,
+    Dialog(group="Heatpump"));
   parameter Modelica.Units.SI.Efficiency eta_Heater=0.95 "Efficiency of the backup heater" annotation (HideResult=true, Dialog(group="Heatpump"));
   //parameter Modelica.Units.SI.Temperature T_set=55 + 273.25 "Heatpump supply temperature" annotation (Dialog(group="Heatpump"));
 
@@ -207,7 +209,7 @@ model Generic_complex
 
   Producer.Heat.Power2Heat.ElectricBoiler.ElectricBoiler                    electricHeater(
     change_sign=true,
-    usePelset=false,
+    usePelset=true,
     Q_flow_n=P_el_Heater*eta_Heater,
     eta=eta_Heater,
     useFluidPorts=false,
@@ -875,7 +877,7 @@ connect(product2.y,switch3. u3) annotation (Line(points={{-63.8,-10},{-64,-10},
           {-40.4,24},{-43.88,24},{-43.88,27.6}}, color={0,0,127}));
   connect(Tset2.y, min1.u2) annotation (Line(points={{-43.7,18},{-44,18.8},{-40.4,
           18.8}}, color={0,0,127}));
-  connect(control_Heat_HotWater.P_set_electricHeater, electricHeater.Q_flow_set)
+  connect(control_Heat_HotWater.P_set_electricHeater, electricHeater.P_el_set)
     annotation (Line(
       points={{16.5,-59.7},{44,-60.3},{53.72,-60.3}},
       color={0,135,135},
