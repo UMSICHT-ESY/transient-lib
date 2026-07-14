@@ -200,10 +200,10 @@ equation
   for i in 1:n_HeaterStages loop
     stage_on[i] = if n_HeaterStages <= 1 then false
       else ((T_set - hysteresis_heater.u) > i*Delta_T_stage
-                and difference.y > i*(P_elHeater/n_HeaterStages))
+                and difference.y >= i*(P_elHeater/n_HeaterStages))
            or (pre(stage_on[i])
                 and (T_set - hysteresis_heater.u) > i*Delta_T_stage - Delta_T_hyst
-                and difference.y > i*(P_elHeater/n_HeaterStages));
+                and difference.y >= i*(P_elHeater/n_HeaterStages));
   end for;
   if n_HeaterStages <= 1 or P_elHeater <= 0 then
     P_heater_stage = P_elHeater;
