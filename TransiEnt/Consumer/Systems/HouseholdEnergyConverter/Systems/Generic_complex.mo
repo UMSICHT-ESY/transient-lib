@@ -287,6 +287,13 @@ model Generic_complex
         extent={{4,-4},{-4,4}},
         rotation=0,
         origin={-26,92})));
+  Modelica.Blocks.Sources.RealExpression ambientTemperature_degC(
+    y=Modelica.Units.Conversions.to_degC(ambientTemperature.y))
+    "PVModule.T_in expects degC, the bus signal is in K"
+    annotation (Placement(transformation(
+        extent={{5,-4},{-5,4}},
+        rotation=0,
+        origin={-44,96})));
   Modelica.Blocks.Routing.RealPassThrough directSolarRadiation                                                          annotation (Placement(transformation(
         extent={{4,-4},{-4,4}},
         rotation=0,
@@ -636,10 +643,10 @@ equation
   connect(pVModule2.DNI_in, directSolarRadiation.y) annotation (Line(points={{-58,
           54.4},{-40,54.4},{-40,82},{-30.4,82}},
                                                color={0,0,127}));
-  connect(pVModule2.T_in, ambientTemperature.y) annotation (Line(points={{-58,60},
-          {-44,60},{-44,92},{-30.4,92}},   color={0,0,127}));
-  connect(pVModule1.T_in, ambientTemperature.y) annotation (Line(points={{-58,92},
-          {-30.4,92}},                                                                                         color={0,0,127}));
+  connect(pVModule2.T_in, ambientTemperature_degC.y) annotation (Line(points={{-58,60},
+          {-52,60},{-52,96},{-49,96}},     color={0,0,127}));
+  connect(pVModule1.T_in, ambientTemperature_degC.y) annotation (Line(points={{-58,92},
+          {-52,92},{-52,96},{-49,96}},                                                                         color={0,0,127}));
   connect(pVModule1.DNI_in, directSolarRadiation.y) annotation (Line(points={{-58,
           86.4},{-40,86.4},{-40,82},{-30.4,82}},                                                                       color={0,0,127}));
   connect(pVModule1.DHI_in, diffuseSolarRadiation.y) annotation (Line(points={{-58,

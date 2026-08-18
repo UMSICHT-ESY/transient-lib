@@ -48,6 +48,8 @@ model Control_Heat_HotWater
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_stage=2 "Storage temperature deficit (T_set - T) that engages one additional heater stage (only used if n_HeaterStages > 1)" annotation (Dialog(group="Control parameters", enable=n_HeaterStages > 1));
   parameter Modelica.Units.SI.TemperatureDifference Delta_T_hyst=1 "Switch-off deadband per heater stage; prevents event chattering at stage boundaries (only if n_HeaterStages > 1)" annotation (Dialog(group="Control parameters", enable=n_HeaterStages > 1));
 
+  parameter Modelica.Units.SI.Temperature T_amb_heaterRelease=293.15 "Electric heater is blocked above this ambient temperature (default: never blocked)" annotation (Dialog(group="Control parameters"));
+
 
 
   parameter Real k=0.1 "PI controller gain" annotation (Dialog(group="PI Controller"));
@@ -178,6 +180,10 @@ model Control_Heat_HotWater
     annotation (Placement(transformation(extent={{10,-70},{18,-62}})));
   Modelica.Blocks.Logical.Or or1
     annotation (Placement(transformation(extent={{24,-84},{34,-74}})));
+  Modelica.Blocks.Logical.LessThreshold heaterRelease(threshold=T_amb_heaterRelease)
+    annotation (Placement(transformation(extent={{24,-124},{32,-116}})));
+  Modelica.Blocks.Logical.And and3
+    annotation (Placement(transformation(extent={{42,-124},{52,-114}})));
   Basics.Interfaces.General.ControlBus controlBus                  annotation (Placement(transformation(extent={{-120,
             -120},{-80,-80}}),                                                                                                         iconTransformation(extent={{-120,-20},{-80,20}})));
 equation
@@ -294,8 +300,12 @@ equation
           {74,1.9984e-15},{74,0},{72.4,0}}, color={255,0,255}));
   connect(and1.y, and2.u2)
     annotation (Line(points={{36.5,-107},{42.8,-106.8}}, color={255,0,255}));
-  connect(switch2.u2, and2.y)
-    annotation (Line(points={{60.4,-102},{56.6,-102}}, color={255,0,255}));
+  connect(and2.y, and3.u1)
+    annotation (Line(points={{56.6,-102},{58,-102},{58,-112},{40,-112},{40,-119},{41,-119}}, color={255,0,255}));
+  connect(heaterRelease.y, and3.u2)
+    annotation (Line(points={{32.4,-120},{36,-120},{36,-123},{41,-123}}, color={255,0,255}));
+  connect(and3.y, switch2.u2)
+    annotation (Line(points={{52.5,-119},{56,-119},{56,-102},{60.4,-102}}, color={255,0,255}));
   connect(hysteresis_heater.uHigh, T_set) annotation (Line(points={{-10.42,
           -77.4},{-64,-77.4},{-64,46},{-102,46}}, color={0,0,127}));
   connect(add.u1, T_set) annotation (Line(points={{-24.8,-87.6},{-24,-87.6},{
@@ -335,6 +345,7 @@ equation
   connect(switch2.u1, P_Heater.y) annotation (Line(points={{60.4,-108.4},{60.4,-133},
     {-15.2,-133}}, color={0,0,127}));
   connect(controlBus.ambientConditions.ambientTemperature,lessThreshold.u);
+  connect(controlBus.ambientConditions.ambientTemperature,heaterRelease.u);
   connect(Filter1.u, Control.y) annotation (Line(points={{9.6,-4},{-2,-4},{-2,46},
           {-15,46}}, color={0,0,127}));
   annotation (Diagram(coordinateSystem(extent={{-100,-140},{100,100}}), graphics={
