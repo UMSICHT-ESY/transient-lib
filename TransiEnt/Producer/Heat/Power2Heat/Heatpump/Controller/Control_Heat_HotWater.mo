@@ -65,12 +65,12 @@ model Control_Heat_HotWater
 
 
 
-  Modelica.Units.SI.Power P_el_n=P_el_max - max(0,( 273.15 + 55 - T_set) / (55 - 35) * (P_el_max - Q_flow_n/COP_n));
-  Modelica.Units.SI.HeatFlowRate Q_HP_max = P_el_n
+    Modelica.Units.SI.Power P_el_n=max(0, P_el_max - max(0,( 273.15 + 55 - T_set) / (55 - 35) * (P_el_max - Q_flow_n/COP_n)));
+    Modelica.Units.SI.HeatFlowRate Q_HP_max = max(0, P_el_n
            * eta_HP
            * (T_set + Delta_T_internal)
            / max(2 * Delta_T_internal,
-                 T_set + 2 * Delta_T_internal - T_source);
+                   T_set + 2 * Delta_T_internal - T_source));
   //parameter Modelica.Units.SI.Power P_el_n=Q_flow_n/COP_n "Nominal electrical power of the heatpump";
 
   // Demand-based staged electric heater command. Each stage has its own
