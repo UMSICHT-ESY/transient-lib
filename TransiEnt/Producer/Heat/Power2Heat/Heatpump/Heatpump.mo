@@ -148,8 +148,10 @@ protected
   // _____________________________________________
 public
   Modelica.Blocks.Math.Division P_el annotation (Placement(transformation(extent={{-26,30},{-6,50}})));
-  Modelica.Blocks.Math.Min COP
+  Modelica.Blocks.Math.Min COP_raw
     annotation (Placement(transformation(extent={{-68,20},{-48,40}})));
+  Modelica.Blocks.Math.Max COP
+    annotation (Placement(transformation(extent={{-40,20},{-20,40}})));
 
   replaceable model heatFlowBoundaryModel =
   TransiEnt.Components.Boundaries.Heat.Heatflow_L1 constrainedby
@@ -213,6 +215,8 @@ public
             {60,68}})));
   Modelica.Blocks.Sources.RealExpression COPmax(y=COP_max)
     annotation (Placement(transformation(extent={{-98,-4},{-78,16}})));
+  Modelica.Blocks.Sources.RealExpression COPmin(y=1.0)
+    annotation (Placement(transformation(extent={{-70,-16},{-50,4}})));
   Modelica.Blocks.Sources.RealExpression Carnot(y=COP_Carnot*eta_HP)
     annotation (Placement(transformation(extent={{-100,26},{-80,46}})));
 equation
@@ -276,12 +280,16 @@ equation
     annotation (Line(points={{61,58},{116,58}}, color={0,0,127}));
   connect(firstOrder2.u, P_el.u1) annotation (Line(points={{38,58},{28,58},{28,
           72},{-74,72},{-74,46},{-28,46}}, color={0,0,127}));
-  connect(COP.u1, Carnot.y)
+    connect(COP_raw.u1, Carnot.y)
     annotation (Line(points={{-70,36},{-79,36}}, color={0,0,127}));
   connect(COP.y, P_el.u2) annotation (Line(points={{-47,30},{-34,30},{-34,34},{-28,
           34}}, color={0,0,127}));
-  connect(COPmax.y, COP.u2) annotation (Line(points={{-77,6},{-74,6},{-74,18},{-76,
+    connect(COPmax.y, COP_raw.u2) annotation (Line(points={{-77,6},{-74,6},{-74,18},{-76,
           18},{-76,24},{-70,24}}, color={0,0,127}));
+    connect(COP_raw.y, COP.u1) annotation (Line(points={{-47,30},{-40,30}},
+      color={0,0,127}));
+    connect(COPmin.y, COP.u2) annotation (Line(points={{-49,-6},{-44,-6},{-44,24},{-40,24}},
+      color={0,0,127}));
   connect(firstOrder2.y, heatFlowBoundary.Q_flow_prescribed) annotation (Line(
         points={{61,58},{64,58},{64,10},{0,10},{0,-50},{10,-50}}, color={0,0,
           127}));
